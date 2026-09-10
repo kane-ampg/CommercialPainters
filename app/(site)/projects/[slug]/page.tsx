@@ -1,0 +1,57 @@
+import type { Metadata } from 'next';
+import { notFound } from 'next/navigation';
+import { buildMetadata, metaDescription } from '@/lib/seo/metadata';
+import { site } from '@/lib/site';
+import { ProjectArticle } from '@/components/pages/project-article';
+import { getProject, getProjects, getService, getSiteSettings } from '@/lib/content/source';
+import { getSector } from '@/content/sectors';
+
+export async function generateStaticParams() {
+  return (await getProjects()).map((project) => ({ slug: project.slug }));
+}
+
+// Every project is in content/projects.ts at build time, so anything else is
+// a real 404 rather than a render attempt.
+export const dynamicParams = false;
+
+type Props = { params: Promise<{ slug: string }> };
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { slug } = await params;
+  const project = await getProject(slug);
+  if (!project) return {};
+
+  return buildMetadata({
+    // buildMetadata renders titles absolute, so the brand must be appended
+    // here — passing the bare project title shipped all four case studies
+    // unbranded in the SERP.
+    title: `${project.title} | ${site.name}`,
+    description: metaDescription(project.challenge),
+    path: `/projects/${project.slug}/`,
+    ogImage: project.images[0]?.src,
+    ogImageAlt: project.images[0]?.alt,
+  });
+}
+
+export default async function ProjectPage({ params }: Props) {
+  const { slug } = await params;
+  const project = await getProject(slug);
+  if (!project) notFound();
+
+  const sector = getSector(project.sectorSlug);
+  const [relatedServices, settings] = await Promise.all([
+    Promise.all(project.relatedServiceSlugs.map((serviceSlug) => getService(serviceSlug))).then(
+      (all) => all.filter((service) => service !== undefined),
+    ),
+    getSiteSettings(),
+  ]);
+
+  return (
+    <ProjectArticle
+      project={project}
+      sector={sector}
+      relatedServices={relatedServices}
+      settings={settings}
+    />
+  );
+}

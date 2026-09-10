@@ -1,0 +1,1413 @@
+{
+  "name": "Commercial Painters - free site assessment booking",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "commercial-painters/site-assessment",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "581a1770-9528-4da8-b469-c912d1e01f07",
+      "name": "Booking request received",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -420,
+        300
+      ],
+      "webhookId": "ab0efc87-dcf1-4d5a-be0a-5ad9535a6769"
+    },
+    {
+      "parameters": {
+        "jsCode": "// ---------------------------------------------------------------------------\n// EDIT THIS NODE AND (almost) NOTHING ELSE.\n// Every downstream node reads its configuration from here.\n// ---------------------------------------------------------------------------\nreturn [\n  {\n    json: {\n      config: {\n        timezone: 'Australia/Melbourne',\n\n        // Everyone who may take a site assessment. All of them are asked at\n        // once; the first to answer \"Yes\" owns the meeting. `calendarId` is\n        // normally the same as the work email.\n        // CONFIRM THESE ADDRESSES before going live.\n        team: [\n          {\n            key: 'kane',\n            name: 'Kane',\n            email: 'kane@apmgservices.com.au',\n            calendarId: 'kane@apmgservices.com.au',\n          },\n          {\n            key: 'farbod',\n            name: 'Farbod',\n            email: 'farbod@apmgservices.com.au',\n            calendarId: 'farbod@apmgservices.com.au',\n          },\n          {\n            key: 'simon',\n            name: 'Simon',\n            email: 'simon@apmgservices.com.au',\n            calendarId: 'simon@apmgservices.com.au',\n          },\n          {\n            key: 'zac',\n            name: 'Zac',\n            email: 'zac@apmgservices.com.au',\n            calendarId: 'zac@apmgservices.com.au',\n          },\n        ],\n\n        // Where the tentative hold and the final booking live. Use a shared\n        // \"Site assessments\" calendar if you have one; the Google account\n        // behind the Calendar credential must be able to write to it.\n        holdCalendarId: 'kane@apmgservices.com.au',\n\n        officeEmail: 'info@commercialpainters.com.au',\n        businessName: 'Commercial Painters',\n        businessPhone: '1300 97 97 40',\n        officeAddress: '1 Turbo Drive, Bayswater North VIC 3153',\n\n        // Online assessments are a short Google Meet. On-site visits are a\n        // walk-through, and the assessor needs travel time either side, which\n        // is held on the calendar but never shown to the client.\n        online: { durationMinutes: 30, startHours: [8, 9, 10, 11, 13, 14, 15, 16] },\n        onsite: { durationMinutes: 90, travelBufferMinutes: 45, startHours: [8, 10, 13, 15] },\n\n        // On-site visits are metropolitan Melbourne only - the same rule the\n        // website enforces. Anything else is routed to the office by hand.\n        onsiteRegion: 'melbourne',\n\n        workingHours: { startHour: 8, endHour: 17 },\n        leadTimeHours: 24, // never propose something in the next 24 hours\n        horizonDays: 14, // how far ahead to look for a slot\n        confirmWithinHours: 6, // how long the team has before the office is told\n        maxRounds: 4, // how many times a \"No\" may bounce to whoever is left\n      },\n    },\n  },\n];\n"
+      },
+      "id": "b5afff14-6c93-40ef-9c31-e44c1365338d",
+      "name": "Team and settings",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -200,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// ---------------------------------------------------------------------------\n// Turn the website's form payload into something a calendar can act on.\n//\n// Three jobs:\n//   1. Map the form's enum values to the labels a human reads.\n//   2. Decide whether this is bookable at all (complete? on-site in area?).\n//   3. Read the free-text \"preferred times\" and rank every bookable slot in\n//      the next fortnight against it, best first. The assessor still sees the\n//      client's own words in the approval email and can move the time.\n// ---------------------------------------------------------------------------\n\nconst cfg = $('Team and settings').first().json.config;\nconst incoming = $('Booking request received').first().json;\nconst body = incoming.body ?? incoming;\n\nconst text = (value) => String(value ?? '').trim();\n\nconst SITE_REGIONS = {\n  melbourne: 'Metropolitan Melbourne',\n  'regional-victoria': 'Elsewhere in Victoria',\n  interstate: 'Interstate',\n};\n\nconst ASSESSMENT_TYPES = {\n  onsite: 'On-site visit',\n  online: 'Online assessment',\n};\n\nconst PROPERTY_TYPES = {\n  'education-and-childcare': 'School or childcare',\n  healthcare: 'Healthcare or medical',\n  'aged-care-and-retirement': 'Aged care or retirement living',\n  'body-corporate-and-strata': 'Body corporate or strata',\n  retail: 'Retail',\n  hospitality: 'Hospitality or venue',\n  'leisure-and-sports': 'Leisure or sports facility',\n  industrial: 'Industrial or warehouse',\n  office: 'Office',\n  other: 'Something else',\n};\n\nconst booking = {\n  receivedAt: new Date().toISOString(),\n  name: text(body.name),\n  organisation: text(body.organisation),\n  email: text(body.email).toLowerCase(),\n  phone: text(body.phone),\n  siteRegion: text(body.siteRegion),\n  siteRegionLabel: SITE_REGIONS[text(body.siteRegion)] ?? text(body.siteRegion),\n  assessmentType: text(body.assessmentType),\n  assessmentTypeLabel: ASSESSMENT_TYPES[text(body.assessmentType)] ?? text(body.assessmentType),\n  propertyType: text(body.propertyType),\n  propertyTypeLabel: PROPERTY_TYPES[text(body.propertyType)] ?? text(body.propertyType),\n  siteAddress: text(body.siteAddress),\n  preferredTimes: text(body.preferredTimes),\n  notes: text(body.notes),\n};\n\n// -- 1. Is it bookable? -----------------------------------------------------\nconst problems = [];\nif (text(body.company_website)) problems.push('honeypot filled');\nif (booking.name.length < 2) problems.push('missing name');\nif (!/^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$/.test(booking.email)) problems.push('missing or invalid email');\nif (!ASSESSMENT_TYPES[booking.assessmentType]) problems.push('unknown assessment type');\n\nconst outOfArea = booking.assessmentType === 'onsite' && booking.siteRegion !== cfg.onsiteRegion;\n\nconst route = problems.length ? 'reject' : outOfArea ? 'out-of-area' : 'book';\n\nif (route !== 'book') {\n  return [{ json: { route, problems, outOfArea, booking, config: cfg, candidates: [] } }];\n}\n\n// -- 2. Read the client's preferred times -----------------------------------\nconst wanted = booking.preferredTimes.toLowerCase();\n\nconst DAY_WORDS = [\n  ['monday', 1],\n  ['mon', 1],\n  ['tuesday', 2],\n  ['tues', 2],\n  ['tue', 2],\n  ['wednesday', 3],\n  ['weds', 3],\n  ['wed', 3],\n  ['thursday', 4],\n  ['thurs', 4],\n  ['thur', 4],\n  ['thu', 4],\n  ['friday', 5],\n  ['fri', 5],\n];\n\nconst wantedDays = new Set();\nfor (const [word, weekday] of DAY_WORDS) {\n  if (new RegExp('\\\\b' + word + '\\\\b').test(wanted)) wantedDays.add(weekday);\n}\n\n/** Every clock time mentioned, as a decimal hour in 24h form. */\nfunction clockTimes(source) {\n  const found = [];\n  const withMeridiem = /\\b(\\d{1,2})(?:[:.](\\d{2}))?\\s*(am|pm)\\b/g;\n  const bareColon = /\\b(\\d{1,2}):(\\d{2})\\b/g;\n  let match;\n  while ((match = withMeridiem.exec(source)) !== null) {\n    let hour = Number(match[1]) % 12;\n    if (match[3] === 'pm') hour += 12;\n    found.push(hour + Number(match[2] ?? 0) / 60);\n  }\n  while ((match = bareColon.exec(source)) !== null) {\n    found.push(Number(match[1]) + Number(match[2]) / 60);\n  }\n  return found;\n}\n\nconst mentioned = clockTimes(wanted);\nconst afterMatch = /\\b(?:after|from)\\s+([^,.;]{1,12})/.exec(wanted);\nconst beforeMatch = /\\b(?:before|by|until|til|till)\\s+([^,.;]{1,12})/.exec(wanted);\nconst notBefore = afterMatch ? (clockTimes(afterMatch[1])[0] ?? null) : null;\nconst notAfter = beforeMatch ? (clockTimes(beforeMatch[1])[0] ?? null) : null;\n\n/** \"before Friday\" names a deadline, not a preference for Friday. */\nfunction weekdayIn(fragment) {\n  for (const [word, weekday] of DAY_WORDS) {\n    if (new RegExp('\\\\b' + word + '\\\\b').test(fragment)) return weekday;\n  }\n  return null;\n}\n\nconst afterWeekday = afterMatch ? weekdayIn(afterMatch[1]) : null;\nconst beforeWeekday = beforeMatch ? weekdayIn(beforeMatch[1]) : null;\nif (afterWeekday !== null) wantedDays.delete(afterWeekday);\nif (beforeWeekday !== null) wantedDays.delete(beforeWeekday);\n\nconst saysMorning = /\\b(morning|early)\\b/.test(wanted);\nconst saysAfternoon = /\\b(afternoon|arvo|late)\\b/.test(wanted);\nconst saysAnyTime = /\\b(any ?time|whenever|flexible|asap|as soon as)\\b/.test(wanted);\n\n// -- 3. Generate and rank the candidate slots -------------------------------\nconst shape = booking.assessmentType === 'online' ? cfg.online : cfg.onsite;\nconst buffer = shape.travelBufferMinutes ?? 0;\n\nconst now = DateTime.now().setZone(cfg.timezone);\nconst earliest = now.plus({ hours: cfg.leadTimeHours });\n\nfunction scoreSlot(start, daysAhead) {\n  let score = Math.max(0, 12 - daysAhead); // gentle preference for sooner\n  if (saysAnyTime) return score + 5;\n\n  const hour = start.hour + start.minute / 60;\n\n  if (wantedDays.size) score += wantedDays.has(start.weekday) ? 45 : -18;\n  if (saysMorning && !saysAfternoon) score += hour < 12 ? 22 : -12;\n  if (saysAfternoon && !saysMorning) score += hour >= 12 ? 22 : -12;\n\n  for (const target of mentioned) {\n    const gap = Math.abs(hour - target);\n    if (gap <= 0.25) score += 35;\n    else if (gap <= 1) score += 20;\n    else if (gap <= 2) score += 8;\n  }\n\n  // Softer than the day and daypart cues: \"Tuesday morning or Thursday after\n  // 2pm\" gives two alternatives, and scoring them as one rule would rule out\n  // the Tuesday the client actually offered.\n  if (notBefore !== null) score += hour >= notBefore ? 16 : -8;\n  if (notAfter !== null) score += hour + shape.durationMinutes / 60 <= notAfter ? 16 : -8;\n\n  if (beforeWeekday !== null) score += start.weekday < beforeWeekday ? 14 : -14;\n  if (afterWeekday !== null) score += start.weekday > afterWeekday ? 14 : -14;\n\n  return score;\n}\n\nconst candidates = [];\nfor (let dayOffset = 0; dayOffset <= cfg.horizonDays; dayOffset += 1) {\n  const day = now.plus({ days: dayOffset }).startOf('day');\n  if (day.weekday > 5) continue; // weekdays only\n\n  for (const startHour of shape.startHours) {\n    const start = day.set({ hour: startHour, minute: 0, second: 0, millisecond: 0 });\n    const end = start.plus({ minutes: shape.durationMinutes });\n\n    if (start < earliest) continue;\n    if (end.hour + end.minute / 60 > cfg.workingHours.endHour) continue;\n\n    candidates.push({\n      startIso: start.toISO(),\n      endIso: end.toISO(),\n      // The window that must be clear on the assessor's calendar. For an\n      // on-site visit that includes travel each way.\n      busyStartIso: start.minus({ minutes: buffer }).toISO(),\n      busyEndIso: end.plus({ minutes: buffer }).toISO(),\n      travelBufferMinutes: buffer,\n      durationMinutes: shape.durationMinutes,\n      human:\n        start.setLocale('en-AU').toFormat('cccc d LLLL') +\n        ', ' +\n        start.toFormat('h:mm a').toLowerCase() +\n        ' to ' +\n        end.toFormat('h:mm a').toLowerCase() +\n        ' (Melbourne time)',\n      score: scoreSlot(start, dayOffset),\n    });\n  }\n}\n\ncandidates.sort((a, b) => b.score - a.score || a.startIso.localeCompare(b.startIso));\n\nreturn [\n  {\n    json: {\n      route,\n      problems,\n      outOfArea,\n      booking,\n      config: cfg,\n      readPreferences: {\n        days: [...wantedDays],\n        times: mentioned,\n        notBefore,\n        notAfter,\n        saysMorning,\n        saysAfternoon,\n        saysAnyTime,\n      },\n      candidates: candidates.slice(0, 60),\n    },\n  },\n];\n"
+      },
+      "id": "86cd3399-c567-46d2-a9a2-b64165acce48",
+      "name": "Normalise the booking",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        20,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "391200c4-1eb4-4d89-b203-10465aa9c527",
+                    "leftValue": "={{ $json.route }}",
+                    "rightValue": "reject",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "reject"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "dec79530-c56d-4975-9766-7e486d1c2e86",
+                    "leftValue": "={{ $json.route }}",
+                    "rightValue": "out-of-area",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "out of area"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "517d9f0c-4a67-4205-9889-82303c3151f2",
+                    "leftValue": "={{ $json.route }}",
+                    "rightValue": "book",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "book it"
+            }
+          ]
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "id": "f09208f8-9b22-43ef-a130-8f0a2666a722",
+      "name": "Triage the request",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        240,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ ok: false, errors: $json.problems }) }}",
+        "options": {
+          "responseCode": 400
+        }
+      },
+      "id": "194c370d-d7d3-4915-89a1-bde2c11efeaa",
+      "name": "Reject the submission",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        460,
+        100
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ ok: true, status: 'received', message: 'Thanks - we will be in touch about this one by phone.' }) }}",
+        "options": {}
+      },
+      "id": "5e485211-4b44-4e44-ad01-899476b5e376",
+      "name": "Acknowledge (out of area)",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        460,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// ---------------------------------------------------------------------------\n// An on-site visit was asked for somewhere the business does not send people.\n// The website blocks this, so it only arrives here if the form was bypassed\n// or the rule has changed. It is a real enquiry either way - hand it over.\n// ---------------------------------------------------------------------------\n\nconst context = $input.first().json;\nconst { booking, config } = context;\n\nconst officeSubject = `On-site assessment requested outside Melbourne - ${booking.organisation}`;\n\nconst officeMessage = [\n  `${booking.name} at ${booking.organisation} asked for an on-site visit, but the site is in ${booking.siteRegionLabel}.`,\n  '',\n  `On-site visits are ${config.onsiteRegion === 'melbourne' ? 'metropolitan Melbourne' : config.onsiteRegion} only, so nothing has been booked and no calendar hold exists.`,\n  'Call them and either offer an online assessment or make a decision about the travel.',\n  '',\n  `SITE       ${booking.siteAddress}`,\n  `SECTOR     ${booking.propertyTypeLabel}`,\n  `REGION     ${booking.siteRegionLabel}`,\n  '',\n  'THEY ASKED FOR',\n  booking.preferredTimes || '(no preference given)',\n  '',\n  'NOTES',\n  booking.notes || '(none)',\n  '',\n  'CONTACT',\n  `${booking.name} - ${booking.phone} - ${booking.email}`,\n].join('\\n');\n\nreturn [{ json: { ...context, officeSubject, officeMessage } }];\n"
+      },
+      "id": "c8072b28-30f2-43d2-9d3e-6e089d5834c2",
+      "name": "Out of area for a site visit",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        680,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ ok: true, status: 'received', message: 'Thanks - your site assessment request is with us. We will confirm a time by email.' }) }}",
+        "options": {}
+      },
+      "id": "b2f8e6ab-354f-4c89-b324-4a766a980402",
+      "name": "Acknowledge the booking",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        460,
+        500
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://www.googleapis.com/calendar/v3/freeBusy",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleCalendarOAuth2Api",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ timeMin: $now.toISO(), timeMax: $now.plus({ days: $json.config.horizonDays + 1 }).toISO(), timeZone: $json.config.timezone, items: $json.config.team.map(m => ({ id: m.calendarId })) }) }}",
+        "options": {}
+      },
+      "id": "6f00db43-eb48-4807-8360-20e75c37f1c0",
+      "name": "Team availability (Google free-busy)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        680,
+        500
+      ],
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "REPLACE_WITH_GOOGLE_CALENDAR_CREDENTIAL",
+          "name": "Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// ---------------------------------------------------------------------------\n// Pick the time.\n//\n// The ranked candidates come from the client's own words. This node crosses\n// them with the team's real Google Calendar free/busy and keeps the best slot\n// that at least one assessor is actually free for. Nobody is assigned yet -\n// the team claims it themselves in the next step - so \"free\" here decides the\n// time, and the email says who was free when it was proposed.\n//\n// For an on-site visit the window tested against the calendars includes the\n// travel buffer either side, so a confirmed visit never lands back to back\n// with something across town.\n// ---------------------------------------------------------------------------\n\nconst setup = $('Normalise the booking').all(0, 0)[0].json;\nconst availability = $('Team availability (Google free-busy)').all(0, 0)[0].json;\n\nconst cfg = setup.config;\nconst calendars = availability.calendars ?? {};\n\n/** Busy intervals for one calendar, as [startMs, endMs] pairs. */\nfunction busyFor(calendarId) {\n  const entry = calendars[calendarId];\n  if (!entry) return { periods: [], readable: false };\n  if (Array.isArray(entry.errors) && entry.errors.length) return { periods: [], readable: false };\n  const periods = (entry.busy ?? []).map((p) => [Date.parse(p.start), Date.parse(p.end)]);\n  return { periods, readable: true };\n}\n\nconst teamBusy = cfg.team.map((member) => ({ member, ...busyFor(member.calendarId) }));\nconst unreadable = teamBusy.filter((t) => !t.readable).map((t) => t.member.name);\n\nfunction overlaps(periods, startMs, endMs) {\n  return periods.some(([busyStart, busyEnd]) => startMs < busyEnd && endMs > busyStart);\n}\n\nlet chosen = null;\nfor (const candidate of setup.candidates) {\n  const startMs = Date.parse(candidate.busyStartIso);\n  const endMs = Date.parse(candidate.busyEndIso);\n\n  const free = teamBusy\n    .filter((t) => !overlaps(t.periods, startMs, endMs))\n    .map((t) => t.member);\n\n  if (!free.length) continue;\n\n  // Preference first, but a slot more of the team can cover breaks the tie.\n  const weighted = candidate.score + free.length * 3;\n  if (!chosen || weighted > chosen.weighted) {\n    chosen = { slot: candidate, free, weighted };\n  }\n}\n\nif (!chosen) {\n  return [\n    {\n      json: {\n        ...setup,\n        slotFound: false,\n        reason: 'no-free-slot',\n        unreadableCalendars: unreadable,\n      },\n    },\n  ];\n}\n\nconst askEmails = cfg.team.map((m) => m.email);\n\nreturn [\n  {\n    json: {\n      ...setup,\n      slotFound: true,\n      slot: chosen.slot,\n      freeMembers: chosen.free.map((m) => m.name),\n      unreadableCalendars: unreadable,\n      // Who is being asked this round, and who has already said no.\n      round: 1,\n      declinedBy: [],\n      askKeys: cfg.team.map((m) => m.key),\n      askNames: cfg.team.map((m) => m.name),\n      askEmails: askEmails.join(','),\n    },\n  },\n];\n"
+      },
+      "id": "f50d8fc9-6252-4665-b724-331dd82a189f",
+      "name": "Pick the slot and who is free",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        900,
+        500
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "39ff2cba-1b84-4bab-87ec-c69f5da30bee",
+              "leftValue": "={{ $json.slotFound }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "id": "09fe5699-3dfc-4109-aab1-d9adf32af8a5",
+      "name": "Slot found?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1120,
+        500
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// ---------------------------------------------------------------------------\n// The diary had nothing. Either every working slot in the horizon collides\n// with something for all four of them, or the calendars could not be read.\n// Either way this is a human problem, not a retry.\n// ---------------------------------------------------------------------------\n\nconst context = $input.first().json;\nconst { booking, config } = context;\n\nconst officeSubject = `ACTION NEEDED: no free slot for ${booking.organisation}`;\n\nconst officeMessage = [\n  `A ${booking.assessmentTypeLabel.toLowerCase()} was requested and the next ${config.horizonDays} days are full for all of ${config.team.map((m) => m.name).join(', ')}.`,\n  '',\n  context.unreadableCalendars?.length\n    ? `Could not read the calendar for: ${context.unreadableCalendars.join(', ')}. That may be the real reason - check the Google Calendar credential has access.`\n    : '',\n  '',\n  'Nothing has been held and the client has NOT been given a time.',\n  '',\n  `SITE       ${booking.siteAddress}`,\n  `SECTOR     ${booking.propertyTypeLabel}`,\n  `REGION     ${booking.siteRegionLabel}`,\n  '',\n  'THEY ASKED FOR',\n  booking.preferredTimes || '(no preference given)',\n  '',\n  'NOTES',\n  booking.notes || '(none)',\n  '',\n  'CONTACT',\n  `${booking.name} - ${booking.phone} - ${booking.email}`,\n]\n  .filter((line) => line !== '')\n  .join('\\n');\n\nreturn [{ json: { ...context, officeSubject, officeMessage } }];\n"
+      },
+      "id": "ed0018dd-89bd-43c1-b65b-8f26e8330f86",
+      "name": "Nothing in the diary",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1340,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "1753f1d1-4469-4fda-8fca-fbd02c33537a",
+                    "leftValue": "={{ $json.booking.assessmentType }}",
+                    "rightValue": "online",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "online assessment"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "070a3f58-e40a-4589-ae59-1b87c6fffde3",
+                    "leftValue": "={{ $json.booking.assessmentType }}",
+                    "rightValue": "onsite",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "on-site visit"
+            }
+          ]
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "id": "6054610c-7b67-41b6-8881-5764ef9d52e3",
+      "name": "Online or on site?",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        1340,
+        580
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "event",
+        "operation": "create",
+        "calendar": {
+          "__rl": true,
+          "value": "={{ $json.config.holdCalendarId }}",
+          "mode": "id"
+        },
+        "start": "={{ $json.slot.startIso }}",
+        "end": "={{ $json.slot.endIso }}",
+        "useDefaultReminders": true,
+        "additionalFields": {
+          "summary": "={{ 'HOLD - online assessment - ' + $json.booking.organisation }}",
+          "description": "={{ ['TENTATIVE HOLD - nobody has confirmed this yet.', '', 'Client: ' + $json.booking.name + ' (' + $json.booking.organisation + ')', 'Phone: ' + $json.booking.phone, 'Email: ' + $json.booking.email, 'Sector: ' + $json.booking.propertyTypeLabel, 'Site: ' + $json.booking.siteAddress, 'Region: ' + $json.booking.siteRegionLabel, '', 'They asked for: ' + ($json.booking.preferredTimes || 'no preference given'), 'Notes: ' + ($json.booking.notes || 'none'), '', 'Free when this was proposed: ' + ($json.freeMembers || []).join(', ')].join('\\n') }}",
+          "conferenceDataUi": {
+            "conferenceDataValues": {
+              "conferenceSolution": "hangoutsMeet"
+            }
+          },
+          "guestsCanModify": true,
+          "sendUpdates": "none"
+        }
+      },
+      "id": "662fd816-19f7-4722-8be9-f78dec4f3664",
+      "name": "Hold the slot and make a Google Meet",
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1.3,
+      "position": [
+        1580,
+        480
+      ],
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "REPLACE_WITH_GOOGLE_CALENDAR_CREDENTIAL",
+          "name": "Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "event",
+        "operation": "create",
+        "calendar": {
+          "__rl": true,
+          "value": "={{ $json.config.holdCalendarId }}",
+          "mode": "id"
+        },
+        "start": "={{ $json.slot.startIso }}",
+        "end": "={{ $json.slot.endIso }}",
+        "useDefaultReminders": true,
+        "additionalFields": {
+          "summary": "={{ 'HOLD - site visit - ' + $json.booking.organisation }}",
+          "location": "={{ $json.booking.siteAddress }}",
+          "description": "={{ ['TENTATIVE HOLD - nobody has confirmed this yet.', '', 'Client: ' + $json.booking.name + ' (' + $json.booking.organisation + ')', 'Phone: ' + $json.booking.phone, 'Email: ' + $json.booking.email, 'Sector: ' + $json.booking.propertyTypeLabel, 'Site: ' + $json.booking.siteAddress, 'Region: ' + $json.booking.siteRegionLabel, '', 'They asked for: ' + ($json.booking.preferredTimes || 'no preference given'), 'Notes: ' + ($json.booking.notes || 'none'), '', 'Travel of ' + $json.slot.travelBufferMinutes + ' minutes each way is blocked on the assessor calendar once this is confirmed.', '', 'Free when this was proposed: ' + ($json.freeMembers || []).join(', ')].join('\\n') }}",
+          "guestsCanModify": true,
+          "sendUpdates": "none"
+        }
+      },
+      "id": "f5b1c325-a7dd-4293-9da9-f87b598c52f2",
+      "name": "Hold the slot for the site visit",
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1.3,
+      "position": [
+        1580,
+        700
+      ],
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "REPLACE_WITH_GOOGLE_CALENDAR_CREDENTIAL",
+          "name": "Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// ---------------------------------------------------------------------------\n// One item carrying everything the rest of the workflow needs: the booking,\n// the held slot, the calendar event, and the text of the email the team is\n// about to receive.\n//\n// Whichever of the two \"hold\" branches ran (online or on-site) arrives here,\n// so this is also where the two paths become one shape again.\n// ---------------------------------------------------------------------------\n\nconst context = $('Pick the slot and who is free').all(0, 0)[0].json;\nconst event = $input.first().json;\n\nconst { booking, config, slot } = context;\nconst online = booking.assessmentType === 'online';\n\nconst meetLink =\n  event.hangoutLink ??\n  (event.conferenceData?.entryPoints ?? []).find((e) => e.entryPointType === 'video')?.uri ??\n  '';\n\nconst lines = [\n  `${booking.name} at ${booking.organisation} has asked for a free site assessment.`,\n  '',\n  `WHAT       ${booking.assessmentTypeLabel}${online ? ' (Google Meet)' : ' (walk-through on site)'}`,\n  `WHEN       ${slot.human}`,\n  online\n    ? `MEET       ${meetLink || 'link on the calendar event'}`\n    : `WHERE      ${booking.siteAddress}`,\n  !online\n    ? `TRAVEL     ${slot.travelBufferMinutes} minutes is held either side of the visit`\n    : '',\n  '',\n  `SECTOR     ${booking.propertyTypeLabel}`,\n  `REGION     ${booking.siteRegionLabel}`,\n  `SITE       ${booking.siteAddress}`,\n  '',\n  'THEY ASKED FOR',\n  booking.preferredTimes || '(no preference given)',\n  '',\n  'NOTES',\n  booking.notes || '(none)',\n  '',\n  'CONTACT',\n  `${booking.name} - ${booking.phone} - ${booking.email}`,\n  '',\n  '---',\n  `Free at this time when the request came in: ${context.freeMembers.join(', ') || 'nobody'}.`,\n  context.unreadableCalendars?.length\n    ? `Could not read the calendar for: ${context.unreadableCalendars.join(', ')}. Check yourself before you say yes.`\n    : '',\n  context.declinedBy?.length\n    ? `Already passed: ${context.declinedBy.join(', ')}.`\n    : '',\n  '',\n  'Say YES and the client is sent a calendar invite immediately, with you on it',\n  online ? 'and the Google Meet link.' : 'and the site address.',\n  'Say NO and it goes to whoever is left. Nothing reaches the client until',\n  'one of you says yes.',\n  '',\n  `The hold expires and the office is told if nobody answers within ${config.confirmWithinHours} hours.`,\n];\n\nconst approvalMessage = lines.filter((line) => line !== '').join('\\n');\n\nconst approvalSubject =\n  `${context.round > 1 ? 'Still open: ' : ''}` +\n  `${booking.assessmentTypeLabel} - ${booking.organisation} - ${slot.human}`;\n\nreturn [\n  {\n    json: {\n      ...context,\n      event: {\n        id: event.id,\n        meetLink,\n        htmlLink: event.htmlLink ?? '',\n        calendarId: config.holdCalendarId,\n      },\n      approvalSubject,\n      approvalMessage,\n    },\n  },\n];\n"
+      },
+      "id": "808cc9a2-2a1b-4ca7-b770-bbd5dc847c41",
+      "name": "Package the request",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1800,
+        580
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "sendAndWait",
+        "sendTo": "={{ $json.askEmails }}",
+        "subject": "={{ $json.approvalSubject }}",
+        "message": "={{ $json.approvalMessage }}",
+        "responseType": "customForm",
+        "defineForm": "fields",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Who is confirming?",
+              "fieldType": "dropdown",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "Kane"
+                  },
+                  {
+                    "option": "Farbod"
+                  },
+                  {
+                    "option": "Simon"
+                  },
+                  {
+                    "option": "Zac"
+                  }
+                ]
+              },
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Can you attend this assessment?",
+              "fieldType": "dropdown",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "Yes - I will attend"
+                  },
+                  {
+                    "option": "No - I cannot"
+                  }
+                ]
+              },
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Anything to add (optional)",
+              "fieldType": "textarea"
+            }
+          ]
+        },
+        "options": {
+          "responseFormTitle": "Site assessment",
+          "responseFormDescription": "First yes takes it. Saying yes sends the client a calendar invitation straight away.",
+          "responseFormButtonLabel": "Send my answer",
+          "limitWaitTime": true,
+          "limitType": "afterTimeInterval",
+          "resumeAmount": "={{ $json.config.confirmWithinHours }}",
+          "resumeUnit": "hours",
+          "appendAttribution": false
+        }
+      },
+      "id": "da670325-e77d-476b-bafb-4b9c18138df2",
+      "name": "Ask the team - yes or no",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        2020,
+        580
+      ],
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "REPLACE_WITH_GMAIL_CREDENTIAL",
+          "name": "Gmail account (bookings)"
+        }
+      },
+      "webhookId": "362de7d4-5c46-4c53-9c4d-5d8e1ea68c80"
+    },
+    {
+      "parameters": {
+        "jsCode": "// ---------------------------------------------------------------------------\n// Read what came back from the team's Yes/No form and re-attach the booking\n// context, which the Gmail node does not carry through the wait.\n//\n// Three outcomes, and the Switch after this node routes on `outcome`:\n//   confirmed  - somebody said yes and named themselves\n//   declined   - somebody said no; it moves to whoever is left\n//   no-answer  - the wait timed out, or the reply made no sense\n// ---------------------------------------------------------------------------\n\nconst context =\n  $runIndex > 0\n    ? $('Note who cannot make it').all(0, $runIndex - 1)[0].json\n    : $('Package the request').all(0, 0)[0].json;\n\nconst raw = $input.first().json ?? {};\nconst answered = raw.data ?? raw;\n\nconst pick = (...keys) => {\n  for (const key of keys) {\n    const value = answered[key];\n    if (value !== undefined && value !== null && String(value).trim() !== '') {\n      return String(value).trim();\n    }\n  }\n  return '';\n};\n\nconst whoAnswered = pick('Who is confirming?', 'who', 'name');\nconst reply = pick('Can you attend this assessment?', 'answer', 'attend');\nconst note = pick('Anything to add (optional)', 'note', 'message');\n\nconst saidYes = /^yes/i.test(reply) || answered.approved === true;\nconst saidNo = /^no/i.test(reply) || answered.approved === false;\n\nconst matched = context.config.team.find(\n  (member) =>\n    member.name.toLowerCase() === whoAnswered.toLowerCase() ||\n    member.key === whoAnswered.toLowerCase(),\n);\n\nlet outcome = 'no-answer';\nif (saidYes && matched) outcome = 'confirmed';\nelse if (saidNo && matched) outcome = 'declined';\nelse if (saidYes || saidNo) outcome = 'no-answer'; // answered, but not identifiable\n\nreturn [\n  {\n    json: {\n      ...context,\n      outcome,\n      responder: matched ?? null,\n      responderNote: note,\n      rawReply: reply,\n      escalationReason:\n        outcome === 'no-answer'\n          ? reply\n            ? 'a reply came back that could not be matched to a team member'\n            : `nobody answered within ${context.config.confirmWithinHours} hours`\n          : '',\n      owner: outcome === 'confirmed' ? matched : null,\n    },\n  },\n];\n"
+      },
+      "id": "47bf74d0-fc88-4297-b1e9-0083864d80e4",
+      "name": "Read the team answer",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2240,
+        580
+      ]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "456b04f9-9ad6-4d07-9fa4-e19cd503a6ff",
+                    "leftValue": "={{ $json.outcome }}",
+                    "rightValue": "confirmed",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "yes"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "353ebfe2-cb46-451b-8140-41f32f9b7ac6",
+                    "leftValue": "={{ $json.outcome }}",
+                    "rightValue": "declined",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "no"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "5230efec-8f70-42ff-b479-786b165c2d9c",
+                    "leftValue": "={{ $json.outcome }}",
+                    "rightValue": "no-answer",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "no answer"
+            }
+          ]
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "id": "c7e0c339-b85e-4b3a-af67-ac8c71e95fc5",
+      "name": "What did they say?",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        2460,
+        580
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// ---------------------------------------------------------------------------\n// Somebody said yes. Everything the confirmation needs is worked out here,\n// before any calendar or email node runs, so the two branches below and the\n// emails after them all read from one place.\n// ---------------------------------------------------------------------------\n\nconst context = $input.first().json;\nconst { booking, config, slot, event, owner } = context;\nconst online = booking.assessmentType === 'online';\n\nconst finalSummary = online\n  ? `Site assessment (online) - ${booking.organisation}`\n  : `Site assessment (on site) - ${booking.organisation}`;\n\nconst finalDescription = [\n  `Free site assessment for ${booking.name} at ${booking.organisation}.`,\n  '',\n  `Type: ${booking.assessmentTypeLabel}`,\n  `Sector: ${booking.propertyTypeLabel}`,\n  `Site: ${booking.siteAddress}`,\n  `Region: ${booking.siteRegionLabel}`,\n  `Assessor: ${owner.name}`,\n  '',\n  `Client asked for: ${booking.preferredTimes || 'no preference given'}`,\n  `Notes from the client: ${booking.notes || 'none'}`,\n  '',\n  `Contact: ${booking.phone} / ${booking.email}`,\n  '',\n  `Booked automatically from the website. ${config.businessName} - ${config.businessPhone}`,\n].join('\\n');\n\n// A single block covering travel out, the walk-through, and travel back. It\n// sits on the assessor's own calendar, never on the client's invitation.\nconst travelBlock = online\n  ? null\n  : {\n      calendarId: owner.calendarId,\n      summary: `Travel + site assessment - ${booking.organisation}`,\n      startIso: slot.busyStartIso,\n      endIso: slot.busyEndIso,\n      description: [\n        `${slot.travelBufferMinutes} minutes travel either side of the ${slot.durationMinutes} minute walk-through.`,\n        `Site: ${booking.siteAddress}`,\n        `Client: ${booking.name} - ${booking.phone}`,\n      ].join('\\n'),\n    };\n\nconst clientSubject = online\n  ? `Confirmed: your online site assessment, ${slot.human}`\n  : `Confirmed: your site assessment at ${booking.siteAddress}, ${slot.human}`;\n\nconst clientBody = [\n  `Hi ${booking.name.split(' ')[0] || booking.name},`,\n  '',\n  online\n    ? `${owner.name} will meet you on Google Meet for your free site assessment.`\n    : `${owner.name} will come out to ${booking.siteAddress} for your free site assessment.`,\n  '',\n  `When:  ${slot.human}`,\n  online\n    ? `Join:  ${event.meetLink || 'the link is on the calendar invitation'}`\n    : `Where: ${booking.siteAddress}`,\n  `Who:   ${owner.name}, ${config.businessName}`,\n  `How long: about ${slot.durationMinutes} minutes`,\n  '',\n  'A calendar invitation is on its way to this address, so the time and',\n  online ? 'the Meet link sit in your diary.' : 'the address sit in your diary.',\n  '',\n  !online\n    ? 'If there is a sign-in process, an induction, or somewhere particular to park, reply and let us know so we arrive ready.'\n    : 'If you would like anyone else on the call, forward the invitation to them.',\n  '',\n  `Need to move it? Reply to this email or call ${config.businessPhone}.`,\n  '',\n  config.businessName,\n  config.businessPhone,\n  config.officeAddress,\n].filter((line) => line !== undefined).join('\\n');\n\nconst teamSubject = `Locked in: ${booking.organisation} - ${slot.human} - ${owner.name}`;\n\nconst teamBody = [\n  `${owner.name} has taken the ${booking.assessmentTypeLabel.toLowerCase()} for ${booking.organisation}.`,\n  '',\n  `When:  ${slot.human}`,\n  online ? `Meet:  ${event.meetLink}` : `Where: ${booking.siteAddress}`,\n  `Who:   ${booking.name}, ${booking.phone}, ${booking.email}`,\n  '',\n  !online\n    ? `${slot.travelBufferMinutes} minutes of travel is blocked either side on ${owner.name}'s calendar.`\n    : '',\n  context.declinedBy?.length ? `Passed: ${context.declinedBy.join(', ')}.` : '',\n  context.responderNote ? `${owner.name} added: \"${context.responderNote}\"` : '',\n  '',\n  'The client has been sent a calendar invitation and a confirmation email.',\n]\n  .filter((line) => line !== '')\n  .join('\\n');\n\nreturn [\n  {\n    json: {\n      ...context,\n      online,\n      finalSummary,\n      finalDescription,\n      attendees: [booking.email, owner.email],\n      travelBlock,\n      clientSubject,\n      clientBody,\n      teamSubject,\n      teamBody,\n    },\n  },\n];\n"
+      },
+      "id": "49a475b1-0d68-4e3b-a20a-a1be539ff890",
+      "name": "Lock it in",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2680,
+        380
+      ]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "dc9671c3-b49b-4d75-96c0-65d6f4b24852",
+                    "leftValue": "={{ $json.booking.assessmentType }}",
+                    "rightValue": "online",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "online assessment"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "06b14c0f-e19f-4322-99a9-096bba49b8a4",
+                    "leftValue": "={{ $json.booking.assessmentType }}",
+                    "rightValue": "onsite",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "on-site visit"
+            }
+          ]
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "id": "91920596-ec7c-4d4d-b8e9-797ef257c4e7",
+      "name": "Confirming online or on site?",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        2900,
+        380
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "event",
+        "operation": "update",
+        "calendar": {
+          "__rl": true,
+          "value": "={{ $json.event.calendarId }}",
+          "mode": "id"
+        },
+        "eventId": "={{ $json.event.id }}",
+        "updateFields": {
+          "summary": "={{ $json.finalSummary }}",
+          "description": "={{ $json.finalDescription }}",
+          "attendees": [
+            "={{ $json.booking.email }}",
+            "={{ $json.owner.email }}"
+          ],
+          "guestsCanInviteOthers": true,
+          "sendUpdates": "all"
+        }
+      },
+      "id": "c2ffac69-4129-4b3b-951c-6614c6bb4410",
+      "name": "Invite the client to the Meet",
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1.3,
+      "position": [
+        3140,
+        260
+      ],
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "REPLACE_WITH_GOOGLE_CALENDAR_CREDENTIAL",
+          "name": "Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "event",
+        "operation": "update",
+        "calendar": {
+          "__rl": true,
+          "value": "={{ $json.event.calendarId }}",
+          "mode": "id"
+        },
+        "eventId": "={{ $json.event.id }}",
+        "updateFields": {
+          "summary": "={{ $json.finalSummary }}",
+          "description": "={{ $json.finalDescription }}",
+          "location": "={{ $json.booking.siteAddress }}",
+          "attendees": [
+            "={{ $json.booking.email }}",
+            "={{ $json.owner.email }}"
+          ],
+          "guestsCanInviteOthers": true,
+          "sendUpdates": "all"
+        }
+      },
+      "id": "9c72e02e-aae4-4cc8-97e7-22a7c5d54fb9",
+      "name": "Invite the client to the site visit",
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1.3,
+      "position": [
+        3140,
+        500
+      ],
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "REPLACE_WITH_GOOGLE_CALENDAR_CREDENTIAL",
+          "name": "Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "event",
+        "operation": "create",
+        "calendar": {
+          "__rl": true,
+          "value": "={{ $('Lock it in').first().json.travelBlock.calendarId }}",
+          "mode": "id"
+        },
+        "start": "={{ $('Lock it in').first().json.travelBlock.startIso }}",
+        "end": "={{ $('Lock it in').first().json.travelBlock.endIso }}",
+        "useDefaultReminders": true,
+        "additionalFields": {
+          "summary": "={{ $('Lock it in').first().json.travelBlock.summary }}",
+          "description": "={{ $('Lock it in').first().json.travelBlock.description }}",
+          "location": "={{ $('Lock it in').first().json.booking.siteAddress }}",
+          "sendUpdates": "none",
+          "showMeAs": "opaque"
+        }
+      },
+      "id": "d47d7877-52ac-4894-9c1a-290b6252cc54",
+      "name": "Block the travel time",
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1.3,
+      "position": [
+        3360,
+        500
+      ],
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "REPLACE_WITH_GOOGLE_CALENDAR_CREDENTIAL",
+          "name": "Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "send",
+        "sendTo": "={{ $('Lock it in').first().json.booking.email }}",
+        "subject": "={{ $('Lock it in').first().json.clientSubject }}",
+        "emailType": "text",
+        "message": "={{ $('Lock it in').first().json.clientBody }}",
+        "options": {
+          "appendAttribution": false,
+          "replyTo": "={{ $('Lock it in').first().json.config.officeEmail }}",
+          "senderName": "={{ $('Lock it in').first().json.config.businessName }}"
+        }
+      },
+      "id": "81f037f8-436f-4719-8bbc-c0aba7a2970d",
+      "name": "Email the client the confirmation",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        3580,
+        380
+      ],
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "REPLACE_WITH_GMAIL_CREDENTIAL",
+          "name": "Gmail account (bookings)"
+        }
+      },
+      "webhookId": "7867c836-4b6d-4325-a659-ad57c7a78cd5"
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "send",
+        "sendTo": "={{ $('Lock it in').first().json.config.team.map(m => m.email).join(',') }}",
+        "subject": "={{ $('Lock it in').first().json.teamSubject }}",
+        "emailType": "text",
+        "message": "={{ $('Lock it in').first().json.teamBody }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "id": "2a17fceb-f1e6-411a-af8c-b517aaf3b56d",
+      "name": "Tell the team it is locked in",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        3800,
+        380
+      ],
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "REPLACE_WITH_GMAIL_CREDENTIAL",
+          "name": "Gmail account (bookings)"
+        }
+      },
+      "webhookId": "c7f27fb8-1d99-4d08-9696-b08ae4a9fb71"
+    },
+    {
+      "parameters": {
+        "jsCode": "// ---------------------------------------------------------------------------\n// Somebody passed. Take them off the list and re-ask whoever is left.\n//\n// The hold on the calendar stays exactly where it is: one person being busy\n// says nothing about the other three, and re-holding a slot invites a race.\n// It is only released if the list runs out or nobody answers.\n// ---------------------------------------------------------------------------\n\nconst context = $input.first().json;\nconst cfg = context.config;\n\nconst passed = context.responder;\nconst declinedBy = [...(context.declinedBy ?? []), passed?.name].filter(Boolean);\nconst declinedKeys = new Set(\n  [...(context.declinedKeys ?? []), passed?.key].filter(Boolean),\n);\n\nconst remaining = cfg.team.filter((member) => !declinedKeys.has(member.key));\nconst round = (context.round ?? 1) + 1;\nconst anyoneLeft = remaining.length > 0 && round <= cfg.maxRounds;\n\nconst passedLine = passed\n  ? `${passed.name} has passed${context.responderNote ? ` - \"${context.responderNote}\"` : ''}.`\n  : 'Someone has passed.';\n\nconst approvalMessage = [\n  `STILL OPEN. ${passedLine}`,\n  `Now with: ${remaining.map((m) => m.name).join(', ') || 'nobody'}.`,\n  '',\n  context.approvalMessage,\n].join('\\n');\n\nreturn [\n  {\n    json: {\n      ...context,\n      round,\n      declinedBy,\n      declinedKeys: [...declinedKeys],\n      askKeys: remaining.map((m) => m.key),\n      askNames: remaining.map((m) => m.name),\n      askEmails: remaining.map((m) => m.email).join(','),\n      anyoneLeft,\n      approvalSubject: `Still open: ${context.booking.assessmentTypeLabel} - ${context.booking.organisation} - ${context.slot.human}`,\n      approvalMessage,\n      escalationReason: anyoneLeft\n        ? ''\n        : `everyone passed (${declinedBy.join(', ')})`,\n      outcome: 'declined',\n      responder: null,\n      owner: null,\n    },\n  },\n];\n"
+      },
+      "id": "c0dc22a3-5f70-4323-bbf7-5c2a5cfcf068",
+      "name": "Note who cannot make it",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2680,
+        760
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "75c7bcaa-5b91-4680-8ca0-8cd0b53aabb0",
+              "leftValue": "={{ $json.anyoneLeft }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "id": "6ebd04c9-89ff-49ec-a9aa-6467630321c8",
+      "name": "Anyone left to ask?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2900,
+        760
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// ---------------------------------------------------------------------------\n// Nobody took it - either everyone passed or the wait ran out.\n//\n// The client has been told the request landed and that a time will be\n// confirmed by email. Nothing has been promised, so the honest move is to put\n// it in front of a human rather than auto-book somebody who never agreed.\n// ---------------------------------------------------------------------------\n\nconst context = $input.first().json;\nconst { booking, config, slot } = context;\n\nconst officeSubject = `ACTION NEEDED: ${booking.organisation} site assessment has no assessor`;\n\nconst officeMessage = [\n  `A site assessment request has not been picked up: ${context.escalationReason || 'no assessor confirmed'}.`,\n  '',\n  'The hold on the calendar has been released, so nothing is double-booked.',\n  'The client has NOT been given a time. They are expecting an email.',\n  '',\n  `WHAT       ${booking.assessmentTypeLabel}`,\n  `PROPOSED   ${slot?.human ?? 'no slot was proposed'}`,\n  `SITE       ${booking.siteAddress}`,\n  `SECTOR     ${booking.propertyTypeLabel}`,\n  `REGION     ${booking.siteRegionLabel}`,\n  '',\n  'THEY ASKED FOR',\n  booking.preferredTimes || '(no preference given)',\n  '',\n  'NOTES',\n  booking.notes || '(none)',\n  '',\n  'CONTACT',\n  `${booking.name} - ${booking.phone} - ${booking.email}`,\n  '',\n  context.declinedBy?.length ? `Passed: ${context.declinedBy.join(', ')}.` : '',\n  `Ring them on ${booking.phone} and sort a time by hand.`,\n]\n  .filter((line) => line !== '')\n  .join('\\n');\n\nreturn [{ json: { ...context, officeSubject, officeMessage } }];\n"
+      },
+      "id": "9909c08d-6e50-42ff-9e19-057fd1d324a7",
+      "name": "Nobody can take it",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3140,
+        880
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "event",
+        "operation": "delete",
+        "calendar": {
+          "__rl": true,
+          "value": "={{ $json.event.calendarId }}",
+          "mode": "id"
+        },
+        "eventId": "={{ $json.event.id }}",
+        "options": {}
+      },
+      "id": "1d607bfc-f546-472c-bf02-b21d018611a0",
+      "name": "Release the hold",
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1.3,
+      "position": [
+        3360,
+        980
+      ],
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "REPLACE_WITH_GOOGLE_CALENDAR_CREDENTIAL",
+          "name": "Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "send",
+        "sendTo": "={{ $json.config.officeEmail }}",
+        "subject": "={{ $json.officeSubject }}",
+        "emailType": "text",
+        "message": "={{ $json.officeMessage }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "id": "5c8d44a2-ce2a-41b3-900d-66aaa46c9772",
+      "name": "Alert the office",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        3360,
+        800
+      ],
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "REPLACE_WITH_GMAIL_CREDENTIAL",
+          "name": "Gmail account (bookings)"
+        }
+      },
+      "webhookId": "6ee2e2bc-6c43-4e3f-ac4a-ea6e3360599b"
+    },
+    {
+      "parameters": {
+        "content": "## Before this runs\n\n1. **Team and settings** node - put the real work emails and calendar IDs in. Nothing else needs editing.\n2. Connect a **Google Calendar** credential (the account must be able to write to the hold calendar and read the four team calendars) and a **Gmail** credential.\n3. Save and activate, then copy the **production** webhook URL from the first node.\n4. Point the website at it: set `ENQUIRY_TRANSPORT=n8n` and `N8N_BOOKING_WEBHOOK_URL=<that URL>` once the webhook transport is added in `lib/enquiry/transport.ts`.\n\nIt expects the form payload as JSON: `name, organisation, email, phone, siteRegion, assessmentType, propertyType, siteAddress, preferredTimes, notes`.",
+        "width": 620,
+        "height": 400,
+        "color": 7
+      },
+      "id": "e0ca0345-6a73-4244-8219-dc2160971ec4",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -460,
+        -140
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Choosing the time\n\nThe form asks for preferred times as free text. **Normalise the booking** reads it (weekdays, \"morning\", \"after 2pm\", \"Thursday 10:30\") and ranks every working slot in the next fortnight against it.\n\n**Pick the slot and who is free** crosses that ranking with real Google Calendar free/busy for all four and keeps the best slot at least one of them can actually make.",
+        "width": 440,
+        "height": 380,
+        "color": 5
+      },
+      "id": "cd6b9dfe-220d-4890-9c21-5e17bb00a06d",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        860,
+        60
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Online vs on site\n\n**Online** - 30 minutes, a Google Meet link is created on the event, no address needed.\n\n**On site** - 90 minutes at the site address, and 45 minutes of travel each way must be free on the calendar before the slot is offered. The travel block is only written once someone confirms.\n\nOn-site visits outside metropolitan Melbourne never reach this point - they go to the office instead.",
+        "width": 420,
+        "height": 360,
+        "color": 4
+      },
+      "id": "8be0add5-ae72-428f-9574-f914c9320240",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1340,
+        860
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## The handshake\n\nAll four are emailed at once with a short form: **who are you** and **yes or no**.\n\n- **First yes wins.** The client is then sent a real calendar invitation with the Meet link or the address, plus a confirmation email.\n- **A no** takes that person off the list and re-asks whoever is left. The hold stays put.\n- **Nobody answers in 6 hours, or everyone passes** - the hold is released and the office is told. The client is never given a time nobody agreed to.",
+        "width": 460,
+        "height": 400,
+        "color": 3
+      },
+      "id": "c9526fe0-c3fc-4f19-994d-ce1c0bc84b13",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        2020,
+        100
+      ]
+    }
+  ],
+  "connections": {
+    "Booking request received": {
+      "main": [
+        [
+          {
+            "node": "Team and settings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Team and settings": {
+      "main": [
+        [
+          {
+            "node": "Normalise the booking",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalise the booking": {
+      "main": [
+        [
+          {
+            "node": "Triage the request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Triage the request": {
+      "main": [
+        [
+          {
+            "node": "Reject the submission",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Acknowledge (out of area)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Acknowledge the booking",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Acknowledge (out of area)": {
+      "main": [
+        [
+          {
+            "node": "Out of area for a site visit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Out of area for a site visit": {
+      "main": [
+        [
+          {
+            "node": "Alert the office",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Acknowledge the booking": {
+      "main": [
+        [
+          {
+            "node": "Team availability (Google free-busy)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Team availability (Google free-busy)": {
+      "main": [
+        [
+          {
+            "node": "Pick the slot and who is free",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pick the slot and who is free": {
+      "main": [
+        [
+          {
+            "node": "Slot found?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Slot found?": {
+      "main": [
+        [
+          {
+            "node": "Online or on site?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Nothing in the diary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Nothing in the diary": {
+      "main": [
+        [
+          {
+            "node": "Alert the office",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Online or on site?": {
+      "main": [
+        [
+          {
+            "node": "Hold the slot and make a Google Meet",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Hold the slot for the site visit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Hold the slot and make a Google Meet": {
+      "main": [
+        [
+          {
+            "node": "Package the request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Hold the slot for the site visit": {
+      "main": [
+        [
+          {
+            "node": "Package the request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Package the request": {
+      "main": [
+        [
+          {
+            "node": "Ask the team - yes or no",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ask the team - yes or no": {
+      "main": [
+        [
+          {
+            "node": "Read the team answer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read the team answer": {
+      "main": [
+        [
+          {
+            "node": "What did they say?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "What did they say?": {
+      "main": [
+        [
+          {
+            "node": "Lock it in",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Note who cannot make it",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Nobody can take it",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lock it in": {
+      "main": [
+        [
+          {
+            "node": "Confirming online or on site?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Confirming online or on site?": {
+      "main": [
+        [
+          {
+            "node": "Invite the client to the Meet",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Invite the client to the site visit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Invite the client to the site visit": {
+      "main": [
+        [
+          {
+            "node": "Block the travel time",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Invite the client to the Meet": {
+      "main": [
+        [
+          {
+            "node": "Email the client the confirmation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Block the travel time": {
+      "main": [
+        [
+          {
+            "node": "Email the client the confirmation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email the client the confirmation": {
+      "main": [
+        [
+          {
+            "node": "Tell the team it is locked in",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Note who cannot make it": {
+      "main": [
+        [
+          {
+            "node": "Anyone left to ask?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Anyone left to ask?": {
+      "main": [
+        [
+          {
+            "node": "Ask the team - yes or no",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Nobody can take it",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Nobody can take it": {
+      "main": [
+        [
+          {
+            "node": "Release the hold",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Alert the office",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Australia/Melbourne",
+    "saveManualExecutions": true
+  },
+  "tags": []
+}

@@ -1,0 +1,309 @@
+import Link from 'next/link';
+import type { ReactNode } from 'react';
+import { projects } from '@/content/projects';
+import type { Project } from '@/lib/content/types';
+import { ANCHORS, type Coords } from '@/lib/geo/anchors';
+import { distanceKm } from '@/lib/geo/haversine';
+import {
+  displayName,
+  getLocalityByHref,
+  getRegion,
+  hrefForVicSlug,
+  type Locality,
+} from '@/lib/locations';
+import { Card, SectionHeading } from '@/components/ui';
+
+/**
+ * The shared, presentational pieces of a locality page.
+ *
+ * Everything here takes a `Locality` and renders it. Nothing fetches, and
+ * nothing decides indexability — that is settled in lib/locations.
+ *
+ * Queensland copy discipline (spec §9): the business has no Queensland address, no
+ * Queensland phone number and no completed Queensland project. Any sentence
+ * that could imply a footprint branches on `locality.state`, and Queensland
+ * copy describes the place and what the business services rather than a presence in it.
+ */
+
+/**
+ * Distance bucketed into a drive band.
+ *
+ * A precise "23.4km" reads as false precision on a page nobody measured the
+ * drive for, and it is the band a facilities manager actually cares about:
+ * whether a crew can be on site within the hour.
+ */
+export function driveBand(distanceKm: number): string {
+  if (distanceKm < 15) return 'under 20 minutes';
+  if (distanceKm < 30) return '20 to 40 minutes';
+  if (distanceKm < 45) return '40 to 60 minutes';
+  return 'over an hour';
+}
+
+/**
+ * The reference point a locality's `distanceKm` was measured from.
+ *
+ * The fallback is state-correct rather than convenient: every generated
+ * locality carries an in-radius anchor key, but if a hand-edit ever broke that
+ * a bare `?? 'Melbourne'` would print "…from Melbourne" on a Brisbane page,
+ * which is a fabricated fact rather than a vague one.
+ */
+function anchorLabel(locality: Locality): string {
+  const anchor = ANCHORS.find((a) => a.key === locality.anchorKey);
+  if (anchor) return anchor.label;
+  return locality.state === 'VIC' ? 'Melbourne' : 'Brisbane';
+}
+
+/** Whole kilometres above 10, one decimal below — 0.4km is a fact, 23.4km is noise. */
+function km(value: number): string {
+  return value < 10 ? `${value.toFixed(1)}km` : `${Math.round(value)}km`;
+}
+
+/**
+ * Project positions, resolved through relatedLocationSlugs.
+ *
+ * content/projects.ts carries no coordinates — only a `location` string and
+ * `relatedLocationSlugs`. Those slugs are un-prefixed and match the generated
+ * locality slugs, so a project's position is its related locality's position.
+ *
+ * State-qualified to VIC: every documented project is Victorian, and
+ * 'brighton' alone would resolve to Queensland's Brighton just as readily.
+ * Two of the four projects carry an empty `relatedLocationSlugs`, so the
+ * locality half of the `location` string ("Noble Park, Victoria") is tried as
+ * a second key — transcribed, not guessed. A project that still resolves to
+ * nothing (the NDIS programme, whose location is "Across metropolitan
+ * Melbourne") has no position and is excluded rather than given a made-up one.
+ */
+export function projectPositions(): { project: Project; coords: Coords }[] {
+  return projects.flatMap((project) => {
+    const suburb = project.location.split(',')[0] ?? '';
+    const candidates = [
+      ...project.relatedLocationSlugs,
+      suburb
+        .trim()
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-|-$/g, ''),
+    ];
+    for (const slug of candidates) {
+      const href = hrefForVicSlug(slug);
+      const locality = href ? getLocalityByHref(href) : undefined;
+      if (locality) return [{ project, coords: locality.coords }];
+    }
+    return [];
+  });
+}
+
+const POSITIONS = projectPositions();
+
+/** Nearest documented project to a locality, with the distance to it. */
+export function nearestProject(locality: Locality): { project: Project; km: number } | undefined {
+  let best: { project: Project; km: number } | undefined;
+  for (const { project, coords } of POSITIONS) {
+    const d = distanceKm(locality.coords, coords);
+    if (!best || d < best.km) best = { project, km: d };
+  }
+  return best;
+}
+
+function Fact({ label, children }: { label: string; children: ReactNode }) {
+  return (
+    <div>
+      <dt className="text-xs font-semibold uppercase tracking-label text-ink-muted">{label}</dt>
+      <dd className="mt-1 text-sm text-ink">{children}</dd>
+    </div>
+  );
+}
+
+const factLink =
+  'rounded underline decoration-paper-edge underline-offset-4 hover:decoration-brand-600 ' +
+  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600';
+
+/**
+ * Region, council, postcode and — in Victoria only — the drive band.
+ *
+ * The fourth fact used to be a distance-and-drive-band on every page in both
+ * states. In Victoria that is a real fact: the business works from Bayswater North,
+ * every VIC locality's `distanceKm` is measured from it, and "a drive of 20 to
+ * 40 minutes" is the thing a facilities manager is actually asking about.
+ *
+ * In Queensland it was neither true nor even coherent. The QLD anchor labels
+ * are region names, so `/areas/queensland/brisbane-inner/brisbane-city/` read
+ * "0.0km from Brisbane — a drive of under 20 minutes" and Southport read
+ * "0.5km from Gold Coast": a tautology on 542 pages and a bare proximity claim
+ * on the other 370. Worse, no base was named, so "a drive of under 20 minutes"
+ * read as the business's mobilisation time to that suburb — the strongest presence
+ * implication anywhere on the site, and false. The business has no Queensland address,
+ * crew or phone number.
+ *
+ * So Queensland gets a different fourth fact, one that is true: how the business
+ * services the suburb, and the absence a reader needs in order to read the rest
+ * of the page correctly. No distance, no drive time, no anchor.
+ * tests/unit/qld-copy.test.ts renders this card for every Queensland locality
+ * and fails if any distance or drive-time phrasing reappears.
+ */
+export function LocalityFacts({ locality }: { locality: Locality }) {
+  const label = anchorLabel(locality);
+  const band = driveBand(locality.distanceKm);
+  const state = locality.state === 'VIC' ? 'victoria' : 'queensland';
+  const name = displayName(locality.name);
+  const region = getRegion(locality.regionSlug)?.name ?? locality.regionSlug;
+
+  return (
+    <Card>
+      <dl className="grid gap-5 sm:grid-cols-2">
+        <Fact label="Region">
+          <Link href={`/areas/${state}/${locality.regionSlug}/`} className={factLink}>
+            {region}
+          </Link>
+        </Fact>
+        <Fact label={locality.postcodes.length > 1 ? 'Postcodes' : 'Postcode'}>
+          {locality.postcodes.join(', ')}
+        </Fact>
+        <Fact label="Local government area">{locality.council.name}</Fact>
+        {locality.state === 'VIC' ? (
+          <Fact label="Distance">
+            {/* "a drive of under 20 minutes", not "roughly a under 20 minutes
+                drive" — the band is a phrase, not an adjective.
+
+                `slug === anchorKey` is the locality that IS the anchor:
+                Bayswater North, which is both the business's own suburb and a Tier 1
+                indexed page. Its dataset centroid sits 2.2km from the anchor
+                centroid, so the general branch printed "2.2km from our
+                Bayswater North base" on the Bayswater North page. */}
+            {locality.slug === locality.anchorKey
+              ? `Our ${label} base is in ${name} itself.`
+              : `${km(locality.distanceKm)} from our ${label} base — a drive of ${band}.`}
+          </Fact>
+        ) : (
+          <Fact label="How it is serviced">
+            {`Quoted and programmed as part of ${region}. Commercial Painters works from Victoria and holds no Queensland address or crew, so access and travel are priced per site.`}
+          </Fact>
+        )}
+      </dl>
+    </Card>
+  );
+}
+
+/** Council building stock and the operational note that follows from it. */
+export function CouncilBlock({ locality }: { locality: Locality }) {
+  return (
+    <div>
+      <SectionHeading className="mb-4">{locality.council.name} building stock</SectionHeading>
+      <div className="max-w-prose space-y-4 text-ink-soft">
+        <p>{locality.council.buildingStock}</p>
+        <p>{locality.council.note}</p>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Nearest documented project.
+ *
+ * Victoria only. Every documented project is Victorian, so on a
+ * Queensland page the nearest one is over a thousand kilometres away, and
+ * printing that distance beside a Queensland suburb name would read as a claim
+ * about work there. The block states the absence plainly instead.
+ */
+export function NearestProjectBlock({ locality }: { locality: Locality }) {
+  const name = displayName(locality.name);
+  const nearest = locality.state === 'VIC' ? nearestProject(locality) : undefined;
+
+  return (
+    <div>
+      <SectionHeading className="mb-4">Nearest documented project</SectionHeading>
+      <div className="max-w-prose space-y-4 text-ink-soft">
+        {nearest ? (
+          <p>
+            The closest project written up on this site is{' '}
+            <Link href={`/projects/${nearest.project.slug}/`} className={factLink}>
+              {nearest.project.title}
+            </Link>
+            {/* A project resolved to this very locality is 0.0km away, and
+                "about 0.0km from Vermont" is not a fact anyone can use. */}
+            {nearest.km < 1 ? `, in ${name} itself.` : `, about ${km(nearest.km)} from ${name}.`}
+          </p>
+        ) : (
+          <p>
+            No Queensland project is documented on this site. The case studies here are Victorian,
+            and are published as a record of that work rather than as a claim about {name}.{' '}
+            <Link href="/projects/" className={factLink}>
+              See the projects
+            </Link>
+            .
+          </p>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/**
+ * The six nearest localities, as links. Traversable from noindex pages too.
+ *
+ * The 207 rural-fringe localities carry no neighbours at all — they are held
+ * out of every neighbour list on purpose, because a farm township is not a
+ * neighbouring suburb in any sense a facilities manager would use the word.
+ * Returning null there left a hole in one of the six facts spec §8 requires on
+ * every suburb page, so the slot now says what is true of those places instead
+ * and points at the region hub, which is the genuinely useful nearby link.
+ *
+ * What it must not do is turn that data rule into a claim about the map. This
+ * block used to read "{name} has no adjoining suburb — what surrounds it is
+ * farmland and township", asserted on all 207 fringe pages, and it is simply
+ * false: Powelltown adjoins Yarra Junction and Three Bridges, both of which
+ * have pages on this site. An empty `neighbourHrefs` is a decision about which
+ * localities are worth linking, not a fact about what physically borders the
+ * place. The copy now says which of the two it is.
+ */
+export function NearbySuburbs({ locality }: { locality: Locality }) {
+  const neighbours = locality.neighbourHrefs
+    .map((href) => getLocalityByHref(href))
+    .filter((l): l is Locality => l !== undefined);
+
+  const name = displayName(locality.name);
+  const region = getRegion(locality.regionSlug);
+  const regionHref = `/areas/${locality.state === 'VIC' ? 'victoria' : 'queensland'}/${locality.regionSlug}/`;
+
+  if (neighbours.length === 0) {
+    return (
+      <div>
+        <SectionHeading className="mb-4">Nearby</SectionHeading>
+        <div className="max-w-prose space-y-4 text-ink-soft">
+          <p>
+            The suburb-to-suburb links elsewhere on this site are built from the commercial
+            localities only, and {name} is farmland and township — so the localities around it are
+            listed on the region hub rather than linked from here.{' '}
+            <Link href={regionHref} className={factLink}>
+              {region?.name ?? locality.regionSlug}
+            </Link>{' '}
+            is the wider area {name} sits in, and lists every locality covered.
+          </p>
+          <p>
+            Worth saying what that rural setting means for a job rather than for a link list: travel
+            and mobilisation are a real share of the cost out here, and a rural site cannot be
+            assumed to have hardstand for a lift or three-phase power.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      <SectionHeading className="mb-4">Nearby suburbs</SectionHeading>
+      <ul className="flex flex-wrap gap-2">
+        {neighbours.map((neighbour) => (
+          <li key={neighbour.href}>
+            <Link
+              href={neighbour.href}
+              className="inline-block rounded-md border border-paper-edge px-3 py-2 text-sm text-ink-soft hover:bg-paper-sunken hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600"
+            >
+              {displayName(neighbour.name)}
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}

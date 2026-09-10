@@ -1,0 +1,413 @@
+import type { Metadata } from 'next';
+import Image from 'next/image';
+import Link from 'next/link';
+import { buildMetadata } from '@/lib/seo/metadata';
+import { Breadcrumbs } from '@/components/navigation/breadcrumbs';
+import { SiteAssessmentForm } from '@/components/forms/enquiry-forms';
+import { GoogleMark } from '@/components/sections/review-parts';
+import { ButtonLink, Container, microLabel, Section, SectionHeading } from '@/components/ui';
+import { googleAggregate } from '@/content/reviews';
+import { getPage, getSiteSettings } from '@/lib/content/source';
+import {
+  accreditationLogos,
+  assessors,
+  directionsUrl,
+  formatAddress,
+  phoneHref,
+  site,
+} from '@/lib/site';
+import type { SiteSettings } from '@/lib/content/types';
+import { cn } from '@/lib/utils';
+
+/**
+ * Contact page.
+ *
+ * The copy comes from `getPage('contact-us')` and the contact facts from
+ * `getSiteSettings()`; the form itself is code because it is validation and a
+ * Server Action, not copy.
+ */
+export async function generateMetadata(): Promise<Metadata> {
+  const copy = await getPage('contact-us');
+  return buildMetadata({
+    title: copy.metaTitle,
+    description: copy.metaDescription,
+    path: '/contact-us/',
+  });
+}
+
+/**
+ * Contact.
+ *
+ * The one page on the site where the visitor has already decided. Everything
+ * here is arranged around that: the three ways to reach the team sit above the
+ * form rather than under it, because a facilities manager with a phone in
+ * their hand should never have to scroll past a fourteen-field form to find a
+ * number — and the form itself is given a column of reassurance beside it
+ * instead of standing alone in a narrow measure, which is what it did before.
+ *
+ * The masthead is the only dark full-bleed opening outside the homepage fold,
+ * and it is earned: the photograph is the signed depot with the whole fleet in
+ * front of it, which answers "are these people real" faster than any sentence
+ * on the page could.
+ *
+ * Nothing here states an hours or response-time commitment.
+ * `settings.openingHours` is still null and the business has never published one — a
+ * "we reply within 2 hours" line would be the single easiest claim to write on
+ * this page and the single easiest one to break.
+ */
+
+/**
+ * The three ways in, in the order they are actually used.
+ *
+ * Not a card grid. Three cells on one rule, the phone given the display size
+ * because for a trade business it carries more traffic than the other two put
+ * together, and the office given a directions link because an address without
+ * one is a fact rather than an action.
+ *
+ * A function of the settings rather than a constant, because the phone, email
+ * and address come from the settings the layout resolved.
+ */
+function channelsFor(settings: SiteSettings) {
+  return [
+    {
+      label: 'Call',
+      value: settings.phone,
+      href: phoneHref(settings.phone),
+      note: 'One number for every site.',
+      lead: true,
+      external: false,
+    },
+    {
+      label: 'Email',
+      value: settings.email,
+      href: `mailto:${settings.email}`,
+      note: 'Drawings, scopes and tender packs.',
+      lead: false,
+      external: false,
+    },
+    {
+      label: 'Office',
+      value: formatAddress(settings.address),
+      href: directionsUrl(settings.address),
+      note: 'Get directions',
+      lead: false,
+      external: true,
+    },
+  ] as const;
+}
+
+/**
+ * What the enquiry actually sets off.
+ *
+ * Every line is the same commitment made elsewhere on the site — the homepage
+ * process rail and the form's own site-assessment hint — restated at the point
+ * where somebody is deciding whether to fill the thing in. Numbered because
+ * the order is the content: the site visit happens before the number, and that
+ * sequencing is the whole argument.
+ */
+const NEXT_STEPS = [
+  {
+    heading: 'We confirm a time by email',
+    body: 'Pick on site or online and give us two or three windows that suit you. We confirm one by email, with a Google Meet link for online assessments.',
+  },
+  {
+    heading: 'We look before we quote',
+    body: 'On site we walk the building with you; online we scope it on the call. Preparation is the largest variable in any painting job, and it cannot be judged from a photograph or a floor area.',
+  },
+  {
+    heading: 'You get an itemised scope',
+    body: 'Labour, materials and scheduling broken out — and broken down per location where the work spans several sites.',
+  },
+] as const;
+
+export default async function ContactPage() {
+  const [copy, settings] = await Promise.all([getPage('contact-us'), getSiteSettings()]);
+  const channels = channelsFor(settings);
+  // "Farbod, Zac and Simon".
+  const assessorNames = `${assessors.slice(0, -1).join(', ')} and ${assessors[assessors.length - 1]}`;
+
+  return (
+    <>
+      {/*
+       * Masthead.
+       *
+       * Full-bleed rather than contained, so the photograph runs to the edge of
+       * the screen and the copy still lines up with every other page's left
+       * margin. That alignment is what the `pl-[max(...)]` does: it reproduces
+       * the inner edge of a `width="wide"` Container (max-w-7xl, sm:px-8)
+       * without putting the image inside one.
+       *
+       * The red rule is at the base, not the top. Under a sticky white header
+       * a 4px rule reads as the header's own underline; at the bottom it is the
+       * cut line the page is divided on, with the three channels sitting
+       * directly beneath it.
+       */}
+      <section className="border-b-4 border-brand-600 bg-ink text-white">
+        <div className="lg:grid lg:grid-cols-[1.08fr_1fr] lg:items-stretch">
+          <div className="flex flex-col justify-center px-5 py-12 sm:px-8 lg:py-24 lg:pl-[max(2rem,calc((100vw-80rem)/2+2rem))] lg:pr-16">
+            <Breadcrumbs crumbs={[{ name: 'Contact', path: '/contact-us/' }]} tone="ink" />
+            <h1 className="mt-2 text-balance font-display text-4xl leading-[1.05] sm:text-5xl lg:text-6xl">
+              {copy.title}
+            </h1>
+            <p className="mt-6 max-w-prose text-lg leading-relaxed text-white/75">{copy.lede}</p>
+            <div className="mt-9 flex flex-wrap gap-3">
+              <ButtonLink href="#assessment" variant="accent">
+                Get a free site assessment
+              </ButtonLink>
+              <ButtonLink href={phoneHref(settings.phone)} variant="ghostLight">
+                {settings.phone}
+              </ButtonLink>
+            </div>
+          </div>
+
+          {/*
+           * Sized by aspect ratio on small screens and stretched to the copy
+           * column's height from `lg`, so the band never ends up shorter than
+           * the text beside it and never crops the signage out of frame.
+           */}
+          <div className="relative aspect-[16/10] w-full sm:aspect-[2/1] lg:aspect-auto lg:min-h-[520px]">
+            <Image
+              src="/images/company/fleet-depot.webp"
+              alt="The depot, its signage carrying the 1300 number, with the work fleet parked across the forecourt"
+              fill
+              priority
+              sizes="(min-width: 1024px) 48vw, 100vw"
+              className="object-cover"
+            />
+          </div>
+        </div>
+      </section>
+
+      {/*
+       * The channels, on the cut line.
+       *
+       * Divided by rules rather than boxed into cards: three bordered tiles
+       * would make the phone number look like one option of three, and it is
+       * not — it is the one most of this page's traffic came here for.
+       */}
+      <section className="border-b border-paper-edge bg-white">
+        <Container width="wide">
+          {/* Three across only from `lg`. Between `sm` and `lg` a third of
+                the container is narrower than the email address is long, and
+                the cells collide; stacked rows at those widths cost nothing but
+                height. */}
+          <ul className="grid divide-y divide-paper-edge lg:grid-cols-3 lg:divide-x lg:divide-y-0">
+            {channels.map((channel) => (
+              <li key={channel.label} className="min-w-0 lg:first:-ml-6 lg:last:-mr-6">
+                <a
+                  href={channel.href}
+                  {...('external' in channel && channel.external
+                    ? { target: '_blank', rel: 'noopener noreferrer' }
+                    : {})}
+                  className="group flex h-full flex-col gap-1.5 px-0 py-6 transition-colors hover:bg-paper-sunken focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand-600 lg:px-6 lg:py-8"
+                >
+                  <span className={cn(microLabel, 'text-ink-muted')}>{channel.label}</span>
+                  <span
+                    className={cn(
+                      'break-words font-display text-ink decoration-brand-600 decoration-2 underline-offset-4 group-hover:underline',
+                      channel.lead ? 'text-2xl sm:text-3xl' : 'text-lg sm:text-xl',
+                    )}
+                  >
+                    {channel.value}
+                  </span>
+                  <span className="mt-auto pt-2 text-sm text-ink-soft">
+                    {channel.note}
+                    {'external' in channel && channel.external && (
+                      <span aria-hidden="true" className="ml-1 text-brand-600">
+                        →
+                      </span>
+                    )}
+                  </span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </Container>
+      </section>
+
+      {/* Every "Get a free site assessment" CTA lands here. `#commercial` stays
+          as the legacy deep link from older service-page URLs. */}
+      <div id="assessment" className="scroll-mt-16 sm:scroll-mt-20">
+        <Section tone="sunken" id="commercial">
+          <Container width="wide">
+            <div className="grid gap-12 lg:grid-cols-12 lg:gap-16">
+              <div className="lg:col-span-7">
+                <p className={cn(microLabel, 'mb-2 text-brand-600')}>Free for organisations</p>
+                <SectionHeading className="mb-3">{copy.formHeading}</SectionHeading>
+                <p className="mb-6 max-w-prose text-ink-soft">{copy.formIntro}</p>
+                {/* The three ways an assessment runs, stated before the form asks
+                    the visitor to choose one of them. */}
+                <ul className="mb-8 grid gap-3 text-sm text-ink-soft sm:grid-cols-3">
+                  <li className="border border-paper-edge bg-white px-4 py-3">
+                    <span className="block font-semibold text-ink">On site, in Melbourne</span>
+                    We walk the building with you, look at the substrates and talk through access
+                    and hours.
+                  </li>
+                  <li className="border border-paper-edge bg-white px-4 py-3">
+                    <span className="block font-semibold text-ink">Online, anywhere</span>A short
+                    Google Meet call at a time you choose, to scope the job and decide what comes
+                    next.
+                  </li>
+                  <li className="border border-paper-edge bg-white px-4 py-3">
+                    <span className="block font-semibold text-ink">
+                      With the people who run the job
+                    </span>
+                    {assessorNames} carry out every assessment themselves.
+                  </li>
+                </ul>
+                <div className="border border-paper-edge bg-white p-5 sm:p-8 lg:p-10">
+                  <SiteAssessmentForm />
+                </div>
+              </div>
+
+              {/*
+               * The reassurance column. Sticky from `lg` so it stays beside the
+               * field the visitor is actually on — the form is long enough that
+               * a static aside would be off screen by the third question, which
+               * is exactly where people stop filling one in.
+               */}
+              <aside className="lg:col-span-5">
+                <div className="lg:sticky lg:top-24">
+                  <h2 className={cn(microLabel, 'text-ink-muted')}>What happens next</h2>
+
+                  <ol className="relative mt-6 space-y-8 pl-12">
+                    {NEXT_STEPS.map((step, index) => (
+                      <li key={step.heading} className="relative">
+                        {/* The connector, drawn per step rather than once down
+                            the whole column, so the thread stops at the last
+                            numeral instead of trailing past it. A sequence line
+                            that runs on after the final stop reads as an
+                            unfinished list. Same mark as the homepage process
+                            rail, held still: there is no scroll worth measuring
+                            inside a sticky column. */}
+                        {index < NEXT_STEPS.length - 1 && (
+                          <span
+                            aria-hidden="true"
+                            className="absolute -bottom-8 -left-8 top-8 w-px bg-brand-600"
+                          />
+                        )}
+                        <span
+                          aria-hidden="true"
+                          className="absolute -left-12 top-0 flex h-8 w-8 items-center justify-center bg-ink font-display text-sm text-white"
+                        >
+                          {index + 1}
+                        </span>
+                        <h3 className="font-display text-lg text-ink">{step.heading}</h3>
+                        <p className="mt-1.5 text-sm leading-relaxed text-ink-soft">{step.body}</p>
+                      </li>
+                    ))}
+                  </ol>
+
+                  <div className="mt-10 border-t border-paper-edge pt-8">
+                    <a
+                      href={googleAggregate.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="group inline-flex items-center gap-3 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600"
+                    >
+                      <GoogleMark className="h-6 w-6 shrink-0" />
+                      <span className="text-sm text-ink-soft">
+                        <span className="font-display text-lg text-ink group-hover:underline">
+                          {googleAggregate.rating.toFixed(1)} on Google
+                        </span>{' '}
+                        from {googleAggregate.count} reviews
+                      </span>
+                    </a>
+
+                    {/* Tiled on white at one common height. The four marks
+                        are drawn at wildly different aspect ratios and three of
+                        them assume a white ground, so left loose on the sunken
+                        section they read as four stray stickers. Undimmed: a
+                        credential at 70% opacity looks like one that expired. */}
+                    <ul className="mt-6 grid grid-cols-4 gap-2">
+                      {accreditationLogos.map((entry) => (
+                        <li
+                          key={entry.id}
+                          className="flex h-14 items-center justify-center border border-paper-edge bg-white px-2"
+                        >
+                          <Image
+                            src={entry.logo!.src}
+                            alt={entry.logo!.alt}
+                            width={entry.logo!.width}
+                            height={entry.logo!.height}
+                            className="max-h-8 w-auto object-contain"
+                          />
+                          <span className="sr-only">{entry.detail}</span>
+                        </li>
+                      ))}
+                    </ul>
+
+                    <p className="mt-8 text-sm text-ink-soft">
+                      Prefer to talk it through?{' '}
+                      <a
+                        href={phoneHref(settings.phone)}
+                        className="font-semibold text-brand-700 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600"
+                      >
+                        Call {settings.phone}
+                      </a>
+                      .
+                    </p>
+                  </div>
+                </div>
+              </aside>
+            </div>
+          </Container>
+        </Section>
+      </div>
+
+      {/*
+       * Where we work from.
+       *
+       * Typographic rather than mapped. `settings.coords` is still null, so there
+       * is no honest point to drop a pin on, and the directions link resolves
+       * the street address through Maps itself rather than through the Google
+       * profile — which still points at the previous premises.
+       */}
+      <Section tone="paper">
+        <Container width="wide">
+          <div className="grid gap-10 lg:grid-cols-12 lg:gap-16">
+            <div className="lg:col-span-6">
+              <SectionHeading className="mb-6">Where we work from</SectionHeading>
+              <address className="not-italic">
+                <p className="font-display text-2xl leading-snug text-ink sm:text-3xl">
+                  {settings.address.street}
+                  <br />
+                  {settings.address.suburb} {settings.address.state} {settings.address.postcode}
+                </p>
+              </address>
+              <div className="mt-8 flex flex-wrap gap-3">
+                <ButtonLink
+                  href={directionsUrl(settings.address)}
+                  variant="outline"
+                  target="_blank"
+                >
+                  Get directions
+                </ButtonLink>
+                <ButtonLink href={phoneHref(settings.phone)} variant="primary">
+                  {settings.phone}
+                </ButtonLink>
+              </div>
+            </div>
+
+            <div className="lg:col-span-6 lg:pt-16">
+              <p className="max-w-prose text-lg leading-relaxed text-ink-soft">
+                Work is carried out across {settings.serviceAreaPrimary}, within roughly{' '}
+                {site.serviceArea.radiusKm} km of the {settings.address.suburb} base — the eastern
+                and south-eastern corridors most of all, and the rest of the metro area on
+                programmes that justify the travel.
+              </p>
+              <p className="mt-5">
+                <Link
+                  href="/areas/"
+                  className="font-semibold text-brand-700 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600"
+                >
+                  Areas we service
+                </Link>
+              </p>
+            </div>
+          </div>
+        </Container>
+      </Section>
+    </>
+  );
+}

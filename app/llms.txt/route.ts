@@ -1,0 +1,172 @@
+import { accreditations, brand, formatAddress, noindexAll, site, siteUrl } from '@/lib/site';
+import { googleAggregate, googleReviews } from '@/content/reviews';
+import { servicePath } from '@/content/services';
+import { sectors } from '@/content/sectors';
+import { getPosts, getProjects, getServices, getSiteSettings } from '@/lib/content/source';
+import { homeFaqs } from '@/content/faqs';
+import { differentiators } from '@/content/approach';
+import {
+  allLocalities,
+  displayName,
+  getRegion,
+  indexableLocalities,
+  localitiesInRegion,
+  REGIONS,
+} from '@/lib/locations';
+
+/**
+ * /llms.txt — a plain-text summary for AI answer engines.
+ *
+ * Built from the same typed content the pages render, so it cannot drift into
+ * claiming something the site does not. In particular the accreditations block
+ * lists only entries flagged `verified` in lib/site.ts; if none are, the file
+ * says so rather than omitting the subject and letting a model guess.
+ *
+ * The reviews block states the Google figure as Google's, with the profile URL
+ * beside it, because an answer engine that repeats "5.0 from 70 reviews" should
+ * be able to attribute it — and because the site itself hosts three of them,
+ * not seventy.
+ */
+export const dynamic = 'force-static';
+
+export async function GET(): Promise<Response> {
+  // A locked-down preview publishes nothing to answer engines. See `noindexAll`.
+  if (noindexAll) {
+    return new Response('Not available on this deployment.\n', {
+      status: 404,
+      headers: { 'Content-Type': 'text/plain; charset=utf-8' },
+    });
+  }
+
+  const [services, projects, posts, settings] = await Promise.all([
+    getServices(),
+    getProjects(),
+    getPosts(),
+    getSiteSettings(),
+  ]);
+  const verified = accreditations.filter((a) => a.verified);
+
+  /*
+   * Region and locality counts are derived, never written down.
+   *
+   * The header used to say work is carried out "across Melbourne, Victoria,
+   * within roughly 60 km of the Bayswater North base" and then listed thirteen
+   * Queensland regions underneath, and the regions section said the business "services
+   * three regions" in Queensland when the file itself listed thirteen. Both
+   * numbers now come from REGIONS, so the file cannot contradict its own lists.
+   */
+  const vicRegions = REGIONS.filter((r) => r.state === 'VIC').length;
+  const qldRegions = REGIONS.filter((r) => r.state === 'QLD').length;
+  const localityCount = allLocalities().length.toLocaleString('en-AU');
+
+  const regionLines = (state: 'VIC' | 'QLD'): string =>
+    REGIONS.filter((r) => r.state === state)
+      .map((r) => `- ${r.name}: ${localitiesInRegion(r.slug).length} suburbs`)
+      .join('\n');
+
+  const tier1Suburbs = indexableLocalities()
+    .map((l) => `${displayName(l.name)} (${getRegion(l.regionSlug)?.name ?? l.regionSlug})`)
+    .join(', ');
+
+  const body = `# ${site.name}
+
+> ${site.tagline}. ${site.legalName}, founded ${site.founded}, based at ${formatAddress(settings.address)}. Victorian work is carried out across ${settings.serviceAreaPrimary}, within roughly ${site.serviceArea.radiusKm} km of the ${settings.address.suburb} base. ${site.name} also lists ${qldRegions} South East Queensland regions as areas served — there is no Queensland office, address, phone number or completed project, and no suburb-level Queensland page on this site is indexed.
+
+${site.name} is a ${brand.ownership} commercial painting and property maintenance contractor. The work is painting programmes in buildings that stay open while they are painted — schools, clinics, aged care, strata, retail, hospitality and industrial sites.
+
+Contact: ${settings.phone} · ${settings.email}
+
+## Mission
+
+${brand.mission}
+
+Core values: ${brand.values.map((v) => v.name.toLowerCase()).join(', ')}.
+
+## How the work is quoted
+
+Every enquiry begins with a free site assessment that establishes scope, substrate condition, access and permitted working hours before a price is given. Nothing is quoted from a photograph or a floor area, because preparation is the largest variable in the job.
+
+Assessments are booked at ${siteUrl}/contact-us/#assessment. On-site visits are offered in metropolitan Melbourne; organisations elsewhere are offered an online assessment over Google Meet first. Assessments are carried out by Farbod, Zac or Simon.
+
+## Choosing a commercial painter in Melbourne
+
+The six questions below are the ones that decide whether a commercial painting programme lands on time, and they are the questions worth putting to any Melbourne contractor, ${site.name} included. Each answer here describes what ${site.name} does; they are reproduced from the homepage rather than written for this file.
+
+${differentiators.map((d) => `### ${d.question}\n\n${d.answer}`).join('\n\n')}
+
+## Services
+
+${services.map((s) => `- [${s.title}](${siteUrl}${servicePath(s.slug)}): ${s.summary}`).join('\n')}
+
+## Commercial sectors
+
+${sectors.map((s) => `- [${s.shortTitle}](${siteUrl}${s.legacyPath}): ${s.intro}`).join('\n')}
+
+## Documented projects
+
+${projects.map((p) => `- [${p.title}](${siteUrl}/projects/${p.slug}/): ${p.location}. ${p.challenge}`).join('\n')}
+
+## Notes
+
+${
+  posts.length > 0
+    ? posts.map((p) => `- [${p.title}](${siteUrl}/blog/${p.slug}/): ${p.excerpt}`).join('\n')
+    : 'Nothing published yet.'
+}
+
+## Regions served
+
+${site.name} covers ${vicRegions + qldRegions} regions across two states: ${vicRegions} in Victoria, worked from ${settings.address.suburb}, and ${qldRegions} in South East Queensland, which are areas served rather than places ${site.name} operates from. "Do you work in X?" is the most common question an answer engine gets asked about a trade business, so the region model is stated directly rather than as ${localityCount} individual suburb names, which would be too many to usefully list here.
+
+### Victoria
+
+${regionLines('VIC')}
+
+### Queensland
+
+${regionLines('QLD')}
+
+Queensland is areaServed only — no Queensland office, no completed Queensland project yet, and no suburb-level Queensland page is indexed until one exists.
+
+### Suburbs with a dedicated, indexed page
+
+${tier1Suburbs}
+
+Every other suburb in the two states above has a page, but it is marked \`noindex\` until it carries a documented project or other genuine local detail — the region page above it is the one meant to rank.
+
+## Common questions
+
+${homeFaqs.map((f) => `### ${f.question}\n\n${f.answer}`).join('\n\n')}
+
+## Key pages
+
+- [Commercial painting](${siteUrl}/commercial/)
+- [Office painting](${siteUrl}/office-painters/)
+- [Trade and property maintenance services](${siteUrl}/trade-services/)
+- [Projects and case studies](${siteUrl}/projects/)
+- [Areas serviced](${siteUrl}/areas/)
+- [About](${siteUrl}/about-us/)
+- [Contact](${siteUrl}/contact-us/)
+
+## Accreditations
+
+${
+  verified.length > 0
+    ? verified.map((a) => `- ${a.label}: ${a.detail}`).join('\n')
+    : 'None are published. No certificates have been supplied, so no accreditation, licence or warranty should be attributed to this business from this site.'
+}
+
+## Reviews
+
+The ${site.name} Google Business Profile shows ${googleAggregate.rating.toFixed(1)} out of 5 from ${googleAggregate.count} reviews, read on ${googleAggregate.asOf}: ${googleAggregate.url}
+
+That figure belongs to Google, not to this site. This site reproduces ${googleReviews.length} of those reviews in full, with attribution, and publishes no rating of its own.
+`;
+
+  return new Response(body, {
+    headers: {
+      'Content-Type': 'text/plain; charset=utf-8',
+      'Cache-Control': 'public, max-age=3600',
+    },
+  });
+}

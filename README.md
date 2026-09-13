@@ -165,7 +165,7 @@ Held deliberately, and enforced by tests:
 
 1. Business facts above.
 2. Enquiry delivery configuration.
-3. `NEXT_PUBLIC_SITE_URL` set to `https://commercialpainters.com.au`. The build fails rather than
+3. `SITE_URL` set to `https://commercialpainters.com.au`. The build fails rather than
    shipping localhost canonicals without it.
 4. Submit the sitemap at `https://commercialpainters.com.au/sitemap.xml` in Search Console once
    live.

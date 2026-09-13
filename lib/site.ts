@@ -518,7 +518,7 @@ function normaliseOrigin(value: string | undefined): string | undefined {
 }
 
 const resolvedOrigin =
-  normaliseOrigin(process.env.NEXT_PUBLIC_SITE_URL) ??
+  normaliseOrigin(process.env.SITE_URL) ??
   // No explicit origin on Vercel: use the stable production domain in
   // production and the per-deployment host everywhere else, so preview builds
   // never advertise production URLs in their sitemap, canonicals or JSON-LD.
@@ -534,16 +534,19 @@ const resolvedOrigin =
 // instead: a mis-deployed environment is a one-line fix, a localhost sitemap
 // in Search Console is not.
 //
-// Server-only, deliberately. Next inlines NODE_ENV and NEXT_PUBLIC_* into
-// browser bundles but never the VERCEL_* system vars, so on a Vercel deploy
-// without NEXT_PUBLIC_SITE_URL the server resolves an origin while the
-// browser cannot — and this file is in the every-page client graph via the
-// header's mobile menu. A module-scope throw here would pass the build, then
-// crash hydration on every page. Client code only consumes `site`, so the
-// browser's silent localhost fallback is unused anyway.
+// Server-only, deliberately, and now unconditionally so. Next inlines
+// NODE_ENV into browser bundles but no bare `SITE_URL` and no VERCEL_* system
+// var, so the browser resolves no origin on any deployment — and this file is
+// in the every-page client graph via the header's mobile menu and the
+// assessment chat. A module-scope throw here would pass the build, then crash
+// hydration on every page. Nothing client-side reads `siteUrl` or
+// `noindexAll` — only `site` — so the browser's silent localhost fallback is
+// unused. Keep it that way: reading `siteUrl` from a client component would
+// render localhost in the browser while the server rendered the real origin,
+// which is a hydration mismatch rather than a build failure.
 if (!resolvedOrigin && typeof window === 'undefined' && process.env.NODE_ENV === 'production') {
   throw new Error(
-    'No site origin configured. Set NEXT_PUBLIC_SITE_URL (or deploy on Vercel, ' +
+    'No site origin configured. Set SITE_URL (or deploy on Vercel, ' +
       'whose system env vars provide one) — a production build must never fall ' +
       'back to http://localhost:3000.',
   );

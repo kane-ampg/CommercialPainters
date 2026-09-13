@@ -11,12 +11,7 @@ async function resolve(env: Record<string, string | undefined>) {
   vi.resetModules();
   const previous = { ...process.env };
 
-  for (const key of [
-    'NEXT_PUBLIC_SITE_URL',
-    'VERCEL_ENV',
-    'VERCEL_URL',
-    'VERCEL_PROJECT_PRODUCTION_URL',
-  ]) {
+  for (const key of ['SITE_URL', 'VERCEL_ENV', 'VERCEL_URL', 'VERCEL_PROJECT_PRODUCTION_URL']) {
     delete process.env[key];
   }
   Object.assign(process.env, env);
@@ -34,26 +29,26 @@ afterEach(() => {
 
 describe('siteUrl', () => {
   it('uses an explicit origin when one is set', async () => {
-    await expect(
-      resolve({ NEXT_PUBLIC_SITE_URL: 'https://commercialpainters.com.au' }),
-    ).resolves.toBe('https://commercialpainters.com.au');
+    await expect(resolve({ SITE_URL: 'https://commercialpainters.com.au' })).resolves.toBe(
+      'https://commercialpainters.com.au',
+    );
   });
 
   it('strips a trailing slash so path concatenation never doubles up', async () => {
-    await expect(
-      resolve({ NEXT_PUBLIC_SITE_URL: 'https://commercialpainters.com.au/' }),
-    ).resolves.toBe('https://commercialpainters.com.au');
+    await expect(resolve({ SITE_URL: 'https://commercialpainters.com.au/' })).resolves.toBe(
+      'https://commercialpainters.com.au',
+    );
   });
 
   // The regression that broke the first Vercel build: a declared-but-unset
   // variable arrives as '', which `??` passes straight through to `new URL()`.
   it('treats an empty or whitespace value as absent rather than crashing', async () => {
-    await expect(resolve({ NEXT_PUBLIC_SITE_URL: '' })).resolves.toBe('http://localhost:3000');
-    await expect(resolve({ NEXT_PUBLIC_SITE_URL: '   ' })).resolves.toBe('http://localhost:3000');
+    await expect(resolve({ SITE_URL: '' })).resolves.toBe('http://localhost:3000');
+    await expect(resolve({ SITE_URL: '   ' })).resolves.toBe('http://localhost:3000');
   });
 
   it('assumes https for a bare domain', async () => {
-    await expect(resolve({ NEXT_PUBLIC_SITE_URL: 'commercialpainters.com.au' })).resolves.toBe(
+    await expect(resolve({ SITE_URL: 'commercialpainters.com.au' })).resolves.toBe(
       'https://commercialpainters.com.au',
     );
   });
@@ -61,7 +56,7 @@ describe('siteUrl', () => {
   it('falls back to the stable production domain on a production deployment', async () => {
     await expect(
       resolve({
-        NEXT_PUBLIC_SITE_URL: '',
+        SITE_URL: '',
         VERCEL_ENV: 'production',
         VERCEL_PROJECT_PRODUCTION_URL: 'commercial-painters.vercel.app',
         VERCEL_URL: 'commercial-painters-abc123.vercel.app',
@@ -89,17 +84,17 @@ describe('siteUrl', () => {
   // reaches it would ship localhost canonicals, a localhost sitemap and
   // localhost JSON-LD with no error — so it must fail the build instead.
   it('refuses a production build with no origin configured', async () => {
-    await expect(resolve({ NODE_ENV: 'production' })).rejects.toThrow(/NEXT_PUBLIC_SITE_URL/);
+    await expect(resolve({ NODE_ENV: 'production' })).rejects.toThrow(/SITE_URL/);
   });
 
-  // The guard must be server-only. Next inlines NODE_ENV ('production') and
-  // NEXT_PUBLIC_* into browser bundles but never the VERCEL_* system vars, so
-  // a client bundle built on Vercel without NEXT_PUBLIC_SITE_URL resolves no
-  // origin — and a module-scope throw there would crash hydration on every
-  // page. lib/site.ts is in the every-page client graph via the header's
-  // mobile menu. Client code only consumes `site`, so the silent localhost
-  // fallback is harmless in the browser.
-  it('never throws in a browser bundle, where only NEXT_PUBLIC_* vars exist', async () => {
+  // The guard must be server-only. `SITE_URL` carries no NEXT_PUBLIC_ prefix,
+  // so Next never inlines it into a browser bundle, and it never inlines the
+  // VERCEL_* system vars either — the browser therefore resolves no origin on
+  // any deployment, and a module-scope throw there would crash hydration on
+  // every page. lib/site.ts is in the every-page client graph via the header's
+  // mobile menu and the assessment chat. Client code only consumes `site`, so
+  // the silent localhost fallback is harmless in the browser.
+  it('never throws in a browser bundle, where no origin var is inlined', async () => {
     (globalThis as { window?: unknown }).window = {};
     try {
       await expect(resolve({ NODE_ENV: 'production' })).resolves.toBe('http://localhost:3000');
@@ -110,7 +105,7 @@ describe('siteUrl', () => {
 
   it('never produces a value that throws when passed to new URL()', async () => {
     for (const value of ['', '   ', 'not a url', '://broken']) {
-      const url = await resolve({ NEXT_PUBLIC_SITE_URL: value });
+      const url = await resolve({ SITE_URL: value });
       expect(() => new URL(url)).not.toThrow();
     }
   });

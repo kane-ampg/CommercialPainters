@@ -12,11 +12,13 @@ import {
   localitiesInRegion,
   regionsInState,
   stateFromSlug,
+  stateIsIndexable,
   type StateKey,
 } from '@/lib/locations';
 
 /**
- * State hubs — two of them, both indexable.
+ * State hubs — two of them; Victoria indexable, Queensland not while
+ * `qldPresence` is false (see `stateIsIndexable`).
  *
  * The state level exists because the two states are not the same offer.
  * Victoria is where the business is; Queensland is coverage. Keeping them apart at the
@@ -50,7 +52,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         ? `Commercial painting across ${suburbs} Victorian suburbs, from our Bayswater North base. Schools, clinics, retail, strata and industrial.`
         : `Commercial painting across ${suburbs} south-east Queensland suburbs Commercial Painters services, from Noosa to the Gold Coast.`,
     path: `/areas/${state}/`,
-    index: true,
+    // Queensland is coverage, not footprint, and `stateIsIndexable` is the one
+    // place that says so — the same `qldPresence` rule the suburbs beneath
+    // this hub already obeyed. `follow` stays on: the hub still links down
+    // into the suburb tree and back to the Victorian pages.
+    index: stateIsIndexable(key),
   });
 }
 

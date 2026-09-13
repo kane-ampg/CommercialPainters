@@ -51,7 +51,7 @@ export const site = {
     international: '+61 1300 979 740',
   },
 
-  email: 'info@commercialpainters.com.au',
+  email: 'outreach@apmgmaintenance.com.au',
 
   /**
    * The office.

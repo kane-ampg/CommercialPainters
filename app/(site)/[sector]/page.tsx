@@ -14,7 +14,6 @@ import { Card, Container, Placeholder, Prose, Section, SectionHeading } from '@/
 import { JsonLd } from '@/components/seo/json-ld';
 import { faqSchema, serviceSchema } from '@/lib/schema';
 import { sectors } from '@/content/sectors';
-import { sectorHasDocumentedProject } from '@/content/projects';
 import { getProject, getSiteSettings } from '@/lib/content/source';
 
 /**
@@ -45,12 +44,23 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title: sector.metaTitle,
     description: sector.metaDescription,
     path: sector.legacyPath,
-    // The same evidence rule the suburb tiers run on: a sector page with no
-    // documented project is a placeholder, and it says so in its own body
-    // copy — so it is `noindex, follow` (still crawlable, still passing
-    // equity) until a project is published. app/sitemap.ts filters on the
-    // same predicate, so the two surfaces cannot disagree.
-    index: sectorHasDocumentedProject(sector),
+    /*
+     * Indexable unconditionally — evidence gates the claim, not the URL.
+     *
+     * This was gated on a documented project, a rule borrowed from the suburb
+     * tiers, and it kept five of the eight sectors — aged care, strata,
+     * retail, hospitality, leisure — out of Google entirely. The rule does
+     * not transfer. A Tier 3 suburb page is generated boilerplate; every
+     * sector page carries hand-written `considerations`, `body` and `faqs`
+     * that exist for no other URL on this site, and they are the highest
+     * commercial intent the business has ("strata painting Melbourne" and its
+     * siblings). Withholding them avoided a thinness that was never there.
+     *
+     * What stays evidence-gated is the Evidence section below, which renders
+     * a Placeholder stating the sector makes no experience claim rather than
+     * a project grid. That disclosure is what makes the page honest to index.
+     */
+    index: true,
   });
 }
 

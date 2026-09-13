@@ -64,7 +64,7 @@ be the match.
 | Legal name              | Set to the trading name, marked `NEEDS-CLIENT-CONFIRMATION`. Only the footer legal line and schema use it. |
 | Phone, address, founded | Kept. Treated as the same business under a new trading name; the address is also the geographic anchor the |
 |                         | whole service-area dataset is measured from.                                                               |
-| Email                   | `info@commercialpainters.com.au`, from the stated domain.                                                  |
+| Email                   | `outreach@apmgmaintenance.com.au`, the APMG group inbox.                                                   |
 | Instagram, Facebook     | `null`. The previous URLs spelled the previous brand.                                                      |
 | Google profile          | Kept — it carries the reviews figure and the `sameAs` link. Flagged: its registered name and address must  |
 |                         | match this site before go-live.                                                                            |

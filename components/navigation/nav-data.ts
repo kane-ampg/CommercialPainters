@@ -1,7 +1,24 @@
 import { sectors } from '@/content/sectors';
+import { posts } from '@/content/posts';
 
 export type NavChild = { label: string; href: string; description?: string };
 export type NavItem = { label: string; href: string; children?: NavChild[] };
+
+/**
+ * The blog slot, present only while there is something to read.
+ *
+ * `content/posts.ts` is empty, so both nav bars were pointing at a page whose
+ * entire body is "Nothing published yet." — sitewide links into a dead end,
+ * and the strongest internal signal the site can send about a section with no
+ * content in it. app/(site)/blog/page.tsx and app/sitemap.ts derive the same
+ * thing from the same count, so the first published post restores all four
+ * surfaces together.
+ *
+ * Read from `content/posts.ts` rather than through `getPosts()` because the
+ * nav is a synchronous module rendered inside client components; the adapter
+ * is async. It is the same array either way.
+ */
+const blogNav: readonly NavChild[] = posts.length > 0 ? [{ label: 'Blog', href: '/blog/' }] : [];
 
 /**
  * Main navigation.
@@ -34,7 +51,7 @@ export const mainNav: readonly NavItem[] = [
     ],
   },
   { label: 'Projects', href: '/projects/' },
-  { label: 'Blog', href: '/blog/' },
+  ...blogNav,
   { label: 'Trade services', href: '/trade-services/' },
   { label: 'About', href: '/about-us/' },
   { label: 'Contact', href: '/contact-us/' },
@@ -49,7 +66,7 @@ export const footerNav = {
   company: [
     { label: 'About us', href: '/about-us/' },
     { label: 'Projects', href: '/projects/' },
-    { label: 'Blog', href: '/blog/' },
+    ...blogNav,
     { label: 'Contact us', href: '/contact-us/' },
   ],
   areas: [

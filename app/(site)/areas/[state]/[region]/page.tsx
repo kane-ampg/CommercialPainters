@@ -16,13 +16,15 @@ import {
   regionLocative,
   REGIONS,
   stateFromSlug,
+  stateIsIndexable,
   stateSlug,
   type Locality,
   type RegionDef,
 } from '@/lib/locations';
 
 /**
- * Region hubs — 22 of them, and all indexable.
+ * Region hubs — 22 of them; the nine Victorian ones indexable, the thirteen
+ * Queensland ones not while `qldPresence` is false (see `stateIsIndexable`).
  *
  * These are the pages that are meant to rank: a region is a real unit of
  * enquiry ("commercial painters eastern suburbs Melbourne") and there are few
@@ -76,8 +78,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       ? `Commercial painting across ${inSentence} — ${count} suburbs, serviced from our Bayswater North base. Schools, clinics, retail, strata and industrial.`
       : `Commercial painting across ${inSentence} — ${count} suburbs Commercial Painters services. Schools, clinics, retail, strata and industrial.`,
     path: `/areas/${state}/${region}/`,
-    // Hubs are always indexable: 22 pages, each with real writing behind it.
-    index: true,
+    /*
+     * The nine Victorian hubs are the pages meant to rank. The thirteen
+     * Queensland ones were shipping `index, follow` too — a quarter of the
+     * sitemap describing a state with no address, no phone number and no
+     * completed project — so they follow `stateIsIndexable`, the same
+     * `qldPresence` rule as the suburbs beneath them. Still `follow`, so the
+     * equity they collect keeps flowing to the Victorian pages they link.
+     */
+    index: stateIsIndexable(regionDef.state),
   });
 }
 

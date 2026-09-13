@@ -6,12 +6,36 @@ import { ContentImage } from '@/components/media/content-image';
 import { Container, Section, SectionHeading } from '@/components/ui';
 import { getPosts } from '@/lib/content/source';
 
-export const metadata: Metadata = buildMetadata({
-  title: 'Notes from the job | Commercial Painters',
-  description:
-    'Practical notes on commercial painting in Melbourne: sequencing occupied buildings, coating systems, access and compliance.',
-  path: '/blog/',
-});
+/**
+ * An empty section does not get advertised.
+ *
+ * `content/posts.ts` has exported `[]` since launch, and this page still
+ * shipped `index, follow`, sat in the sitemap at priority 0.6 and held a slot
+ * in both the header and the footer — an indexed page with a heading, the
+ * words "Nothing published yet." and nothing else, linked sitewide. That is
+ * thin content at the top of a section, on a site whose whole purpose is
+ * organic traffic.
+ *
+ * `noindex, follow` rather than `nofollow`, for the same reason a Tier 3
+ * suburb is: the crawler should still reach whatever is linked from here.
+ *
+ * app/sitemap.ts and components/navigation/nav-data.ts compute the same thing
+ * from the same `posts.length`, so publishing the first post restores the
+ * directive, the sitemap entry and both nav slots at once. Async because the
+ * count comes through `getPosts()`, the same source the body renders from —
+ * reading the content module directly here would let the two drift.
+ */
+export async function generateMetadata(): Promise<Metadata> {
+  const posts = await getPosts();
+
+  return buildMetadata({
+    title: 'Notes from the job | Commercial Painters',
+    description:
+      'Practical notes on commercial painting in Melbourne: sequencing occupied buildings, coating systems, access and compliance.',
+    path: '/blog/',
+    index: posts.length > 0,
+  });
+}
 
 export default async function BlogIndexPage() {
   const posts = await getPosts();

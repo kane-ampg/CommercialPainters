@@ -55,7 +55,7 @@ Canonical source: [lib/site.ts](../lib/site.ts).
 | ABN               | **Not published.** Do not state one.                        |
 | Founded           | 2015                                                        |
 | Phone             | 1300 97 97 40 (`tel:1300979740`)                            |
-| Email             | info@commercialpainters.com.au                              |
+| Email             | outreach@apmgmaintenance.com.au                             |
 | Address           | 1 Turbo Drive, Bayswater North VIC 3153, Australia          |
 | Instagram         | None yet. Do not name one.                                  |
 | Facebook          | None yet. Do not name one.                                  |

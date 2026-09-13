@@ -1,9 +1,8 @@
 import type { MetadataRoute } from 'next';
 import { siteUrl } from '@/lib/site';
 import { sectors } from '@/content/sectors';
-import { sectorHasDocumentedProject } from '@/content/projects';
 import { getPosts, getProjects } from '@/lib/content/source';
-import { indexableLocalities, REGIONS, stateSlug } from '@/lib/locations';
+import { indexableLocalities, REGIONS, stateIsIndexable, stateSlug } from '@/lib/locations';
 
 /**
  * Sitemap.
@@ -32,9 +31,24 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
      * root. It is the entry point to the largest section of the site.
      */
     { path: '/areas/', priority: 0.8 },
-    { path: '/areas/victoria/', priority: 0.7 },
-    { path: '/areas/queensland/', priority: 0.7 },
-    { path: '/blog/', priority: 0.6 },
+    /*
+     * State hubs, listed only where the state is indexable. Queensland was
+     * here unconditionally, alongside its thirteen region hubs below — 14 of
+     * 57 URLs describing a state with no address, no phone number and no
+     * completed project. `stateIsIndexable` is the same `qldPresence` rule
+     * the suburb pages already ran on; it now reaches the hubs above them,
+     * and this filter keeps the sitemap agreeing with what they render.
+     */
+    ...(['victoria', 'queensland'] as const)
+      .filter((slug) => stateIsIndexable(slug === 'victoria' ? 'VIC' : 'QLD'))
+      .map((slug) => ({ path: `/areas/${slug}/`, priority: 0.7 })),
+    /*
+     * The blog index, only once there is a post behind it. content/posts.ts
+     * is empty, so listing /blog/ asked Google to index a page whose body
+     * reads "Nothing published yet." The page itself renders `noindex` from
+     * the same count — see app/(site)/blog/page.tsx.
+     */
+    ...(posts.length > 0 ? [{ path: '/blog/', priority: 0.6 }] : []),
   ];
 
   /*
@@ -55,12 +69,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: entry.priority,
     })),
     /*
-     * Sectors follow the same evidence rule as the suburb tiers: no
-     * documented project, no index — the page itself renders `noindex` from
-     * the same predicate (app/[sector]/page.tsx), and a noindex URL in a
-     * sitemap sends Google two contradictory instructions.
+     * Every sector, not only the ones with a documented project.
+     *
+     * This used to filter on evidence, which kept five of the eight out of
+     * the sitemap and out of the index — aged care, strata, retail,
+     * hospitality, leisure — while each carried hand-written sector copy
+     * found nowhere else on the site and targeted the highest commercial
+     * intent the business has. app/(site)/[sector]/page.tsx now renders
+     * `index` unconditionally, and this list matches it. Evidence still
+     * decides whether the page shows a project grid or a placeholder that
+     * makes no experience claim; it no longer decides whether Google sees
+     * the page at all.
      */
-    ...sectors.filter(sectorHasDocumentedProject).map((sector) => ({
+    ...sectors.map((sector) => ({
       url: `${siteUrl}${sector.legacyPath}`,
       changeFrequency: 'monthly' as const,
       priority: 0.7,
@@ -71,11 +92,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.6,
     })),
     /*
-     * Region hubs — 22 of them, all indexable (spec §4/§9): each is the page
-     * meant to rank for a region-level query ("commercial painters eastern
-     * suburbs Melbourne").
+     * Region hubs. The nine Victorian ones are the pages meant to rank for a
+     * region-level query ("commercial painters eastern suburbs Melbourne").
+     * The thirteen Queensland ones are excluded by `stateIsIndexable` while
+     * `qldPresence` is false — the same rule their suburbs already obeyed,
+     * and the same rule the hub template renders `noindex` from.
      */
-    ...REGIONS.map((region) => ({
+    ...REGIONS.filter((region) => stateIsIndexable(region.state)).map((region) => ({
       url: `${siteUrl}/areas/${stateSlug(region.state)}/${region.slug}/`,
       changeFrequency: 'monthly' as const,
       priority: 0.7,

@@ -115,6 +115,30 @@ export function indexableLocalities(): readonly Locality[] {
 }
 
 /**
+ * Whether a state's hub pages — the state hub and the region hubs under it —
+ * may be indexed.
+ *
+ * This is the `qldPresence` rule `computeIndexable` already applies to
+ * suburbs, carried up to the two levels above them. It was only ever enforced
+ * at suburb level, which left `/areas/queensland/` and its thirteen region
+ * hubs `index, follow` and sitemap-listed: fourteen URLs — a quarter of the
+ * whole sitemap — asserting coverage of a state with no address, no phone
+ * number and no completed project behind it. They cannot win a local query
+ * against contractors who are actually there, and Google reads thinness
+ * sitewide, so they were costing the Victorian pages that can.
+ *
+ * A hub that fails this is `noindex, follow`, never `nofollow` — it still
+ * links down into the suburb tree and back up to the Victorian pages, and
+ * that equity is the reason to keep serving it at all. Identical treatment to
+ * a Tier 3 suburb.
+ *
+ * Flipping `qldPresence` flips suburbs, regions and states together.
+ */
+export function stateIsIndexable(state: StateKey): boolean {
+  return state === 'VIC' || qldPresence;
+}
+
+/**
  * Resolve a bare, un-prefixed slug against Victoria only.
  *
  * Bare slugs survive in `content/projects.ts` (`relatedLocationSlugs`), which

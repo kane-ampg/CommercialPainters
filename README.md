@@ -1,6 +1,6 @@
 # Commercial Painters — website
 
-The Next.js site for [commercialpainters.com.au](https://commercialpainters.com.au): a commercial
+The Next.js site for [commercialpaintersau.com.au](https://commercialpaintersau.com.au): a commercial
 painting contractor working across metropolitan Melbourne and listing South East Queensland as an
 area served.
 
@@ -165,9 +165,9 @@ Held deliberately, and enforced by tests:
 
 1. Business facts above.
 2. Enquiry delivery configuration.
-3. `SITE_URL` set to `https://commercialpainters.com.au`. The build fails rather than
+3. `SITE_URL` set to `https://commercialpaintersau.com.au`. The build fails rather than
    shipping localhost canonicals without it.
-4. Submit the sitemap at `https://commercialpainters.com.au/sitemap.xml` in Search Console once
+4. Submit the sitemap at `https://commercialpaintersau.com.au/sitemap.xml` in Search Console once
    live.
 
 Nothing in this repository guarantees any particular search ranking.

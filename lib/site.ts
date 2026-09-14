@@ -565,3 +565,18 @@ export const siteUrl = resolvedOrigin ?? 'http://localhost:3000';
  * is why they key off this one value. Leave it unset in production.
  */
 export const noindexAll = process.env.NEXT_PUBLIC_NOINDEX === 'true';
+
+/**
+ * The Google Tag Manager container, or null when none is configured.
+ *
+ * Null is the normal state in development, so local traffic is never counted.
+ * A declared-but-unset variable arrives as '' rather than undefined — the same
+ * shape as the regression that broke the first Vercel build — so an empty or
+ * whitespace-only value has to read as absent, not as a container id.
+ *
+ * No NEXT_PUBLIC_ prefix: the root layout is a server component and passes
+ * this down as a prop, so the id never needs inlining into a browser bundle.
+ * GTM puts the container id in the page anyway; keeping the variable
+ * server-side just avoids a second, redundant copy in the JS.
+ */
+export const gtmId = process.env.GTM_ID?.trim() || null;

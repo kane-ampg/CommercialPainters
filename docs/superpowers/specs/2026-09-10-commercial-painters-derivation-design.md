@@ -5,7 +5,7 @@
 
 ## 1. What this is
 
-A new site for **Commercial Painters** (commercialpainters.com.au), derived file-for-file from an
+A new site for **Commercial Painters** (commercialpaintersau.com.au), derived file-for-file from an
 existing Next.js 16 commercial-painting build. Everything about how the site looks and behaves is
 carried across unchanged: the Oswald/Roboto typography, the black-and-red palette, square corners,
 every component, every page, every motion decision, the enquiry pipeline, the 1,387-suburb VIC + QLD

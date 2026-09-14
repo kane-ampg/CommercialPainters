@@ -7,6 +7,7 @@ import { AssessmentChatLazy } from '@/components/chat/assessment-chat-lazy';
 import { ScrollReveal } from '@/components/motion/scroll-reveal';
 import { SiteSettingsProvider } from '@/components/providers/site-settings';
 import { JsonLd } from '@/components/seo/json-ld';
+import { Analytics } from '@/components/analytics/analytics';
 import { localBusinessSchema } from '@/lib/schema';
 import { getServices, getSiteSettings } from '@/lib/content/source';
 import { noindexAll, site, siteUrl } from '@/lib/site';
@@ -46,6 +47,11 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 
   return (
     <html lang="en-AU" className={`${sans.variable} ${display.variable}`}>
+      {/* Renders nothing unless GTM_ID is set, so no deployment counts traffic
+          it was not configured to count. Direct child of <html> per the
+          @next/third-parties guide. */}
+      <Analytics />
+
       <body className="flex min-h-screen flex-col font-sans">
         <a href="#main" className="skip-link">
           Skip to content

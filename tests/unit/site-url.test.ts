@@ -29,14 +29,14 @@ afterEach(() => {
 
 describe('siteUrl', () => {
   it('uses an explicit origin when one is set', async () => {
-    await expect(resolve({ SITE_URL: 'https://commercialpainters.com.au' })).resolves.toBe(
-      'https://commercialpainters.com.au',
+    await expect(resolve({ SITE_URL: 'https://commercialpaintersau.com.au' })).resolves.toBe(
+      'https://commercialpaintersau.com.au',
     );
   });
 
   it('strips a trailing slash so path concatenation never doubles up', async () => {
-    await expect(resolve({ SITE_URL: 'https://commercialpainters.com.au/' })).resolves.toBe(
-      'https://commercialpainters.com.au',
+    await expect(resolve({ SITE_URL: 'https://commercialpaintersau.com.au/' })).resolves.toBe(
+      'https://commercialpaintersau.com.au',
     );
   });
 
@@ -48,8 +48,8 @@ describe('siteUrl', () => {
   });
 
   it('assumes https for a bare domain', async () => {
-    await expect(resolve({ SITE_URL: 'commercialpainters.com.au' })).resolves.toBe(
-      'https://commercialpainters.com.au',
+    await expect(resolve({ SITE_URL: 'commercialpaintersau.com.au' })).resolves.toBe(
+      'https://commercialpaintersau.com.au',
     );
   });
 

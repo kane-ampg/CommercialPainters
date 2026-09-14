@@ -17,9 +17,11 @@ tsconfig.tsbuildinfo
 # Local tool cache — machine-specific absolute paths and session ids.
 .impeccable/
 
-# Master video source. 342MB, 4K, 50Mbps — never deployed and never committed.
-# The web encodes in public/video/ are generated from it by
-# scripts/encode-hero-video.mjs and are what ship.
+# Master media sources — never deployed and never committed.
+#   media/hero-master.mp4   342MB, 4K, 50Mbps  -> public/video/ via scripts/encode-hero-video.mjs
+#   media/photography/      537MB of full-resolution JPEG
+#                           -> public/images/gallery/ via scripts/build-gallery-images.mjs
+# The web encodes are what ship.
 /media/
 
 # Third-party locality dataset. The generated output in content/ is committed

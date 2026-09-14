@@ -10,7 +10,7 @@ import { JsonLd } from '@/components/seo/json-ld';
 import { Analytics } from '@/components/analytics/analytics';
 import { localBusinessSchema } from '@/lib/schema';
 import { getServices, getSiteSettings } from '@/lib/content/source';
-import { noindexAll, site, siteUrl } from '@/lib/site';
+import { googleSiteVerification, noindexAll, site, siteUrl } from '@/lib/site';
 
 /**
  * The brand guide's faces: Oswald for headlines, Roboto for body text. Both
@@ -40,6 +40,9 @@ export const metadata: Metadata = {
     'Commercial Painters is a Melbourne commercial painting contractor, working across schools, healthcare, aged care, strata, retail and industrial sites.',
   // Layer 1 of the staging lockdown — see `noindexAll`.
   robots: noindexAll ? { index: false, follow: false } : undefined,
+  // Omitted entirely when unset, so no empty tag ships. Search Console's
+  // Domain property needs none of this — see `googleSiteVerification`.
+  verification: googleSiteVerification ? { google: googleSiteVerification } : undefined,
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {

@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { Breadcrumbs } from '@/components/navigation/breadcrumbs';
 import { ContentImage } from '@/components/media/content-image';
+import { PhotoCarousel } from '@/components/media/photo-carousel';
 import { CtaBand, RelatedLinks, TestimonialBlock } from '@/components/sections';
 import { Container, mediaZoom, Placeholder, Section, SectionHeading } from '@/components/ui';
 import { JsonLd } from '@/components/seo/json-ld';
@@ -219,25 +220,20 @@ export function ProjectArticle({ project, sector, relatedServices = [], settings
         </Container>
       </Section>
 
+      {/*
+       * A carousel rather than the two-up grid this used to be.
+       *
+       * The grid was fine at two photographs and stopped being fine above
+       * that: a case study with eight frames became a wall of thumbnails
+       * between the outcome and the call to action, and every one of them was
+       * cropped to 4:3 whether it was shot that way or not. The strip holds
+       * its height however many frames arrive, and crops none of them.
+       */}
       {gallery.length > 0 && (
-        <Section tone="sunken">
-          <Container>
-            <SectionHeading className="mb-6">Gallery</SectionHeading>
-            <ul className="grid gap-4 sm:grid-cols-2">
-              {gallery.map((image) => (
-                <li
-                  key={image.src}
-                  className="group relative aspect-[4/3] overflow-hidden rounded-lg"
-                >
-                  <ContentImage
-                    image={image}
-                    fill
-                    sizes="(min-width: 640px) 45vw, 100vw"
-                    className={`object-cover ${mediaZoom}`}
-                  />
-                </li>
-              ))}
-            </ul>
+        <Section tone="ink">
+          <Container width="wide">
+            <SectionHeading className="mb-6 text-white">Gallery</SectionHeading>
+            <PhotoCarousel images={gallery} label={project.title} tone="ink" />
           </Container>
         </Section>
       )}

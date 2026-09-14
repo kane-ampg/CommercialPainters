@@ -1,0 +1,428 @@
+{
+  "generatedFrom": "media/photography",
+  "generatedBy": "scripts/build-gallery-images.mjs",
+  "longEdge": 1800,
+  "quality": 78,
+  "sites": [
+    {
+      "slug": "toyota-croydon",
+      "sourceDir": "Toyota Dealership Croydon",
+      "images": [
+        {
+          "src": "/images/gallery/toyota-croydon/toyota-croydon-01.webp",
+          "width": 1200,
+          "height": 1800,
+          "blurDataURL": "data:image/webp;base64,UklGRmQAAABXRUJQVlA4IFgAAAAQAgCdASoLABAABABoJZQC7AEQ/UdFsjEAAP7I59lzzFOk+dcFDvbHHJnapLzjc/nvipYjHGeouULnQ1snvYTlP7Cb6XyMw3PQIOLgid60NK4f1zoTBAAA",
+          "sourceFile": "Toyota Dealership 08042026-1.jpg"
+        },
+        {
+          "src": "/images/gallery/toyota-croydon/toyota-croydon-02.webp",
+          "width": 1800,
+          "height": 1200,
+          "blurDataURL": "data:image/webp;base64,UklGRmQAAABXRUJQVlA4IFgAAAAwAgCdASoQAAsABABoJZQAD4tPNRIqyIk+gAD+50EtLT1UT45hz23aPnzpjuw1r5NnN9WP0OHfMovssoLY6jbFR0gv9UOOKzI1q8tw/lguUAErx/IkzIAA",
+          "sourceFile": "Toyota Dealership 08042026-2.jpg"
+        },
+        {
+          "src": "/images/gallery/toyota-croydon/toyota-croydon-03.webp",
+          "width": 1800,
+          "height": 1200,
+          "blurDataURL": "data:image/webp;base64,UklGRmIAAABXRUJQVlA4IFYAAADwAQCdASoQAAsABABoJZQAD46wVm7rRMAA/t9YGQ+v9Xwjw3VPEr/Z9nORiQNslIR2DgjNqkRv6wxAbJywWaB7ha2sYik9EuCUzD8LmR28N+xro4AAAA==",
+          "sourceFile": "Toyota Dealership 08042026-3.jpg"
+        },
+        {
+          "src": "/images/gallery/toyota-croydon/toyota-croydon-04.webp",
+          "width": 1201,
+          "height": 1800,
+          "blurDataURL": "data:image/webp;base64,UklGRloAAABXRUJQVlA4IE4AAAAQAgCdASoLABAABABoJYwAAxaj3md20GAAAM3z9Y0KaRaKcFR2DMqfVJUvSQVHxXctV8P1w1kAak8YvcRjYVFkk9UibcBRqvQNRVugAAA=",
+          "sourceFile": "Toyota Dealership 08042026-4.jpg"
+        },
+        {
+          "src": "/images/gallery/toyota-croydon/toyota-croydon-05.webp",
+          "width": 1200,
+          "height": 1800,
+          "blurDataURL": "data:image/webp;base64,UklGRmIAAABXRUJQVlA4IFYAAAAQAgCdASoLABAABABoJQBOgB9lfIhaEcHYAP7ht/UjumCs+f+Opg1Zvt+AgX441LhDGV5S2mdCzvlKQKg8KF8ZT6C7/xY1w4anxkgqpXKiFaqtPgAAAA==",
+          "sourceFile": "Toyota Dealership 08042026-5.jpg"
+        },
+        {
+          "src": "/images/gallery/toyota-croydon/toyota-croydon-06.webp",
+          "width": 1201,
+          "height": 1800,
+          "blurDataURL": "data:image/webp;base64,UklGRmgAAABXRUJQVlA4IFwAAADwAQCdASoLABAABABoJYwCdAEOPNu28gAA/o+z73VEoxVUYhRuBnhqOiJ8J2IatDhBw9JlTLreR7+EPjtcQUOMzPWdonJxyirR5mB9Yfw49/nNG1YAJd/UIlQAAA==",
+          "sourceFile": "Toyota Dealership 08042026-6.jpg"
+        },
+        {
+          "src": "/images/gallery/toyota-croydon/toyota-croydon-07.webp",
+          "width": 1201,
+          "height": 1800,
+          "blurDataURL": "data:image/webp;base64,UklGRk4AAABXRUJQVlA4IEIAAADQAQCdASoLABAABABoJZwAAtx5YhkU4AD+1m1v5cjFp0gZxuK6SGu+QTl2RA4nfCasG92Au532QRGTHqRWdLM/QAA=",
+          "sourceFile": "Toyota Dealership 08042026-7.jpg"
+        },
+        {
+          "src": "/images/gallery/toyota-croydon/toyota-croydon-08.webp",
+          "width": 1201,
+          "height": 1800,
+          "blurDataURL": "data:image/webp;base64,UklGRl4AAABXRUJQVlA4IFIAAADwAQCdASoLABAABABoJZQC7ADZaksU+AAA/ueT6Qasc4ZHVY+U6FLr6QKuYW9XcWI+4v66jN2vdFONPYmC3amk89cd3QoU0MOuamHveqagWgAA",
+          "sourceFile": "Toyota Dealership 08042026-8.jpg"
+        },
+        {
+          "src": "/images/gallery/toyota-croydon/toyota-croydon-09.webp",
+          "width": 1201,
+          "height": 1800,
+          "blurDataURL": "data:image/webp;base64,UklGRlwAAABXRUJQVlA4IFAAAACwAQCdASoLABAABABoJYwAAp0GnF2AAP6zPMnvmdt1DVx/ipgHiyuH2WnRe8OOPYRyXVxA1BwCL/jmNCFCuNx3HcxUWH/u7dWO+Z6ugrMYAA==",
+          "sourceFile": "Toyota Dealership 08042026-9.jpg"
+        },
+        {
+          "src": "/images/gallery/toyota-croydon/toyota-croydon-10.webp",
+          "width": 1201,
+          "height": 1800,
+          "blurDataURL": "data:image/webp;base64,UklGRlIAAABXRUJQVlA4IEYAAACQAQCdASoLABAABABoJZwAAlEP2wAA/o0wgPXxM41fUsvM2almhwoT5ovdTOhGaIBzVNAN4+vR9YKqndY6uyoLdUC8AAAA",
+          "sourceFile": "Toyota Dealership 08042026-10.jpg"
+        },
+        {
+          "src": "/images/gallery/toyota-croydon/toyota-croydon-11.webp",
+          "width": 1201,
+          "height": 1800,
+          "blurDataURL": "data:image/webp;base64,UklGRloAAABXRUJQVlA4IE4AAAAQAgCdASoLABAABABoJZwAD5GwHBTwCMNAAP7x0Q5KNO5YSIyC0MNQuAsexnA/LIZ7/o4BrJLyPq+8n9QkAg9cZeam4+jXURH0EgawOAA=",
+          "sourceFile": "Toyota Dealership 08042026-11.jpg"
+        },
+        {
+          "src": "/images/gallery/toyota-croydon/toyota-croydon-12.webp",
+          "width": 1800,
+          "height": 1200,
+          "blurDataURL": "data:image/webp;base64,UklGRl4AAABXRUJQVlA4IFIAAAAwAgCdASoQAAsABABoJYwAAxPH5ca/tcxQAAD+3/8ExmG3OA0WTfjcaXhiz/an1EWRAUHDtcB0eAb7BBsYgIorV3MsPIPSyCBIEpuTd7iY4AAA",
+          "sourceFile": "Toyota Dealership 08042026-12.jpg"
+        },
+        {
+          "src": "/images/gallery/toyota-croydon/toyota-croydon-13.webp",
+          "width": 1201,
+          "height": 1800,
+          "blurDataURL": "data:image/webp;base64,UklGRkoAAABXRUJQVlA4ID4AAACwAQCdASoLABAABABoJaQAAuXnBpEgAP7fuKwOGLr1EB8M6K98JoqWZRB/oV38UoFUQLjMIbr6ZG8XVQAAAA==",
+          "sourceFile": "Toyota Dealership 08042026-13.jpg"
+        },
+        {
+          "src": "/images/gallery/toyota-croydon/toyota-croydon-14.webp",
+          "width": 1800,
+          "height": 1200,
+          "blurDataURL": "data:image/webp;base64,UklGRkwAAABXRUJQVlA4IEAAAACQAQCdASoQAAsABABoJaQAAkm7GgAA/vAKX0QYMzxV0/QUsYQ5+Ew6R7WL7imXS14lGoIr2HpVBAsg7ENgAAAA",
+          "sourceFile": "Toyota Dealership 08042026-14.jpg"
+        }
+      ]
+    },
+    {
+      "slug": "byd-bayswater",
+      "sourceDir": "BYD 899 Mountain Highway Bayswater",
+      "images": [
+        {
+          "src": "/images/gallery/byd-bayswater/byd-bayswater-01.webp",
+          "width": 1200,
+          "height": 1800,
+          "blurDataURL": "data:image/webp;base64,UklGRm4AAABXRUJQVlA4IGIAAAAQAgCdASoLABAABABoJQBOgCFN6Ukau4QAAP39PojkQZ8+K0am9+VHkfzpOwlP7C4E+BNKqkAR/3YgXV80JFQkMjkYYNminoGHWHU+MJtvjIHLakvT+aIfSAPvpaULn4AAAA==",
+          "sourceFile": "BYD 899 Mountain Highway Bayswater-1.jpg"
+        },
+        {
+          "src": "/images/gallery/byd-bayswater/byd-bayswater-02.webp",
+          "width": 1200,
+          "height": 1800,
+          "blurDataURL": "data:image/webp;base64,UklGRmgAAABXRUJQVlA4IFwAAAAQAgCdASoLABAABABoJQAAXa9HGyTzACQAAP7xGSC9BdFCoUxIOIUAIFis8gBJr/J5or5GbnZ9iVs+RP1edjfrAckyIWznIJf7rieVFBsQqYHg0O8+Ex33IAAAAA==",
+          "sourceFile": "BYD 899 Mountain Highway Bayswater-2.jpg"
+        },
+        {
+          "src": "/images/gallery/byd-bayswater/byd-bayswater-03.webp",
+          "width": 1200,
+          "height": 1800,
+          "blurDataURL": "data:image/webp;base64,UklGRmYAAABXRUJQVlA4IFoAAABwAgCdASoLABAABABoJYwC7AEfhydb+3mOCAAAAP7snCFMgenqHlBIGjcaJUugOAm6wMJ2Z8re/amVudcyssiHvTPWmV7H2Q8bqR5eOFIKYfdOMtw14OQIAAA=",
+          "sourceFile": "BYD 899 Mountain Highway Bayswater-3.jpg"
+        },
+        {
+          "src": "/images/gallery/byd-bayswater/byd-bayswater-04.webp",
+          "width": 1800,
+          "height": 1200,
+          "blurDataURL": "data:image/webp;base64,UklGRm4AAABXRUJQVlA4IGIAAAAQAgCdASoQAAsABABoJZACdAELWcMqc9YAAP7Re4e2htHw4xmeyfhGFR4vKgqwEV2Qeqw1TqbfxpJcWEm1iw6SuNncQzGlzdoVYKCmXLz9DNy86DBtbTdaNI03uf8kJvwAAA==",
+          "sourceFile": "BYD 899 Mountain Highway Bayswater-4.jpg"
+        },
+        {
+          "src": "/images/gallery/byd-bayswater/byd-bayswater-05.webp",
+          "width": 1800,
+          "height": 1200,
+          "blurDataURL": "data:image/webp;base64,UklGRmYAAABXRUJQVlA4IFoAAACwAQCdASoQAAsABABoJZAC7ADg8jk8AP6mwu+hkLmXcJlvi8gGqFtfwZiE6UPTakyvXOmJeX4YvxLJvu0rPfwstfQX4cKu1S61IZKa3Zqnc+UuVTzi/TgAAAA=",
+          "sourceFile": "BYD 899 Mountain Highway Bayswater-5.jpg"
+        },
+        {
+          "src": "/images/gallery/byd-bayswater/byd-bayswater-06.webp",
+          "width": 1200,
+          "height": 1800,
+          "blurDataURL": "data:image/webp;base64,UklGRl4AAABXRUJQVlA4IFIAAAAQAgCdASoLABAABABoJYwCsADcaERN6LjAAPz8FTcHVGjF5bItnxyMKstrw0h9/KDrDEYk9vQOluOihuX74HVmZnOEor0WZ5YhNEBaxHFZgAAA",
+          "sourceFile": "BYD 899 Mountain Highway Bayswater-6.jpg"
+        },
+        {
+          "src": "/images/gallery/byd-bayswater/byd-bayswater-07.webp",
+          "width": 1200,
+          "height": 1800,
+          "blurDataURL": "data:image/webp;base64,UklGRlIAAABXRUJQVlA4IEYAAAAQAgCdASoLABAABABoJZwAD42NaJGJzEbAAP7xmrEhIcmEX5x+xhDb2bNKibqkhRlQyn/SChiwGzwgoA6GPsilfNv/4AAA",
+          "sourceFile": "BYD 899 Mountain Highway Bayswater-7.jpg"
+        },
+        {
+          "src": "/images/gallery/byd-bayswater/byd-bayswater-08.webp",
+          "width": 1200,
+          "height": 1800,
+          "blurDataURL": "data:image/webp;base64,UklGRlwAAABXRUJQVlA4IFAAAADQAQCdASoLABAABABoJZwAAlrIBDIgAAD+8PSrsKwf5XBcaI+KqcvWQdtfb84MQdgZbqnuUgNO632X0ERw50vN2xbFz/i7YZs8Id+i4AAAAA==",
+          "sourceFile": "BYD 899 Mountain Highway Bayswater-8.jpg"
+        },
+        {
+          "src": "/images/gallery/byd-bayswater/byd-bayswater-09.webp",
+          "width": 1800,
+          "height": 1200,
+          "blurDataURL": "data:image/webp;base64,UklGRloAAABXRUJQVlA4IE4AAAAQAgCdASoQAAsABABoJZwAArCvBQ6cvomAAP7qAMkkiWBeKN2pXjAnMTiDzNtK/TK3TZ3esVn6pj2Seh5RtqtbTF+HHk4a3cB+jwOAAAA=",
+          "sourceFile": "BYD 899 Mountain Highway Bayswater-9.jpg"
+        },
+        {
+          "src": "/images/gallery/byd-bayswater/byd-bayswater-10.webp",
+          "width": 1200,
+          "height": 1800,
+          "blurDataURL": "data:image/webp;base64,UklGRloAAABXRUJQVlA4IE4AAADwAQCdASoLABAABABoJYgAAv3LpnW8zAAA/pl9ognCeK9nHXrz2r10YAEmpcGy1o3htW2Pf7517KX2bRUcaCXAw70FBVKTu2/tqMQAAAA=",
+          "sourceFile": "BYD 899 Mountain Highway Bayswater-10.jpg"
+        },
+        {
+          "src": "/images/gallery/byd-bayswater/byd-bayswater-11.webp",
+          "width": 1800,
+          "height": 1200,
+          "blurDataURL": "data:image/webp;base64,UklGRmIAAABXRUJQVlA4IFYAAADwAQCdASoQAAsABABoJagC7AD0iuSf2AAA/uqX79s5rmD9skp9aOP44ovTGog1dQ39sFb2hA2WXf2NVYDhk1dTJDnAk1hAxhN5gkh7BiNm+pGWWAAAAA==",
+          "sourceFile": "BYD 899 Mountain Highway Bayswater-11.jpg"
+        }
+      ]
+    },
+    {
+      "slug": "christensen-street-cheltenham",
+      "sourceDir": "20 Christensen Street, Cheltenham, Victoria, 3192, Australia",
+      "images": [
+        {
+          "src": "/images/gallery/christensen-street-cheltenham/christensen-street-cheltenham-01.webp",
+          "width": 1200,
+          "height": 1800,
+          "blurDataURL": "data:image/webp;base64,UklGRkwAAABXRUJQVlA4IEAAAADwAQCdASoLABAABABoJYwAAudloWtscAAA/tSegfrIOKosPSZeAfTo2kH5G9MI0hDxBKRFJ08vLe5xPm4NAAAA",
+          "sourceFile": "20 Christensen Street, Cheltenham-1.jpg"
+        },
+        {
+          "src": "/images/gallery/christensen-street-cheltenham/christensen-street-cheltenham-02.webp",
+          "width": 1800,
+          "height": 1200,
+          "blurDataURL": "data:image/webp;base64,UklGRkwAAABXRUJQVlA4IEAAAADwAQCdASoQAAsABABoJQBdgBjr3MXgwtAA/ln677nZOj5UQ6XUxi7r0jCc9tKueeNt+U3jC5PRvA32chWoAAAA",
+          "sourceFile": "20 Christensen Street, Cheltenham-2.jpg"
+        },
+        {
+          "src": "/images/gallery/christensen-street-cheltenham/christensen-street-cheltenham-03.webp",
+          "width": 1200,
+          "height": 1800,
+          "blurDataURL": "data:image/webp;base64,UklGRlgAAABXRUJQVlA4IEwAAADwAQCdASoLABAABABoJQBdgBummvP5pgAA/OD5D/h8tUEcZJwEY7Zv+HM3qjVNHybynZ2m8zDjh8Xq936CnZkBkhc6HdAkJhoNAAAA",
+          "sourceFile": "20 Christensen Street, Cheltenham-3.jpg"
+        },
+        {
+          "src": "/images/gallery/christensen-street-cheltenham/christensen-street-cheltenham-04.webp",
+          "width": 1200,
+          "height": 1800,
+          "blurDataURL": "data:image/webp;base64,UklGRkIAAABXRUJQVlA4IDYAAACwAQCdASoLABAABABoJZwAAuYJ0HQAAPx9tESi1GQ8d6hs+CP9nartFfm14Brqe012EAwEAAA=",
+          "sourceFile": "20 Christensen Street, Cheltenham-4.jpg"
+        },
+        {
+          "src": "/images/gallery/christensen-street-cheltenham/christensen-street-cheltenham-05.webp",
+          "width": 1200,
+          "height": 1800,
+          "blurDataURL": "data:image/webp;base64,UklGRlIAAABXRUJQVlA4IEYAAADQAQCdASoLABAABABoJZwC7AD0MElSAAD+kanP/hW/Hq2D/yka2DSwCz0O+XXpqXzTgd+b0aoa2mK1PG/GjS4mde91kwAA",
+          "sourceFile": "20 Christensen Street, Cheltenham-5.jpg"
+        },
+        {
+          "src": "/images/gallery/christensen-street-cheltenham/christensen-street-cheltenham-06.webp",
+          "width": 1200,
+          "height": 1800,
+          "blurDataURL": "data:image/webp;base64,UklGRmIAAABXRUJQVlA4IFYAAACQAQCdASoLABAABABoJZQAAlfdpoAA9peEfvP224nID4yPd+nKuShVlqNbe22xpOdRzrSpNyTXltqcoZBfZyOyKVr2HCsv+vIht3O63sBaBLME/p+AAA==",
+          "sourceFile": "20 Christensen Street, Cheltenham-6.jpg"
+        },
+        {
+          "src": "/images/gallery/christensen-street-cheltenham/christensen-street-cheltenham-07.webp",
+          "width": 1200,
+          "height": 1800,
+          "blurDataURL": "data:image/webp;base64,UklGRlwAAABXRUJQVlA4IFAAAAAQAgCdASoLABAABABoJYwAAmi92ON6NLsAAPWa7jT70aRN+ZCcmdM1kQtQQ9PpW+tjWy95FObtN/Hk+yeYBCUN76O69qoOPN4r13x+uPWgAA==",
+          "sourceFile": "20 Christensen Street, Cheltenham-7.jpg"
+        },
+        {
+          "src": "/images/gallery/christensen-street-cheltenham/christensen-street-cheltenham-08.webp",
+          "width": 1800,
+          "height": 1200,
+          "blurDataURL": "data:image/webp;base64,UklGRkwAAABXRUJQVlA4IEAAAACwAQCdASoQAAsABABoJZwAAbsSrM9gAPZBO40vLgjGp35turJDI2Vr0peuD7gtieXDlgAydXYtw8DgjrqdzAAA",
+          "sourceFile": "20 Christensen Street, Cheltenham-8.jpg"
+        },
+        {
+          "src": "/images/gallery/christensen-street-cheltenham/christensen-street-cheltenham-09.webp",
+          "width": 1800,
+          "height": 1200,
+          "blurDataURL": "data:image/webp;base64,UklGRlIAAABXRUJQVlA4IEYAAADwAQCdASoQAAsABABoJZwAAtqwm6X2GgAA+N/FoYcRn7XJ1EvK4JaJkLaxlEvIWGXR6FEr7scsgVaHmpaaXNx280mMAAAA",
+          "sourceFile": "20 Christensen Street, Cheltenham-9.jpg"
+        },
+        {
+          "src": "/images/gallery/christensen-street-cheltenham/christensen-street-cheltenham-10.webp",
+          "width": 1800,
+          "height": 1200,
+          "blurDataURL": "data:image/webp;base64,UklGRk4AAABXRUJQVlA4IEIAAADwAQCdASoQAAsABABoJZQAAqzQunHz2fAA/LTieYpgAdWJi27APTXac1M0Tbxc7MA+mnG66iR7gNuIYIEwf7l4AAA=",
+          "sourceFile": "20 Christensen Street, Cheltenham-10.jpg"
+        },
+        {
+          "src": "/images/gallery/christensen-street-cheltenham/christensen-street-cheltenham-11.webp",
+          "width": 1800,
+          "height": 1200,
+          "blurDataURL": "data:image/webp;base64,UklGRmgAAABXRUJQVlA4IFwAAADwAQCdASoQAAsABABoJZwAAv1Q24WqIYAA/u5hjUa66n8fAaFKSOm8dSRmYSPmpTBG9kax7Hh2Fz99G8NzwrcHE445Bwfx4ucfCWYqvPZZRwF0ckUSsQc1AeAAAA==",
+          "sourceFile": "20 Christensen Street, Cheltenham-11.jpg"
+        },
+        {
+          "src": "/images/gallery/christensen-street-cheltenham/christensen-street-cheltenham-12.webp",
+          "width": 1800,
+          "height": 1200,
+          "blurDataURL": "data:image/webp;base64,UklGRk4AAABXRUJQVlA4IEIAAADwAQCdASoQAAsABABoJZwAAvoWPJdPBmAAzeWpI9A2IqRiyzyL9EM9qevtnZCt5+uLf2CY9cJF2AiDYm8B+u8wgAA=",
+          "sourceFile": "20 Christensen Street, Cheltenham-12.jpg"
+        },
+        {
+          "src": "/images/gallery/christensen-street-cheltenham/christensen-street-cheltenham-13.webp",
+          "width": 1800,
+          "height": 1200,
+          "blurDataURL": "data:image/webp;base64,UklGRlAAAABXRUJQVlA4IEQAAAAQAgCdASoQAAsABABoJZwAAxU3HVh3j/0AAN5avKX25FdYvOCmcS/3Kkf7q0LHL7CJQ8JQS9sbGP7E01EG9ZpjAsCAAA==",
+          "sourceFile": "20 Christensen Street, Cheltenham-13.jpg"
+        },
+        {
+          "src": "/images/gallery/christensen-street-cheltenham/christensen-street-cheltenham-14.webp",
+          "width": 1800,
+          "height": 1200,
+          "blurDataURL": "data:image/webp;base64,UklGRlAAAABXRUJQVlA4IEQAAADwAQCdASoQAAsABABoJZwAAqojibSQSQAAzfMO6mM27XDfduh62ItkLn2rOhGhp0+d9CHTD2zyGC1vOt+mPZPjewgAAA==",
+          "sourceFile": "20 Christensen Street, Cheltenham-14.jpg"
+        }
+      ]
+    },
+    {
+      "slug": "our-lady-of-the-pines",
+      "sourceDir": "Our Lady of the Pines Primary School",
+      "images": [
+        {
+          "src": "/images/gallery/our-lady-of-the-pines/our-lady-of-the-pines-01.webp",
+          "width": 1800,
+          "height": 1200,
+          "blurDataURL": "data:image/webp;base64,UklGRmQAAABXRUJQVlA4IFgAAADwAQCdASoQAAsABABoJZQC7AEXBA0YydAA/sX8zwqqruDBiqVjXwWSy/0S+5sy8Y60B3bO8PHBOBs/2VmBBXb2GSrdCPIJLLIRZhxdiQ7hrphcLitvXAAA",
+          "sourceFile": "Our Lady of the Pines Primary School-1.jpg"
+        },
+        {
+          "src": "/images/gallery/our-lady-of-the-pines/our-lady-of-the-pines-02.webp",
+          "width": 1800,
+          "height": 1200,
+          "blurDataURL": "data:image/webp;base64,UklGRmYAAABXRUJQVlA4IFoAAADwAQCdASoQAAsABABoJZQAAuyU393h+cAAzirS9jqg5EUDDLt6liReZC2sTMqZkfeTd4CyS7/ZFUiavmmzWuThrUnZq+0Qrxi6TWY81K57G57fyvPAAD4AAAA=",
+          "sourceFile": "Our Lady of the Pines Primary School-2.jpg"
+        },
+        {
+          "src": "/images/gallery/our-lady-of-the-pines/our-lady-of-the-pines-03.webp",
+          "width": 1800,
+          "height": 1200,
+          "blurDataURL": "data:image/webp;base64,UklGRmgAAABXRUJQVlA4IFwAAAAwAgCdASoQAAsABABoJYwCdAC6bSDAl4yIAADNTuHVg5JIF95FN2yysG72dBkFl7buYTs+l7Wc2HX/y+qSvaij1xxuyIstQg4RZSa24T73EuJSKhLYGQQBNgAAAA==",
+          "sourceFile": "Our Lady of the Pines Primary School-3.jpg"
+        },
+        {
+          "src": "/images/gallery/our-lady-of-the-pines/our-lady-of-the-pines-04.webp",
+          "width": 1800,
+          "height": 1200,
+          "blurDataURL": "data:image/webp;base64,UklGRmQAAABXRUJQVlA4IFgAAAAwAgCdASoQAAsABABoJQBOgMYJtWnGFYugAAD+zyLnMfDJjwSqKJhPH+L5jYqPE3Lc8brbNQyYCoM2iDz8/bycs1A8Q0l2RO6Htp8uZL4nWRXstcSa3oAA",
+          "sourceFile": "Our Lady of the Pines Primary School-4.jpg"
+        },
+        {
+          "src": "/images/gallery/our-lady-of-the-pines/our-lady-of-the-pines-05.webp",
+          "width": 1800,
+          "height": 1200,
+          "blurDataURL": "data:image/webp;base64,UklGRmIAAABXRUJQVlA4IFYAAADwAQCdASoQAAsABABoJYgC7AEMkTxsBLwA4ef2KWlfHxetWUr52nflHY0EdHr+x+YeVJ8qdnRp7OcwcPVUGvcOMVFQ2YbK8nzND2mE1CzqIo3Js5AgAA==",
+          "sourceFile": "Our Lady of the Pines Primary School-5.jpg"
+        }
+      ]
+    },
+    {
+      "slug": "saint-bar",
+      "sourceDir": "Saint Bar",
+      "images": [
+        {
+          "src": "/images/gallery/saint-bar/saint-bar-01.webp",
+          "width": 1800,
+          "height": 1200,
+          "blurDataURL": "data:image/webp;base64,UklGRloAAABXRUJQVlA4IE4AAADQAQCdASoQAAsABABoJZwAAp1pj9b+AAD+81DkciMPRwNUZEmeGdgVPvAeAE8rpYcpk9sK84VPcRlTVRZJq+6UzFYyw3QdaKfA6bmOAAA=",
+          "sourceFile": "Saint Bar-1.jpg"
+        },
+        {
+          "src": "/images/gallery/saint-bar/saint-bar-02.webp",
+          "width": 1800,
+          "height": 1200,
+          "blurDataURL": "data:image/webp;base64,UklGRlgAAABXRUJQVlA4IEwAAADQAQCdASoQAAsABABoJYwAAtbipfWDgADON5E0acTNEMZAwRVwUVE0hr1PYtvWw72vVbaNMhfmyKxQCywaloHrVZsXyzK4OrsQIAAA",
+          "sourceFile": "Saint Bar-1-2.jpg"
+        },
+        {
+          "src": "/images/gallery/saint-bar/saint-bar-03.webp",
+          "width": 1800,
+          "height": 1200,
+          "blurDataURL": "data:image/webp;base64,UklGRmIAAABXRUJQVlA4IFYAAADwAQCdASoQAAsABABoJQBOgBpGtoQ21YAA/ryQrNSKG2b9fapbN8eBpJFrP8IPuJv6Uv1BeIITeAf4iRuRPiSgX6o8+UTZGGMEli2cKP3Qjuf4VMcEAA==",
+          "sourceFile": "Saint Bar-2.jpg"
+        }
+      ]
+    },
+    {
+      "slug": "heather-street-south-melbourne",
+      "sourceDir": "2-4 Heather Street, South Melbourne",
+      "images": [
+        {
+          "src": "/images/gallery/heather-street-south-melbourne/heather-street-south-melbourne-01.webp",
+          "width": 1200,
+          "height": 1800,
+          "blurDataURL": "data:image/webp;base64,UklGRloAAABXRUJQVlA4IE4AAAAQAgCdASoLABAABABoJYgCdAD0jSHzadrAAP6KT2nd3wZHI5EgFwBsZORAcdk2nLPRdbdLvk3zDcaQH99Ggs4zN1rB3DYnJd62RIYAAAA=",
+          "sourceFile": "2-4 Heather Street-1.jpg"
+        },
+        {
+          "src": "/images/gallery/heather-street-south-melbourne/heather-street-south-melbourne-02.webp",
+          "width": 1200,
+          "height": 1800,
+          "blurDataURL": "data:image/webp;base64,UklGRloAAABXRUJQVlA4IE4AAACwAQCdASoLABAABABoJQBWAB6A8UDAAPvw28gSkY0qCMMt7Omfc3ssvH6+Q9CgsFBGjsOdhQYoDCsVwFJVXvjZB6zjTnDMXjoNC3BxcAA=",
+          "sourceFile": "2-4 Heather Street-2.jpg"
+        },
+        {
+          "src": "/images/gallery/heather-street-south-melbourne/heather-street-south-melbourne-03.webp",
+          "width": 1800,
+          "height": 1200,
+          "blurDataURL": "data:image/webp;base64,UklGRlYAAABXRUJQVlA4IEoAAAAQAgCdASoQAAsABABoJaAC/OEDyIwW3XYwAP7YL0OrdqQm2VVBgdyico/g4u4wGadtfN997WyIuD6uzm+gA7YFt5Xm/Rx5qrw0AA==",
+          "sourceFile": "2-4 Heather Street-3.jpg"
+        },
+        {
+          "src": "/images/gallery/heather-street-south-melbourne/heather-street-south-melbourne-04.webp",
+          "width": 1200,
+          "height": 1800,
+          "blurDataURL": "data:image/webp;base64,UklGRmYAAABXRUJQVlA4IFoAAAAwAgCdASoLABAABABoJZQCdAYxja1iO5U2gADiUXR74WbaiVYsw4O0CTz/R1JGU4hRKrOHzYfDpo9AAL377fHFu0tsdJe6j36e5rEagjFoWlh3HQZiJbSk6AA=",
+          "sourceFile": "2-4 Heather Street-6.jpg"
+        }
+      ]
+    },
+    {
+      "slug": "kinkora-road-hawthorn",
+      "sourceDir": "47 Kinkora Rd, Hawthorn",
+      "images": [
+        {
+          "src": "/images/gallery/kinkora-road-hawthorn/kinkora-road-hawthorn-01.webp",
+          "width": 1800,
+          "height": 1200,
+          "blurDataURL": "data:image/webp;base64,UklGRlwAAABXRUJQVlA4IFAAAAAQAgCdASoQAAsABABoJaACdAD0kTFe2bzgAPzjfTZf6Ij/NP4BHQsyL6W3tH6NEkDuFMBC4xHWr+6sIf/bKIbcBqjjgeWTN4+BKIpmtAAAAA==",
+          "sourceFile": "47 Kinkora Rd, Hawthorn-1.jpg"
+        },
+        {
+          "src": "/images/gallery/kinkora-road-hawthorn/kinkora-road-hawthorn-02.webp",
+          "width": 1800,
+          "height": 1200,
+          "blurDataURL": "data:image/webp;base64,UklGRloAAABXRUJQVlA4IE4AAAAQAgCdASoQAAsABABoJbACdAEfbUX858rwAPagcvL10c5JFmaAQHNKQn7XUjergWDXRiOIzcnY02jRCo4xK/73qFOF0/uqDdnDwj0AAAA=",
+          "sourceFile": "47 Kinkora Rd, Hawthorn-2.jpg"
+        },
+        {
+          "src": "/images/gallery/kinkora-road-hawthorn/kinkora-road-hawthorn-03.webp",
+          "width": 1200,
+          "height": 1800,
+          "blurDataURL": "data:image/webp;base64,UklGRnQAAABXRUJQVlA4IGgAAABQAgCdASoLABAABABoJYgCdAD8LpAAJXEUL5AA/qriq+JfqUqXIqY3S54e9hE7VzkHz5LhXjglOamLeugbAV1HfaEVmaOI8f0hmDZ8IEqdqzcvRscaz2xfhOyjWVByjkcahmXf5wAAAA==",
+          "sourceFile": "47 Kinkora Rd, Hawthorn-3.jpg"
+        }
+      ]
+    }
+  ]
+}

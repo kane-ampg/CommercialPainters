@@ -1,0 +1,4 @@
+# Everything git ignores is already absent from a git-linked deploy. This file
+# is the other half, for a deploy pushed straight from a working tree by the
+# Vercel CLI — without it the master media sources would be uploaded.
+/media/

@@ -1,9 +1,10 @@
 import type { Metadata } from 'next';
 import { buildMetadata } from '@/lib/seo/metadata';
 import { Breadcrumbs } from '@/components/navigation/breadcrumbs';
-import { CtaBand, ProjectGrid } from '@/components/sections';
+import { CtaBand, ProjectGrid, WorkGalleries } from '@/components/sections';
 import { Container, Placeholder, Prose, Section, SectionHeading } from '@/components/ui';
 import { getFeaturedProjects, getProjects, getSiteSettings } from '@/lib/content/source';
+import { galleries, galleryFrameCount } from '@/content/galleries';
 
 export const metadata: Metadata = buildMetadata({
   title: 'Painting Projects & Case Studies | Commercial Painters',
@@ -57,6 +58,27 @@ export default async function ProjectsPage() {
             <ProjectGrid projects={thin} />
           </Container>
         </Section>
+      )}
+
+      {galleries.length > 0 && (
+        <>
+          <Section tone="paper" className="pb-0">
+            <Container width="wide">
+              <SectionHeading className="mb-3">Sites we have photographed</SectionHeading>
+              <Prose>
+                <p>
+                  {galleryFrameCount} photographs across {galleries.length} commercial sites. These
+                  are not case studies — there is no written record of scope, preparation or
+                  programme behind them, so nothing is claimed here beyond what the photographs
+                  show. They are the work itself: the access, the masking, the preparation and the
+                  finish, as each site actually looked while the crew was on it.
+                </p>
+              </Prose>
+            </Container>
+          </Section>
+
+          <WorkGalleries galleries={galleries} />
+        </>
       )}
 
       <CtaBand

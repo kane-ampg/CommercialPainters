@@ -1253,3 +1253,18 @@ export function ReviewWall() {
     </div>
   );
 }
+
+/* ------------------------------------------------------------------ */
+/* Site photography                                                     */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Re-exported so pages keep one import for sections. The implementations live
+ * in their own file because they pull in a client component and this one is
+ * already long enough.
+ */
+export {
+  RecentWorkStrip,
+  WorkGalleries,
+  WorkGalleryBlock,
+} from '@/components/sections/work-gallery';

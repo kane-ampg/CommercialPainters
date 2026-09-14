@@ -580,3 +580,21 @@ export const noindexAll = process.env.NEXT_PUBLIC_NOINDEX === 'true';
  * server-side just avoids a second, redundant copy in the JS.
  */
 export const gtmId = process.env.GTM_ID?.trim() || null;
+
+/**
+ * Google Search Console ownership token.
+ *
+ * Only needed for a URL-prefix property, and only when DNS is not available:
+ * a Domain property verifies by TXT record, covers every subdomain and both
+ * protocols at once, and survives a redeploy — prefer it. This exists for the
+ * case where the registrar sits with someone else and the HTML-tag method is
+ * the only one on offer.
+ *
+ * The bare token, not the whole `<meta>` tag: Google's UI hands over the
+ * element, and pasting it whole yields a token containing markup, which
+ * renders a tag that verifies nothing. Trimmed for the same reason `gtmId`
+ * is, and null when absent so no empty tag ships.
+ *
+ * Server-only, like the rest: read in the root layout's metadata export.
+ */
+export const googleSiteVerification = process.env.GOOGLE_SITE_VERIFICATION?.trim() || null;

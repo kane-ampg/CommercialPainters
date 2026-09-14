@@ -10,6 +10,7 @@ import {
   ProcessSteps,
   ProjectGrid,
   GoogleReviewWall,
+  RecentWorkStrip,
   SectorGrid,
   ServiceAreas,
   ServiceGrid,
@@ -19,6 +20,7 @@ import { ButtonLink, Container, Prose, Section, SectionHeading } from '@/compone
 import { faqSchema } from '@/lib/schema';
 import { differentiators } from '@/content/approach';
 import { homeFaqs } from '@/content/faqs';
+import { galleries, galleryCovers } from '@/content/galleries';
 import { indexableLocalities } from '@/lib/locations';
 import { getFeaturedProjects, getServices, getSiteSettings } from '@/lib/content/source';
 import { googleAggregate } from '@/content/reviews';
@@ -183,6 +185,20 @@ export default async function HomePage() {
           <ProjectGrid projects={featuredProjects} />
         </Container>
       </Section>
+
+      {/*
+       * The case-study grid above is the written record; this is the visual
+       * one. One lead frame from each photographed site, on the signature red
+       * -ruled slab — the page's only run of real photography below the fold,
+       * and the thing a facilities manager actually scans for before reading
+       * a word of the process.
+       */}
+      <RecentWorkStrip
+        images={galleryCovers}
+        heading="On site recently"
+        body={`Commercial buildings across ${galleries.length} sites — dealership showrooms, an office fitout, a school teaching block, a bar and an apartment foyer. Photographed as the work was happening.`}
+        action={{ label: 'See every site', href: '/projects/' }}
+      />
 
       <GoogleReviewWall />
 

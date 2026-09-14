@@ -9,10 +9,21 @@ import {
   Hero,
   ProjectGrid,
   RelatedLinks,
+  WorkGalleryBlock,
 } from '@/components/sections';
-import { Card, Container, Placeholder, Prose, Section, SectionHeading } from '@/components/ui';
+import {
+  Card,
+  Container,
+  microLabel,
+  Placeholder,
+  Prose,
+  Section,
+  SectionHeading,
+} from '@/components/ui';
+import { cn } from '@/lib/utils';
 import { JsonLd } from '@/components/seo/json-ld';
 import { faqSchema, serviceSchema } from '@/lib/schema';
+import { galleryForSector } from '@/content/galleries';
 import { sectors } from '@/content/sectors';
 import { getProject, getSiteSettings } from '@/lib/content/source';
 
@@ -76,6 +87,9 @@ export default async function SectorPage({ params }: Props) {
     getSiteSettings(),
   ]);
 
+  /** Photographs from a site of this kind, where one has been shot. */
+  const gallery = galleryForSector(sector.slug);
+
   return (
     <>
       <JsonLd
@@ -137,11 +151,52 @@ export default async function SectorPage({ params }: Props) {
             <ProjectGrid projects={projects} />
           ) : (
             <Placeholder
-              note={`no completed ${sector.shortTitle.toLowerCase()} project is documented yet, so this page makes no sector experience claim. Documented case studies from other sectors are on the projects page.`}
+              note={
+                gallery
+                  ? `no completed ${sector.shortTitle.toLowerCase()} project is written up yet, so this page makes no sector experience claim. Photographs from one such site are below — they show the work, not a documented scope. Written case studies from other sectors are on the projects page.`
+                  : `no completed ${sector.shortTitle.toLowerCase()} project is documented yet, so this page makes no sector experience claim. Documented case studies from other sectors are on the projects page.`
+              }
             />
           )}
         </Container>
       </Section>
+
+      {/*
+       * Photographs, kept out of the Evidence section above rather than folded
+       * into it.
+       *
+       * That section is the page's one claim about what the business has
+       * actually delivered in this sector, and it is gated on a written record.
+       * A gallery is a weaker thing — it proves the crew was on a site of this
+       * kind and shows how they worked, and nothing about scope or outcome. It
+       * gets its own slab and its own heading so the distinction survives a
+       * skim, and the placeholder above says so in as many words.
+       */}
+      {gallery && (
+        <Section tone="ink">
+          <Container width="wide">
+            <p className={cn(microLabel, 'mb-3 text-brand-500')}>Photographed on site</p>
+            {/*
+             * The disclosure rides with the gallery rather than with the
+             * Placeholder above it.
+             *
+             * It used to be a clause in that Placeholder, which only renders
+             * when the sector has NO documented project — so on the two
+             * sectors that have both a case study and a gallery (education,
+             * industrial) the photographs appeared directly beneath a grid of
+             * written case studies with nothing saying they were a different
+             * kind of thing. Attached here it cannot come apart from what it
+             * describes.
+             */}
+            <p className="mb-8 max-w-prose text-sm leading-relaxed text-white/60">
+              Photographs from a {sector.shortTitle.toLowerCase()} site we have worked on. They show
+              the work as it happened — they are not a written case study, and no scope, programme
+              or outcome is claimed from them.
+            </p>
+            <WorkGalleryBlock gallery={gallery} headingLevel="h2" tone="ink" />
+          </Container>
+        </Section>
+      )}
 
       <ContentBlock tone="sunken" heading={`${sector.shortTitle} painting questions`}>
         <FaqList items={sector.faqs} />

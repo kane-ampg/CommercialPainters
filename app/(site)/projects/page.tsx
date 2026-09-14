@@ -2,8 +2,8 @@ import type { Metadata } from 'next';
 import { buildMetadata } from '@/lib/seo/metadata';
 import { Breadcrumbs } from '@/components/navigation/breadcrumbs';
 import { CtaBand, ProjectGrid, WorkGalleries } from '@/components/sections';
-import { Container, Placeholder, Prose, Section, SectionHeading } from '@/components/ui';
-import { getFeaturedProjects, getProjects, getSiteSettings } from '@/lib/content/source';
+import { Container, Prose, Section, SectionHeading } from '@/components/ui';
+import { getFeaturedProjects, getSiteSettings } from '@/lib/content/source';
 import { galleries, galleryFrameCount } from '@/content/galleries';
 
 export const metadata: Metadata = buildMetadata({
@@ -14,12 +14,10 @@ export const metadata: Metadata = buildMetadata({
 });
 
 export default async function ProjectsPage() {
-  const [featuredProjects, projects, settings] = await Promise.all([
+  const [featuredProjects, settings] = await Promise.all([
     getFeaturedProjects(),
-    getProjects(),
     getSiteSettings(),
   ]);
-  const thin = projects.filter((project) => !project.isFeatured);
 
   return (
     <>
@@ -41,24 +39,21 @@ export default async function ProjectsPage() {
         </Container>
       </Section>
 
-      {thin.length > 0 && (
-        <Section tone="sunken">
-          <Container>
-            <SectionHeading className="mb-3">Further projects</SectionHeading>
-            <Prose className="mb-6">
-              <p>
-                These are real projects with thin records — the existing pages carry photographs but
-                little detail. They are listed rather than hidden, and will be written up properly
-                once the project information is supplied.
-              </p>
-            </Prose>
-            <div className="mb-6">
-              <Placeholder note="scope, preparation, duration and outcome are missing for the projects below. They are excluded from featured slots until that arrives." />
-            </div>
-            <ProjectGrid projects={thin} />
-          </Container>
-        </Section>
-      )}
+      {/*
+       * There is no "Further projects" section any more.
+       *
+       * It existed to list projects whose records are too thin to write up —
+       * in practice one clinic fit-out — under an "awaiting content" banner.
+       * That made sense when it was the only other thing on the page. Now the
+       * galleries below carry the photographic evidence properly, and a lone
+       * card advertising what is missing reads as an apology in the middle of
+       * the strongest work on the site.
+       *
+       * Nothing is orphaned: the project keeps its page, and /healthcare-
+       * painters/ still links to it through the sector's `projectSlugs`
+       * (content/sectors.ts). Set `isFeatured: true` on it once the record
+       * arrives and it joins the documented grid above on its own.
+       */}
 
       {galleries.length > 0 && (
         <>

@@ -23702,7 +23702,7 @@
         "lat": -37.7412988,
         "lng": 144.9666108
       },
-      "council": "Darebin",
+      "council": "Moreland",
       "anchorKey": "bayswater-north",
       "distanceKm": 29.06,
       "regionSlug": "northern",
@@ -24324,7 +24324,7 @@
         "lat": -37.9847811,
         "lng": 145.2139907
       },
-      "council": "Casey",
+      "council": "Greater Dandenong",
       "anchorKey": "bayswater-north",
       "distanceKm": 16.29,
       "regionSlug": "south-east",
@@ -30083,7 +30083,7 @@
         "lat": -37.7736132,
         "lng": 144.9997396
       },
-      "council": "Moreland",
+      "council": "Darebin",
       "anchorKey": "bayswater-north",
       "distanceKm": 25.05,
       "regionSlug": "northern",

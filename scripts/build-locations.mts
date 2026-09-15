@@ -286,6 +286,37 @@ const COUNCIL_OVERRIDES_BY_LOCALITY: Record<string, string> = {
   'FERNTREE GULLY': 'Knox',
   'FOREST HILL': 'Whitehorse',
   NUNAWADING: 'Whitehorse',
+
+  /*
+   * Found 2026-09-14 by scripts/audit-councils.mjs, the centroid-outlier check
+   * the note above promised but which had never actually been written. All
+   * four verified by hand; none of the four names exists as a QLD locality, so
+   * the name key is unambiguous.
+   *
+   * Tullamarine is NOT among them, though the audit flags it hardest of the
+   * Tier 1 set (8.4km from Brimbank's centre, 4.9km from Hume's). The suburb
+   * straddles the two, and tests/unit/tier1-councils.test.ts already pins it
+   * to Brimbank deliberately, on the rule that a split suburb takes the
+   * council holding its commercial core — which for Tullamarine is the
+   * Western Avenue industrial estate, not the residential north. A centroid
+   * cannot see a commercial core, so the audit will keep flagging it. Left
+   * alone on purpose; do not "fix" it without re-deciding that rule.
+   *
+   * Coburg and Northcote had been swapped with each other — Coburg tagged
+   * Darebin, Northcote tagged Moreland, each holding the other's council. A
+   * centroid check cannot see this one: the two councils adjoin, so both
+   * suburbs sit near both centres and neither trips the outlier margin. It
+   * surfaced only because Northcote came up as a promotion candidate and the
+   * council read wrong. Worth remembering when reading a clean audit — the
+   * check finds distant mis-assignments, not neighbourly ones.
+   *
+   * Dandenong tagged Casey is the same error the note above already fixed for
+   * Dandenong South; the parent suburb was missed. It is the seat of the
+   * council named after it.
+   */
+  COBURG: 'Moreland',
+  NORTHCOTE: 'Darebin',
+  DANDENONG: 'Greater Dandenong',
 };
 
 /**

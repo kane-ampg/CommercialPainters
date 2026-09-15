@@ -8,6 +8,10 @@ Fully static. Every page is rendered at build time from typed TypeScript content
 and `lib/site.ts`. There is no database and no admin — editing the site means editing those files
 and deploying.
 
+Full reference documentation lives in [`docs/README.md`](docs/README.md): architecture, content
+editing, enquiries, SEO and indexation, deployment, pipelines, testing, the development history
+and current status.
+
 ---
 
 ## Read this first

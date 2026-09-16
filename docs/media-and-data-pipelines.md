@@ -103,7 +103,8 @@ split suburbs is the council covering the commercial core, which a centroid cann
 
 Not scripts, but generated artefacts worth knowing about:
 
-- `app/icon.tsx`, `app/apple-icon.tsx`: favicons drawn with `next/og` from the wordmark
+- `app/favicon.ico`, `app/icon.png`, `app/apple-icon.png`: favicons, committed files built from
+  `public/images/company/favicon.webp` by `scripts/build-icons.mjs` (`npm run icons:build`)
 - `app/brand/logo.png/route.tsx`: 512px stacked lockup for `Organization.logo`
 - `app/(site)/opengraph-image.tsx`: the default social card
 - `public/fonts/og/`: the font files those renderers read, via `lib/brand/og-fonts.ts`

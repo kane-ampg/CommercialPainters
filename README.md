@@ -61,7 +61,7 @@ app/
     projects/[slug]/    Case studies
     blog/[slug]/        Posts, from content/posts.ts
   actions/enquiry.ts    Server Action — exports only async functions
-  icon.tsx apple-icon.tsx   Favicons, drawn at build time in brand colours
+  favicon.ico icon.png apple-icon.png  Favicons, built from the APMG logo by scripts/build-icons.mjs
   brand/logo.png/       The logo as a file, for structured data
   sitemap.ts robots.ts llms.txt/  Generated, excluding noindex URLs
 components/
@@ -90,9 +90,10 @@ business fact imports from it. A unit test scans the whole repository for the pr
 so it cannot creep back in through a comment or a filename.
 
 **The wordmark is type, not an image.** `components/layout/wordmark.tsx` sets the name in the
-display face; `app/icon.tsx`, `app/apple-icon.tsx` and `app/brand/logo.png/route.tsx` draw the
-same lockup with `next/og` at build time. Rename the business in `lib/site.ts` and all of them
-follow.
+display face and `app/brand/logo.png/route.tsx` draws the same lockup with `next/og` at build
+time. Rename the business in `lib/site.ts` and both follow. The favicons are the exception: they
+are the APMG logo (`public/images/company/favicon.webp`) set on the ink ground, and
+`npm run icons:build` regenerates `app/favicon.ico`, `app/icon.png` and `app/apple-icon.png`.
 
 **Content lives in typed TypeScript files under `content/`.** Projects, services, sectors, suburbs,
 FAQs, reviews and posts. Pages never import them directly — they go through

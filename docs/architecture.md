@@ -45,7 +45,7 @@ Every URL ends in a trailing slash (`trailingSlash: true`).
 | `/robots.txt`                               | `app/robots.ts`                       |       |                         |
 | `/llms.txt`                                 | `app/llms.txt/route.ts`               |       |                         |
 | `/opengraph-image`                          | `app/(site)/opengraph-image.tsx`      |       |                         |
-| `/icon`, `/apple-icon`                      | `app/icon.tsx`, `app/apple-icon.tsx`  |       |                         |
+| `/favicon.ico`, `/icon`, `/apple-icon`      | `app/favicon.ico`, `app/icon.png`, `app/apple-icon.png` | | Static files, see scripts/build-icons.mjs |
 | `/brand/logo.png`                           | `app/brand/logo.png/route.tsx`        |       |                         |
 
 Sector pages sit at the root, one dynamic segment serving all eight. Static routes take precedence
@@ -73,7 +73,7 @@ are sections of `/commercial/`. `servicePath()` in `content/services.ts` is the 
 app/
   (site)/                Public site, its own root layout, template.tsx for page transitions
   actions/enquiry.ts     The only Server Action. Exports async functions only.
-  icon.tsx apple-icon.tsx  Favicons drawn at build time with next/og
+  favicon.ico icon.png apple-icon.png  Favicons, built from the APMG logo (npm run icons:build)
   brand/logo.png/        Organization.logo as a PNG, also drawn at build time
   sitemap.ts robots.ts llms.txt/  Generated, honouring the noindex rules
   global-not-found.tsx   Styled 404 for URLs matching no route
@@ -153,9 +153,14 @@ Everything else is a server component.
 ## Brand assets
 
 **The wordmark is type, not an image.** `components/layout/wordmark.tsx` sets the two words in
-Oswald with the brand's red rule. `app/icon.tsx`, `app/apple-icon.tsx` and
-`app/brand/logo.png/route.tsx` draw the same lockup with `next/og` at build time, reading fonts and
-hex values from `lib/brand/og-fonts.ts`. Rename the business in `lib/site.ts` and every mark follows.
+Oswald with the brand's red rule. `app/brand/logo.png/route.tsx` draws the same lockup with
+`next/og` at build time, reading fonts and hex values from `lib/brand/og-fonts.ts`. Rename the
+business in `lib/site.ts` and both follow.
+
+**The favicons are the APMG logo, not the wordmark.** `scripts/build-icons.mjs` renders
+`public/images/company/favicon.webp` (white on transparent, 4:3) onto the ink ground as a square
+and writes `app/favicon.ico` (16/32/48), `app/icon.png` (192) and `app/apple-icon.png` (180),
+which Next picks up by file convention. Replace the webp and run `npm run icons:build`.
 
 **Fonts.** Oswald (display) and Roboto (body), self-hosted and subset by `next/font` in the site
 layout. No runtime font CDN request.

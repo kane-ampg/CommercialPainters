@@ -1,31 +1,33 @@
 # Status and next steps
 
-As of 14 September 2026.
+As of 16 September 2026.
 
 ## Where things stand
 
-| Area                 | State                                                                                                                               |
-| -------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
-| Site                 | Live at `https://www.commercialpaintersau.com.au/`, apex redirects, deployment protection off                                       |
-| Pages                | About 1,440 built, 47 indexable, all with unique title, description and canonical                                                   |
-| Search               | Domain property verified. Sitemap read 14 Sep, 47 discovered. Homepage indexed 14 Sep. Zero inbound links.                          |
-| Enquiries            | Form and chat work end to end. **Delivery in production unconfirmed.** Local config is the console adapter, which delivers nothing. |
-| Analytics            | GTM opt-in shipped and inert. `GTM_ID` not set.                                                                                     |
-| Photography          | 54 frames across 7 sites live on the homepage, `/projects/` and five sector pages                                                   |
-| Case studies         | 4, one thin and unfeatured                                                                                                          |
-| Blog                 | Built, empty, correctly hidden until the first post                                                                                 |
-| Tests                | 503 of 504 unit tests pass. One known failure on the public email. E2E green at last full run.                                      |
-| Repository           | Clean and in sync with `main`. Public.                                                                                              |
-| n8n booking workflow | Exists, never run, not reachable from the site                                                                                      |
-| Model-backed chat    | Designed, not built                                                                                                                 |
+| Area                 | State                                                                                                                                                                                        |
+| -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Site                 | Live at `https://www.commercialpaintersau.com.au/`, apex redirects, deployment protection off                                                                                                |
+| Pages                | About 1,440 built, 47 indexable, all with unique title, description and canonical                                                                                                            |
+| Search               | Domain property verified. Sitemap read 14 Sep, 47 discovered. Homepage indexed 14 Sep. Zero inbound links.                                                                                   |
+| Enquiries            | Form and chat work end to end. **Production delivered nothing from launch to 15 Sep** (console adapter). Production guard added 16 Sep; Resend configuration in progress, see enquiries doc. |
+| Analytics            | GTM opt-in shipped and inert. `GTM_ID` not set.                                                                                                                                              |
+| Photography          | 54 frames across 7 sites live on the homepage, `/projects/` and five sector pages                                                                                                            |
+| Case studies         | 4, one thin and unfeatured                                                                                                                                                                   |
+| Blog                 | Built, empty, correctly hidden until the first post                                                                                                                                          |
+| Tests                | 507 of 508 unit tests pass. One known failure, `brand.test.ts`, on the public email plus two docs. E2E green at last full run.                                                               |
+| Repository           | Clean and in sync with `main`. Public.                                                                                                                                                       |
+| n8n booking workflow | Exists, never run, not reachable from the site                                                                                                                                               |
+| Model-backed chat    | Designed, not built                                                                                                                                                                          |
 
 ## Decisions only the business can make
 
 In order of how much they matter.
 
-1. **Where enquiries go, and confirm they arrive.** If `ENQUIRY_TRANSPORT` is still `console` in
-   Vercel production, every booking validates and vanishes. Now that the site is indexed this has a
-   real cost. Set the Resend variables, fix the sending domain's DNS, redeploy, submit a test.
+1. **Where enquiries go, and confirm they arrive.** Confirmed on 15 Sep 2026: production ran the
+   console adapter, so every booking since launch validated and vanished. As of 16 Sep the guard in
+   `lib/enquiry/transport.ts` turns that state into a visible error. Still to finish: set the four
+   Resend variables in Vercel Production, verify the sending domain in Resend (DNS at GoDaddy),
+   redeploy, submit a test and see it arrive. Record the result in the enquiries doc.
 2. **The public email address.** The address in `lib/site.ts` is on the previous brand's domain
    and fails `brand.test.ts`, so `npm run verify` is red. Keep it (and relax the guard for that one
    string) or move to an address on the new domain.
@@ -56,8 +58,8 @@ In order of how much they matter.
   validation.
 - **`www` CNAME** at GoDaddy points at the apex rather than Vercel's project CNAME. Works, but pins
   to an IP.
-- **Vercel CLI.** Not installed. `npm i -g vercel` and `vercel link` would make production env
-  readable and logs available.
+- **Vercel CLI.** Installed (59.5.0) but logged out and unlinked. `vercel login` then
+  `vercel link` makes production env readable and logs available.
 
 ## Growth work, in the order it pays
 

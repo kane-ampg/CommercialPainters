@@ -19,6 +19,9 @@ import {
  *
  * The console adapter reports `delivered: false`, and the UI tells the user to
  * phone instead. The site never claims a message was sent when it was not.
+ *
+ * On Vercel production a transport that cannot deliver is a misconfiguration,
+ * not a state: see `requireDelivery` at the bottom of this file.
  */
 
 export type TransportResult =
@@ -120,6 +123,46 @@ export function describeRequest(enquiry: Enquiry): { subject: string; body: stri
   return { subject, body: lines.map(([key, value]) => `${key}: ${value}`).join('\n') };
 }
 
+const RESEND_VARIABLES = ['RESEND_API_KEY', 'ENQUIRY_TO_EMAIL', 'ENQUIRY_FROM_EMAIL'] as const;
+
+/**
+ * Production guard.
+ *
+ * Between launch and 16 September 2026 production ran the console adapter, so
+ * every enquiry validated, showed a polite "not sent" message and vanished.
+ * Nothing in the logs said so, because "received" is what a working system
+ * logs too.
+ *
+ * On Vercel production, a transport that cannot deliver is therefore refused:
+ * the visitor is told to phone (the `provider-error` copy in the Server
+ * Action) and one unmistakable error line names the transport and the
+ * variables that are unset. Names, never values. Preview and local keep the
+ * quiet console adapter, which the e2e suite depends on.
+ */
+function requireDelivery(transport: EnquiryTransport): EnquiryTransport {
+  return {
+    id: transport.id,
+    async send(enquiry) {
+      const missing =
+        transport.id === 'resend'
+          ? RESEND_VARIABLES.filter((name) => !process.env[name])
+          : ['ENQUIRY_TRANSPORT=resend'];
+
+      if (transport.id === 'console' || missing.length > 0) {
+        console.error(
+          '[enquiry] MISCONFIGURED: production cannot deliver enquiries. Set the Resend variables in Vercel Production and redeploy.',
+          { transport: transport.id, missing },
+        );
+        return { delivered: false, reason: 'provider-error' };
+      }
+
+      return transport.send(enquiry);
+    },
+  };
+}
+
 export function getEnquiryTransport(): EnquiryTransport {
-  return process.env.ENQUIRY_TRANSPORT === 'resend' ? resendTransport : consoleTransport;
+  const transport = process.env.ENQUIRY_TRANSPORT === 'resend' ? resendTransport : consoleTransport;
+
+  return process.env.VERCEL_ENV === 'production' ? requireDelivery(transport) : transport;
 }

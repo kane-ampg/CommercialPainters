@@ -55,6 +55,23 @@ phone.
 **Submitted content is never logged.** The console adapter redacts by construction. The Resend
 adapter logs only the HTTP status on failure, because a response body can echo the submission.
 
+### Production guard
+
+Added 16 September 2026, after the incident below. When `VERCEL_ENV` is `production`,
+`getEnquiryTransport()` wraps the selected adapter in `requireDelivery`. A transport that cannot
+deliver, meaning the console adapter, or the Resend adapter with any of its three variables unset,
+is refused: the result is `provider-error`, so the visitor is told to phone, and one line is
+written to the function logs:
+
+```
+[enquiry] MISCONFIGURED: production cannot deliver enquiries. Set the Resend variables in Vercel Production and redeploy. { transport: 'console', missing: [ 'ENQUIRY_TRANSPORT=resend' ] }
+```
+
+It names the transport and the unset variable names, never values. Preview and local deployments
+are untouched, so the console adapter and the e2e assertions about "not sent" still work there.
+Search Vercel logs for `MISCONFIGURED` after any environment change. Unit tests:
+`tests/unit/transport.test.ts`.
+
 ### Turning delivery on
 
 In Vercel, Production scope:
@@ -72,10 +89,19 @@ records at GoDaddy. As of 14 September 2026 the brand domain publishes a DMARC r
 configured. Either add SPF and DKIM for the brand domain or send from a domain that already has
 them.
 
-**Whether production currently delivers is unconfirmed.** Nobody with access to this repository
-can read the Vercel production environment (no Vercel CLI, no `.vercel/` link), and the only test
-is to submit a real enquiry and see where it lands. This is the single most expensive thing to be
-wrong about now that the site is indexed. Check it first.
+### Incident: nothing delivered from launch to 15 September 2026
+
+On 15 September 2026 Kane submitted the live form on `/contact-us/` and saw "passed validation,
+but were not sent". Production had run the console adapter since the first deploy on 10 September.
+Every enquiry submitted in that window is unrecoverable: the console adapter logs a field count and
+nothing else, by design. The production guard above exists so that this state can no longer be
+quiet.
+
+Configuration as of 16 September 2026: the Vercel CLI is installed on Kane's machine (59.5.0) but
+logged out, and there is no `.vercel/` link, so production variables are still set through the
+dashboard or after `vercel login` and `vercel link`. The receiving mailbox, sender address and
+Resend API key were being put in place on 16 September; this section is to be updated with the
+sender, the mailbox and the date of the first confirmed test delivery once that email has arrived.
 
 ## The assessment chat
 

@@ -54,6 +54,13 @@ export const site = {
   email: 'outreach@apmgmaintenance.com.au',
 
   /**
+   * Existing-client portal, hosted off-site on the parent company's domain.
+   * Client supplied 2026-09-16. Linked from the footer only: it is for people who already
+   * have a job with us, so it must never compete with the enquiry CTA.
+   */
+  customerPortal: 'https://customer.apmgservices.com.au/portal' as string | null,
+
+  /**
    * The office.
    *
    * 1 Turbo Drive, Bayswater North VIC 3153. The address is simply the
@@ -113,8 +120,8 @@ export const site = {
   social: {
     /** NEEDS-CLIENT-CONFIRMATION: no profile exists under this name yet. */
     instagram: null as string | null,
-    /** NEEDS-CLIENT-CONFIRMATION: no profile exists under this name yet. */
-    facebook: null as string | null,
+    /** Client supplied 2026-09-16. Rendered in the footer and emitted in `sameAs`. */
+    facebook: 'https://www.facebook.com/APMGCommercialPainters' as string | null,
     /**
      * Google Business Profile.
      *
@@ -364,6 +371,7 @@ export const defaultSiteSettings: SiteSettings = {
   coords: site.coords,
   openingHours: site.openingHours,
   serviceAreaPrimary: site.serviceArea.primary,
+  customerPortal: site.customerPortal,
   social: {
     instagram: site.social.instagram,
     facebook: site.social.facebook,

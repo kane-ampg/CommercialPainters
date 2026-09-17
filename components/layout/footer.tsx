@@ -260,6 +260,44 @@ export function Footer({ settings }: { settings: SiteSettings }) {
                 {settings.email}
               </a>
             </address>
+            {/* Rendered only once the profile is confirmed in lib/site.ts; the
+                same URL is emitted in the Organization `sameAs`. */}
+            {settings.social.facebook && (
+              <a
+                href={settings.social.facebook}
+                rel="noopener"
+                target="_blank"
+                className="mt-5 inline-flex items-center gap-2 rounded text-sm font-semibold text-white/85 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
+              >
+                <svg aria-hidden="true" viewBox="0 0 24 24" className="h-5 w-5 fill-current">
+                  <path d="M24 12.07C24 5.41 18.63 0 12 0S0 5.41 0 12.07c0 6.02 4.39 11.02 10.13 11.93v-8.44H7.08v-3.49h3.05V9.41c0-3.02 1.8-4.7 4.54-4.7 1.31 0 2.68.24 2.68.24v2.97h-1.51c-1.49 0-1.96.93-1.96 1.89v2.26h3.33l-.53 3.49h-2.8V24C19.61 23.09 24 18.09 24 12.07z" />
+                </svg>
+                Follow us on Facebook
+              </a>
+            )}
+            {/* For clients with a job already under way, so it sits with the
+                contact details rather than in the nav columns. */}
+            {settings.customerPortal && (
+              <a
+                href={settings.customerPortal}
+                rel="noopener"
+                target="_blank"
+                className="mt-3 flex items-center gap-2 rounded text-sm font-semibold text-white/85 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
+              >
+                <svg
+                  aria-hidden="true"
+                  viewBox="0 0 24 24"
+                  className="h-5 w-5 fill-none stroke-current"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <rect x="4" y="10" width="16" height="11" />
+                  <path d="M8 10V7a4 4 0 0 1 8 0v3" />
+                </svg>
+                Client portal
+              </a>
+            )}
           </div>
 
           <FooterColumn heading="Commercial" links={footerNav.commercial} />

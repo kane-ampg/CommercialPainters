@@ -263,6 +263,8 @@ export type SiteSettings = {
   coords: { latitude: number; longitude: number } | null;
   openingHours: readonly { days: readonly string[]; opens: string; closes: string }[] | null;
   serviceAreaPrimary: string;
+  /** Off-site portal for existing clients, or null if none is offered. */
+  customerPortal: string | null;
   social: { instagram: string | null; facebook: string | null; google: string | null };
 };
 

@@ -2,7 +2,7 @@
 /**
  * App icon builder.
  *
- * Renders public/images/company/favicon.webp (the APMG lockup, white on
+ * Renders public/images/company/favicon.webp (the group logo lockup, white on
  * transparent) into the icon files Next.js picks up by convention from
  * `app/`. The lockup is 4:3 and white, so it is set on the brand's ink
  * ground and letterboxed to a square: white-on-transparent vanishes on a

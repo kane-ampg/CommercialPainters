@@ -112,6 +112,17 @@ describe('structured data', () => {
     expect(schema.sameAs).toContain(defaultSiteSettings.social.google);
   });
 
+  it('links the Facebook page through sameAs', () => {
+    // Client-supplied profile, confirmed 2026-09-16. The footer renders the same
+    // URL, so the visible link and the entity claim never disagree.
+    const schema = localBusinessSchema(services, defaultSiteSettings);
+
+    expect(defaultSiteSettings.social.facebook).toBe(
+      'https://www.facebook.com/APMGCommercialPainters',
+    );
+    expect(schema.sameAs).toContain(defaultSiteSettings.social.facebook);
+  });
+
   it('offers the same service area on a service as on the business', () => {
     // A service page claiming a narrower area than the business is a
     // contradiction, and Google resolves it against you.

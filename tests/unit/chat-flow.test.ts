@@ -7,10 +7,10 @@ import {
   validateField,
   type ChatFlow,
 } from '@/lib/enquiry/chat-flow';
-import { siteAssessmentFields, siteAssessmentSchema } from '@/lib/validation/enquiry';
+import { siteAssessmentSchema } from '@/lib/validation/enquiry';
 
 /**
- * The chat flow asks the same questions the booking form asks, and submits
+ * The chat flow asks the same questions the enquiry form asks, and submits
  * through the same Server Action. If the two ever drift — a renamed field, a
  * new enum value, a question quietly dropped — the chat starts sending payloads
  * the server rejects, and the visitor sees a dead end they cannot fix.
@@ -45,9 +45,9 @@ function enumOf(fieldSchema: z.ZodTypeAny): z.ZodEnum<[string, ...string[]]> {
   return inner as z.ZodEnum<[string, ...string[]]>;
 }
 
-const CASES = [['commercial', siteAssessmentFields, flows.commercial]] as const;
+const CASES = [['commercial', siteAssessmentSchema, flows.commercial]] as const;
 
-describe('the chat flow matches the booking schema', () => {
+describe('the chat flow matches the enquiry schema', () => {
   it.each(CASES)(
     'the %s flow asks for exactly the fields the schema accepts',
     (_n, schema, flow) => {
@@ -107,51 +107,19 @@ describe('the chat flow matches the booking schema', () => {
     }
   });
 
-  it('asks where the site is before offering an on-site visit', () => {
+  it('asks what kind of site it is before asking where the site is', () => {
     const ids = flows.commercial.steps.map((step) => step.id);
-    expect(ids.indexOf('site-region')).toBeGreaterThanOrEqual(0);
-    expect(ids.indexOf('site-region')).toBeLessThan(ids.indexOf('assessment-type'));
+    expect(ids.indexOf('property-type')).toBeGreaterThanOrEqual(0);
+    expect(ids.indexOf('property-type')).toBeLessThan(ids.indexOf('suburb'));
   });
 });
 
-describe('the on-site option follows the schema’s Melbourne rule', () => {
-  const field = flows.commercial.steps
-    .flatMap((step) => step.fields)
-    .find((f) => f.name === 'assessmentType')!;
-
-  it('offers both an on-site visit and an online assessment in Melbourne', () => {
-    expect(availableOptions(field, { siteRegion: 'melbourne' }).map((o) => o.value)).toEqual([
-      'onsite',
-      'online',
-    ]);
-  });
-
-  it.each(['regional-victoria', 'interstate'])('offers online only for %s', (region) => {
-    expect(availableOptions(field, { siteRegion: region }).map((o) => o.value)).toEqual(['online']);
-  });
-
-  it('withholds nothing from a field with no conditions', () => {
-    const region = flows.commercial.steps
+describe('choice fields with no conditions withhold nothing', () => {
+  it('offers every sector, regardless of earlier answers', () => {
+    const field = flows.commercial.steps
       .flatMap((step) => step.fields)
-      .find((f) => f.name === 'siteRegion')!;
-    expect(availableOptions(region, {})).toEqual(region.options);
-  });
-
-  it('agrees with the server: what the chat withholds, the schema rejects', () => {
-    for (const region of ['melbourne', 'regional-victoria', 'interstate']) {
-      const offered = availableOptions(field, { siteRegion: region }).map((o) => o.value);
-      for (const type of ['onsite', 'online']) {
-        const result = siteAssessmentSchema.safeParse({
-          ...ANSWERS,
-          formType: 'commercial',
-          renderedAt: 1,
-          company_website: '',
-          siteRegion: region,
-          assessmentType: type,
-        });
-        expect(result.success, `${region} / ${type}`).toBe(offered.includes(type));
-      }
-    }
+      .find((f) => f.name === 'propertyType')!;
+    expect(availableOptions(field, {})).toEqual(field.options);
   });
 });
 
@@ -173,13 +141,8 @@ describe('there is exactly one flow', () => {
 /* ------------------------------------------------------------------ */
 
 const ANSWERS = {
-  siteRegion: 'melbourne',
-  assessmentType: 'onsite',
   propertyType: 'aged-care-and-retirement',
-  siteAddress: '30 Ramset Drive, Chirnside Park VIC 3116',
-  preferredTimes: 'Any weekday after 2pm.',
-  notes: 'Sign in at reception.',
-  organisation: 'Ramset Aged Care',
+  suburb: 'Chirnside Park VIC',
   name: 'Sam Taylor',
   phone: '0400 000 000',
   email: 'sam@example.com',
@@ -216,27 +179,22 @@ describe('buildEnquiryFormData produces a payload the server accepts', () => {
     expect(data.get('renderedAt')).toBe('1700000000000');
   });
 
-  it('omits a skipped optional answer rather than sending an empty string', () => {
+  it('omits a skipped answer rather than sending an empty string', () => {
     const data = buildEnquiryFormData({
       formType: 'commercial',
-      answers: { ...ANSWERS, notes: '' },
+      answers: { ...ANSWERS, suburb: '' },
       renderedAt: 1,
     });
-    expect(data.has('notes')).toBe(false);
+    expect(data.has('suburb')).toBe(false);
   });
 
   it('never invents an answer the visitor did not give', () => {
     const data = buildEnquiryFormData({
       formType: 'commercial',
-      answers: { organisation: 'Ramset Aged Care' },
+      answers: { name: 'Sam Taylor' },
       renderedAt: 1,
     });
-    expect([...data.keys()].sort()).toEqual([
-      'company_website',
-      'formType',
-      'organisation',
-      'renderedAt',
-    ]);
+    expect([...data.keys()].sort()).toEqual(['company_website', 'formType', 'name', 'renderedAt']);
   });
 });
 
@@ -257,21 +215,17 @@ describe('validateField reuses the schema rules, so the chat cannot disagree wit
     expect(validateField('commercial', 'email', 'sam@')).toMatch(/valid email/i);
   });
 
-  it('rejects a site address too short to find', () => {
-    expect(validateField('commercial', 'siteAddress', 'x')).toMatch(/site address/i);
-  });
-
-  it('accepts an empty answer for a field the schema makes optional', () => {
-    expect(validateField('commercial', 'notes', '')).toBeUndefined();
+  it('rejects a suburb too short to be one', () => {
+    expect(validateField('commercial', 'suburb', 'x')).toMatch(/suburb/i);
   });
 
   it('rejects an empty answer for a field the schema requires', () => {
-    expect(validateField('commercial', 'organisation', '')).toBeDefined();
+    expect(validateField('commercial', 'name', '')).toBeDefined();
   });
 
   it('returns the schema message verbatim, not a paraphrase', () => {
-    const viaSchema = siteAssessmentFields.shape.organisation.safeParse('a');
-    expect(validateField('commercial', 'organisation', 'a')).toBe(
+    const viaSchema = siteAssessmentSchema.shape.name.safeParse('a');
+    expect(validateField('commercial', 'name', 'a')).toBe(
       viaSchema.success ? undefined : viaSchema.error.issues[0]?.message,
     );
   });

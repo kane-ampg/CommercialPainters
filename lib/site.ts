@@ -400,7 +400,7 @@ export const defaultContactPage: ContactPageCopy = {
   lede: 'Book a free site assessment, on site in Melbourne or online anywhere — or just call.',
   formHeading: 'Get a free site assessment',
   formIntro:
-    'For schools, clinics, aged care, strata, retail, hospitality, offices and industrial sites. Tell us where the site is and when suits, and we confirm a time by email. No scope document needed — that is what the assessment is for.',
+    'For schools, clinics, aged care, strata, retail, hospitality, offices and industrial sites. Give us the basics and we will call to arrange a time — on site in Melbourne, or online anywhere else. No scope document needed — that is what the assessment is for.',
   metaTitle: 'Free Site Assessment | Commercial Painters Melbourne',
   metaDescription:
     'Book a free commercial painting site assessment with Commercial Painters — on site in Melbourne or online anywhere. Or call 1300 97 97 40.',

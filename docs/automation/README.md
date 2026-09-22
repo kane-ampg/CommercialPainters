@@ -1,5 +1,15 @@
 # Free site assessment → Google Meet booking (n8n)
 
+> **Superseded 21 September 2026.** This workflow was built against the enquiry form's old
+> ten-field booking payload (`siteRegion`, `assessmentType`, `siteAddress`, `preferredTimes`,
+> `organisation`, and so on). That payload no longer exists — the form was cut back to five
+> lead-qualification fields (`propertyType`, `suburb`, `name`, `phone`, `email`; see
+> [../enquiries-and-chat.md](../enquiries-and-chat.md#the-enquiry)) — so this workflow's "Pointing
+> the website at it" section below is stale and it cannot be wired up as-is. It was never run and
+> never reachable from the site regardless. Kept for reference — the calendar-holding and
+> team-approval pattern may still be worth reusing — but a new automation, scoped to the five-field
+> payload, needs to be designed separately.
+
 `n8n-site-assessment-booking.json` is a complete n8n workflow. Import it with
 **Workflows → … → Import from File**, or open a blank canvas, select everything
 in the file, and paste.
@@ -115,7 +125,7 @@ before accepting if the match is poor.
   until someone confirms.
 - **On-site is Melbourne-only**, mirroring the rule in `lib/validation/enquiry.ts`.
   Anything else is handed to the office rather than silently downgraded.
-- **Travel time** (45 min each way, configurable) must be free *before* an
+- **Travel time** (45 min each way, configurable) must be free _before_ an
   on-site slot is offered, and is written to the assessor's own calendar once
   confirmed — never onto the client's invitation.
 - **`maxRounds`** caps how many times a "no" may bounce. Default 4, i.e. once

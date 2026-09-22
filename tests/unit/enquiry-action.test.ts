@@ -45,13 +45,8 @@ function validForm(): FormData {
   const fd = new FormData();
   const fields: Record<string, string> = {
     formType: 'commercial',
-    siteRegion: 'melbourne',
-    assessmentType: 'onsite',
     propertyType: 'education-and-childcare',
-    siteAddress: '12 Canterbury Road, Vermont VIC 3133',
-    preferredTimes: 'Tuesday or Wednesday morning.',
-    notes: 'Term breaks only.',
-    organisation: 'Vermont Secondary College',
+    suburb: 'Vermont VIC',
     name: 'Alex Chen',
     phone: '(03) 9000 0000',
     email: 'facilities@example.edu.au',
@@ -111,27 +106,27 @@ describe('submitEnquiry failure messages', () => {
     expect(failed.message).not.toContain(defaultSiteSettings.phone);
   });
 
-  it('confirms the booking, not a quote, when the request is delivered', async () => {
+  it('confirms the enquiry, not a quote, when the request is delivered', async () => {
     settings.current = defaultSiteSettings;
     const { submitEnquiry } = await import('@/app/actions/enquiry');
 
     const result = await submitEnquiry({ status: 'idle' }, validForm());
 
     expect(result.status).toBe('success');
-    expect(result.message).toMatch(/site assessment request is with us/i);
-    expect(result.message).toMatch(/confirm a time by email/i);
+    expect(result.message).toMatch(/enquiry is with us/i);
+    expect(result.message).toMatch(/call you to arrange a time/i);
   });
 
-  it('refuses an on-site visit outside Melbourne with a field error, not a crash', async () => {
+  it('rejects an incomplete submission with a field error, not a crash', async () => {
     settings.current = defaultSiteSettings;
     const { submitEnquiry } = await import('@/app/actions/enquiry');
 
     const fd = validForm();
-    fd.set('siteRegion', 'interstate');
+    fd.set('suburb', '');
     const result = await submitEnquiry({ status: 'idle' }, fd);
 
     expect(result.status).toBe('error');
-    expect(result.errors?.assessmentType?.[0]).toMatch(/melbourne/i);
+    expect(result.errors?.suburb?.[0]).toBeDefined();
   });
 
   it('still reports a delivered submission as success', async () => {

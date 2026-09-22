@@ -8,7 +8,7 @@ import { defaultSiteSettings } from '@/lib/site';
 /**
  * The floating site assessment chat.
  *
- * A second route into the same booking pipeline, so the things that matter are:
+ * A second route into the same enquiry pipeline, so the things that matter are:
  * it is reachable and dismissable by keyboard, it refuses to advance on an
  * answer the server would reject, it submits exactly what was answered, and it
  * repeats the site's promise not to claim a delivery that did not happen.
@@ -99,7 +99,7 @@ describe('keyboard and assistive-technology access', () => {
     await openChat();
     const log = screen.getByRole('log');
     expect(log).toHaveAttribute('aria-live', 'polite');
-    expect(log).toHaveTextContent(/where is the site/i);
+    expect(log).toHaveTextContent(/what kind of site is it/i);
   });
 
   it('offers the phone number as a way out at every turn', async () => {
@@ -112,80 +112,45 @@ describe('keyboard and assistive-technology access', () => {
 });
 
 describe('walking the conversation', () => {
-  it('opens straight on the first question, where the site is', async () => {
+  it('opens straight on the first question, what kind of site it is', async () => {
     await openChat();
 
-    expect(screen.getByRole('button', { name: 'Metropolitan Melbourne' })).toBeInTheDocument();
-    expect(
-      screen.queryByRole('button', { name: /my home|a business or facility/i }),
-    ).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Office' })).toBeInTheDocument();
+    expect(screen.queryByLabelText('Suburb or area')).not.toBeInTheDocument();
   });
 
-  it('offers an on-site visit or an online assessment once the site is in Melbourne', async () => {
+  it('asks where the site is once the sector is chosen', async () => {
     const user = await openChat();
 
-    await user.click(screen.getByRole('button', { name: 'Metropolitan Melbourne' }));
+    await user.click(screen.getByRole('button', { name: 'Aged care or retirement living' }));
 
-    expect(screen.getByRole('log')).toHaveTextContent(
-      /how would you like us to do the assessment/i,
-    );
-    expect(screen.getByRole('button', { name: /on-site visit/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /online assessment/i })).toBeInTheDocument();
-  });
-
-  it('offers online only when the site is outside Melbourne', async () => {
-    const user = await openChat();
-
-    await user.click(screen.getByRole('button', { name: 'Interstate' }));
-
-    expect(screen.queryByRole('button', { name: /on-site visit/i })).not.toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /online assessment/i })).toBeInTheDocument();
+    expect(screen.getByRole('log')).toHaveTextContent(/where is the site/i);
+    expect(screen.getByLabelText('Suburb or area')).toBeInTheDocument();
   });
 
   it('refuses to advance on an answer the server would reject', async () => {
     const user = await openChat();
 
-    await user.click(screen.getByRole('button', { name: 'Metropolitan Melbourne' }));
-    await user.click(screen.getByRole('button', { name: /on-site visit/i }));
     await user.click(screen.getByRole('button', { name: 'Aged care or retirement living' }));
-    await user.type(screen.getByLabelText('Site address'), 'x');
+    await user.type(screen.getByLabelText('Suburb or area'), 'x');
     await user.click(screen.getByRole('button', { name: /next/i }));
 
-    expect(screen.getByText(/enter the site address/i)).toBeInTheDocument();
-    expect(screen.getByLabelText('Site address')).toHaveAttribute('aria-invalid', 'true');
+    expect(screen.getByText(/enter the suburb/i)).toBeInTheDocument();
+    expect(screen.getByLabelText('Suburb or area')).toHaveAttribute('aria-invalid', 'true');
     // Still on the same question.
-    expect(screen.getByRole('log')).not.toHaveTextContent(/when suits you/i);
+    expect(screen.getByRole('log')).not.toHaveTextContent(/who should we call back/i);
   });
 
   it('lets the visitor correct a wrong turn', async () => {
     const user = await openChat();
 
-    await user.click(screen.getByRole('button', { name: 'Metropolitan Melbourne' }));
-    await user.click(screen.getByRole('button', { name: /on-site visit/i }));
     await user.click(screen.getByRole('button', { name: 'Aged care or retirement living' }));
-    await user.type(screen.getByLabelText('Site address'), '30 Ramset Drive, Chirnside Park');
+    await user.type(screen.getByLabelText('Suburb or area'), 'Chirnside Park');
     await user.click(screen.getByRole('button', { name: /next/i }));
 
     await user.click(screen.getByRole('button', { name: /^back$/i }));
 
-    expect(screen.getByLabelText('Site address')).toHaveValue('30 Ramset Drive, Chirnside Park');
-  });
-
-  it('skips a question the schema says is optional', async () => {
-    const user = await openChat();
-
-    await user.click(screen.getByRole('button', { name: 'Metropolitan Melbourne' }));
-    await user.click(screen.getByRole('button', { name: /on-site visit/i }));
-    await user.click(screen.getByRole('button', { name: 'Aged care or retirement living' }));
-    await user.type(screen.getByLabelText('Site address'), '30 Ramset Drive, Chirnside Park');
-    await user.click(screen.getByRole('button', { name: /next/i }));
-    await user.type(screen.getByLabelText('Preferred times'), 'Any weekday after 2pm.');
-    await user.click(screen.getByRole('button', { name: /next/i }));
-
-    expect(screen.getByLabelText(/notes/i)).toBeInTheDocument();
-    await user.click(screen.getByRole('button', { name: /skip/i }));
-
-    expect(screen.getByRole('log')).toHaveTextContent(/who should we confirm the booking with/i);
+    expect(screen.getByLabelText('Suburb or area')).toHaveValue('Chirnside Park');
   });
 });
 
@@ -205,7 +170,7 @@ describe('answering a question without starting a booking', () => {
     );
 
     expect(screen.getByRole('log')).toHaveTextContent(/metropolitan Melbourne from our base/i);
-    expect(screen.getByRole('button', { name: 'Metropolitan Melbourne' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Office' })).toBeInTheDocument();
   });
 
   it('does not count an answered question as a step in the booking', async () => {
@@ -215,7 +180,7 @@ describe('answering a question without starting a booking', () => {
       screen.getByRole('button', { name: 'Which areas of Melbourne do you cover?' }),
     );
 
-    expect(screen.getByRole('dialog')).toHaveTextContent('Question 1 of 7');
+    expect(screen.getByRole('dialog')).toHaveTextContent('Question 1 of 3');
   });
 
   it('folds the question list away once one is answered, so the answer has room', async () => {
@@ -247,7 +212,7 @@ describe('answering a question without starting a booking', () => {
   it('stops offering questions once the visitor moves past the opening question', async () => {
     const user = await openChat();
 
-    await user.click(screen.getByRole('button', { name: 'Metropolitan Melbourne' }));
+    await user.click(screen.getByRole('button', { name: 'Office' }));
 
     expect(
       screen.queryByRole('button', { name: 'Which areas of Melbourne do you cover?' }),
@@ -256,47 +221,33 @@ describe('answering a question without starting a booking', () => {
 });
 
 describe('submitting', () => {
-  /** Drives the (only) flow end to end, booking an on-site visit. */
-  async function completeBooking() {
+  /** Drives the (only) flow end to end. */
+  async function completeEnquiry() {
     const user = await openChat();
 
-    await user.click(screen.getByRole('button', { name: 'Metropolitan Melbourne' }));
-    await user.click(screen.getByRole('button', { name: /on-site visit/i }));
     await user.click(screen.getByRole('button', { name: 'Aged care or retirement living' }));
 
-    await user.type(screen.getByLabelText('Site address'), '30 Ramset Drive, Chirnside Park');
+    await user.type(screen.getByLabelText('Suburb or area'), 'Chirnside Park VIC');
     await user.click(screen.getByRole('button', { name: /next/i }));
 
-    await user.type(screen.getByLabelText('Preferred times'), 'Any weekday after 2pm.');
-    await user.click(screen.getByRole('button', { name: /next/i }));
-
-    await user.type(screen.getByLabelText(/notes/i), 'Sign in at reception.');
-    await user.click(screen.getByRole('button', { name: /next/i }));
-
-    await user.type(screen.getByLabelText('Organisation'), 'Ramset Aged Care');
     await user.type(screen.getByLabelText('Your name'), 'Sam Taylor');
     await user.type(screen.getByLabelText('Phone'), '0400 000 000');
     await user.type(screen.getByLabelText('Work email'), 'sam@example.com');
-    await user.click(screen.getByRole('button', { name: /book my assessment/i }));
+    await user.click(screen.getByRole('button', { name: /request my free assessment/i }));
 
     return user;
   }
 
   it('hands over every answer the visitor gave', async () => {
-    await completeBooking();
+    await completeEnquiry();
 
     await waitFor(() => expect(submitSpy).toHaveBeenCalledTimes(1));
 
     const data = submitSpy.mock.calls[0]?.[1] as FormData;
     expect(Object.fromEntries(data)).toMatchObject({
       formType: 'commercial',
-      siteRegion: 'melbourne',
-      assessmentType: 'onsite',
       propertyType: 'aged-care-and-retirement',
-      siteAddress: '30 Ramset Drive, Chirnside Park',
-      preferredTimes: 'Any weekday after 2pm.',
-      notes: 'Sign in at reception.',
-      organisation: 'Ramset Aged Care',
+      suburb: 'Chirnside Park VIC',
       name: 'Sam Taylor',
       phone: '0400 000 000',
       email: 'sam@example.com',
@@ -305,7 +256,7 @@ describe('submitting', () => {
   });
 
   it('submits through the same anti-spam checks as the form', async () => {
-    await completeBooking();
+    await completeEnquiry();
     await waitFor(() => expect(submitSpy).toHaveBeenCalledTimes(1));
 
     const data = submitSpy.mock.calls[0]?.[1] as FormData;
@@ -313,16 +264,16 @@ describe('submitting', () => {
   });
 
   it('never counts past the last question', async () => {
-    await completeBooking();
+    await completeEnquiry();
 
-    // The flow is the seven steps in lib/enquiry/chat-flow.ts.
+    // The flow is the three steps in lib/enquiry/chat-flow.ts.
     expect(await screen.findByRole('status')).toBeInTheDocument();
-    expect(screen.getByRole('dialog')).not.toHaveTextContent(/Question 8 of 7/);
-    expect(screen.getByRole('dialog')).not.toHaveTextContent(/Question 7 of 7/);
+    expect(screen.getByRole('dialog')).not.toHaveTextContent(/Question 4 of 3/);
+    expect(screen.getByRole('dialog')).not.toHaveTextContent(/Question 3 of 3/);
   });
 
   it('says plainly that nothing was delivered when no transport is configured', async () => {
-    await completeBooking();
+    await completeEnquiry();
 
     expect(await screen.findByRole('status')).toHaveTextContent(/were not sent/i);
     expect(screen.getByRole('status')).toHaveTextContent('1300 97 97 40');
@@ -332,12 +283,12 @@ describe('submitting', () => {
     submitSpy.mockResolvedValue({
       status: 'success',
       delivered: true,
-      message: 'Thanks — your site assessment request is with us. We will confirm a time by email.',
+      message: 'Thanks — your enquiry is with us. We will call you to arrange a time.',
     });
 
-    await completeBooking();
+    await completeEnquiry();
 
-    expect(await screen.findByRole('status')).toHaveTextContent(/assessment request is with us/i);
+    expect(await screen.findByRole('status')).toHaveTextContent(/enquiry is with us/i);
   });
 
   it('surfaces a server rejection instead of pretending it worked', async () => {
@@ -346,7 +297,7 @@ describe('submitting', () => {
       message: 'Too many enquiries from this connection.',
     });
 
-    await completeBooking();
+    await completeEnquiry();
 
     expect(await screen.findByRole('status')).toHaveTextContent(/too many enquiries/i);
   });

@@ -1,7 +1,7 @@
 /**
  * Canonical choice labels for the booking enums.
  *
- * Two surfaces ask the same questions — the booking form on the contact page
+ * Two surfaces ask the same questions — the enquiry form on the contact page
  * and the floating chat — and a third (the eventual CRM mapping) will read the
  * same values. The values must match `lib/validation/enquiry.ts` exactly or
  * the server rejects the submission, and the labels must match each other or
@@ -24,26 +24,6 @@ export type EnquiryOption = {
    */
   requires?: { field: string; value: string };
 };
-
-export const SITE_REGIONS: readonly EnquiryOption[] = [
-  { value: 'melbourne', label: 'Metropolitan Melbourne' },
-  { value: 'regional-victoria', label: 'Elsewhere in Victoria' },
-  { value: 'interstate', label: 'Interstate' },
-] as const;
-
-export const ASSESSMENT_TYPES: readonly EnquiryOption[] = [
-  {
-    value: 'onsite',
-    label: 'On-site visit',
-    description: 'One of our team walks the site with you. Melbourne only for now.',
-    requires: { field: 'siteRegion', value: 'melbourne' },
-  },
-  {
-    value: 'online',
-    label: 'Online assessment',
-    description: 'A short Google Meet call at a time that suits you.',
-  },
-] as const;
 
 export const COMMERCIAL_PROPERTY_TYPES: readonly EnquiryOption[] = [
   { value: 'education-and-childcare', label: 'School or childcare' },

@@ -14,9 +14,9 @@ As of 16 September 2026.
 | Photography          | 54 frames across 7 sites live on the homepage, `/projects/` and five sector pages                                                                                                            |
 | Case studies         | 4, one thin and unfeatured                                                                                                                                                                   |
 | Blog                 | Built, empty, correctly hidden until the first post                                                                                                                                          |
-| Tests                | 507 of 508 unit tests pass. One known failure, `brand.test.ts`, on the public email plus two docs. E2E green at last full run.                                                               |
+| Tests                | 493 of 494 unit tests pass. One known failure, `brand.test.ts`, pre-existing and unrelated to the 21 Sep enquiry form change. E2E green at last full run.                                    |
 | Repository           | Clean and in sync with `main`. Public.                                                                                                                                                       |
-| n8n booking workflow | Exists, never run, not reachable from the site                                                                                                                                               |
+| n8n booking workflow | **Superseded 21 Sep** — built for the old 10-field booking payload, form cut to 5 fields, never run, not reachable from the site                                                             |
 | Model-backed chat    | Designed, not built                                                                                                                                                                          |
 
 ## Decisions only the business can make
@@ -40,7 +40,9 @@ In order of how much they matter.
    the previous brand. Replace, crop, or accept.
 6. **Social profiles, coordinates, opening hours.** All null and all omitted from schema until
    supplied. Coordinates are the highest-value local signal of the three: geocode 1 Turbo Drive.
-7. **Team addresses for the n8n workflow**, if it is to be used.
+7. **A new automation for the 5-field enquiry payload.** The n8n workflow in `docs/automation/` is
+   superseded — it targets the old 10-field booking payload — so this is a fresh design, not a
+   resurrection. Team addresses would need confirming for whatever replaces it too.
 8. **Repository visibility.** It is public. The site source and client-named photography are
    visible.
 

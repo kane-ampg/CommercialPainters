@@ -1,26 +1,27 @@
 # Enquiries and the assessment chat
 
-The site has one call to action: book a free site assessment. Two surfaces collect it, the form on
+The site has one call to action: get a free site assessment. Two surfaces collect it, the form on
 `/contact-us/` and the floating chat on every other page. Both post to the same Server Action and
 are validated by the same Zod schema. It is one pipeline with two entrances.
 
-## The booking
+## The enquiry
 
-An enquiry is a booking request, not a quote request. It collects:
+Refactored 21 September 2026. The form used to collect ten fields modelled as a booking request —
+site region, on-site-vs-online, a street address, preferred times, notes and an organisation name —
+enough to propose a specific calendar slot. None of that was reachable by an automation (see
+[The n8n booking workflow](#the-n8n-booking-workflow)), and it was a long form for what the site
+actually needed: a qualified lead to call back. It now collects five fields:
 
-| Field                                    | Type                                           | Rule                                                                                                                                        |
-| ---------------------------------------- | ---------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
-| `siteRegion`                             | `melbourne`, `regional-victoria`, `interstate` | Required                                                                                                                                    |
-| `assessmentType`                         | `onsite`, `online`                             | On-site is offered only when `siteRegion` is `melbourne`. Cross-field refinement in the schema, so neither surface can be talked around it. |
-| `propertyType`                           | eight sectors plus `office` and `other`        | Required                                                                                                                                    |
-| `siteAddress`                            | text, 3 to 200 chars                           | A suburb is enough for an online assessment                                                                                                 |
-| `preferredTimes`                         | text, 3 to 500 chars                           | Two or three times                                                                                                                          |
-| `notes`                                  | text, up to 1000 chars                         | Optional                                                                                                                                    |
-| `organisation`, `name`, `phone`, `email` | text                                           | Phone is permissive about AU formats                                                                                                        |
-| `formType`                               | literal `commercial`                           | The only audience this site serves                                                                                                          |
+| Field                    | Type                                    | Rule                                 |
+| ------------------------ | --------------------------------------- | ------------------------------------ |
+| `propertyType`           | eight sectors plus `office` and `other` | Required                             |
+| `suburb`                 | text, 2 to 100 chars                    | Suburb or area is enough             |
+| `name`, `phone`, `email` | text                                    | Phone is permissive about AU formats |
+| `formType`               | literal `commercial`                    | The only audience this site serves   |
 
-Schema: `lib/validation/enquiry.ts`. Option labels: `lib/enquiry/options.ts`. The n8n workflow
-accepts exactly this payload.
+Scheduling — on site in Melbourne or an online call, and when — is worked out on the callback, not
+collected here. Schema: `lib/validation/enquiry.ts`. Option labels: `lib/enquiry/options.ts`. No
+automation currently consumes this payload; a new one is planned separately.
 
 ## Anti-spam
 
@@ -42,14 +43,14 @@ a literal, so they cannot disagree with the header.
 
 `lib/enquiry/transport.ts` defines an `EnquiryTransport` with two implementations:
 
-| Adapter   | Selected by                                                                                  | Behaviour                                                                                                                    |
-| --------- | -------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
-| `console` | default                                                                                      | Logs `formType`, `assessmentType` and a field count. Delivers nothing. Returns `delivered: false, reason: 'not-configured'`. |
-| `resend`  | `ENQUIRY_TRANSPORT="resend"` plus `RESEND_API_KEY`, `ENQUIRY_TO_EMAIL`, `ENQUIRY_FROM_EMAIL` | POSTs a plain-text email to the Resend API. Subject names the assessment type, person and organisation.                      |
+| Adapter   | Selected by                                                                                  | Behaviour                                                                                                                  |
+| --------- | -------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| `console` | default                                                                                      | Logs `formType`, `propertyType` and a field count. Delivers nothing. Returns `delivered: false, reason: 'not-configured'`. |
+| `resend`  | `ENQUIRY_TRANSPORT="resend"` plus `RESEND_API_KEY`, `ENQUIRY_TO_EMAIL`, `ENQUIRY_FROM_EMAIL` | POSTs a plain-text email to the Resend API. Subject names the contact and the sector.                                      |
 
 The UI is honest about the result. With the console adapter, a valid submission shows "Your details
 passed validation, but were not sent" and the phone number. With `delivered: true` it says the
-request is with the team and a time will be confirmed by email. A provider error asks the visitor to
+enquiry is with the team and they will call to arrange a time. A provider error asks the visitor to
 phone.
 
 **Submitted content is never logged.** The console adapter redacts by construction. The Resend
@@ -109,15 +110,15 @@ sender, the mailbox and the date of the first confirmed test delivery once that 
 is idle. It is absent on `/contact-us/`, where the full form already is.
 
 **It is scripted, not a chatbot.** `lib/enquiry/chat-flow.ts` holds the conversation as data: a
-sequence of steps, each a field the booking schema accepts, with options drawn from the same enums.
+sequence of steps, each a field the enquiry schema accepts, with options drawn from the same enums.
 A unit test checks the flow against the schema so a renamed field cannot leave the chat sending a
-payload the server refuses. The one thing it can answer is the five quick questions in
-`lib/enquiry/chat-faqs.ts`, each quoted verbatim from `content/faqs.ts`.
+payload the server refuses. Since the 21 September 2026 field reduction it is three steps —
+property type, suburb, contact details — down from seven. The one thing it can answer is the five
+quick questions in `lib/enquiry/chat-faqs.ts`, each quoted verbatim from `content/faqs.ts`.
 
-Behaviour verified by the e2e suite: answers a published question without starting a booking,
-offers online-only outside Melbourne, refuses an answer the server would reject and says why,
-closes on Escape and returns focus, shows every turn with motion switched off, and states plainly
-when nothing was delivered.
+Behaviour verified by the unit suite: answers a published question without starting an enquiry,
+refuses an answer the server would reject and says why, closes on Escape and returns focus, shows
+every turn with motion switched off, and states plainly when nothing was delivered.
 
 ### A model-backed chat was designed and not built
 
@@ -139,28 +140,33 @@ it at the same time.
 
 ## The n8n booking workflow
 
-`docs/automation/n8n-site-assessment-booking.json` is a complete 35-node n8n workflow, described in
-`docs/automation/README.md`. A booking arrives by webhook, is triaged, ranked against the four team
-calendars' real free/busy, held in Google Calendar (30 minutes online with a Meet link, or 90
-minutes on site with 45 minutes' travel either side), and one email asks Kane, Farbod, Zac and
-Simon who will take it. Nothing is promised to the client until someone says yes.
+**Superseded 21 September 2026.** `docs/automation/n8n-site-assessment-booking.json` is a 35-node
+n8n workflow built against the old ten-field booking payload (`siteRegion`, `assessmentType`,
+`siteAddress`, `preferredTimes`, `organisation`, and so on). That payload no longer exists — the
+enquiry schema was cut back to five lead-qualification fields (see [The
+enquiry](#the-enquiry)) — so this workflow no longer matches what the site sends and cannot be
+pointed at the form as-is. It was never run and never reachable from the site regardless (see
+below), so nothing live depended on it.
 
-State of it:
+It is kept for reference — the calendar-holding and team-approval pattern may still be worth
+reusing — but a new automation, scoped to the five-field payload, needs to be designed separately
+before anything is wired up. Full detail in `docs/automation/README.md`.
+
+State of it, unchanged since before the schema cut:
 
 - It has **never been run**. An adversarial audit was started on 10 September and did not finish.
 - The four team email addresses and the hold calendar ID in its `Team and settings` node are
   **assumptions** and need confirming.
-- **The site cannot reach it.** There is no `n8n` transport in `lib/enquiry/transport.ts`. The
-  automation README contains the small adapter that would add one, selected by
-  `ENQUIRY_TRANSPORT="n8n"` with `N8N_BOOKING_WEBHOOK_URL`.
+- **The site cannot reach it.** There is no `n8n` transport in `lib/enquiry/transport.ts`.
 - Reschedules and cancellations are not covered.
 
 ## Go-live checklist for enquiries
 
-1. Decide where enquiries land (an inbox, the n8n workflow, or both).
+1. Decide where enquiries land (an inbox, a new automation, or both) — see the note on the
+   superseded n8n workflow above.
 2. Verify the sending domain in Resend and add its DNS records at GoDaddy.
 3. Set the four `ENQUIRY_*` and `RESEND_*` variables in Vercel Production and redeploy.
-4. Submit a real test booking from the live site and confirm receipt.
+4. Submit a real test enquiry from the live site and confirm receipt.
 5. Move the rate limiter to a shared store before any paid traffic.
 6. File uploads remain unbuilt. The form says so rather than inviting an attachment. They need
    private storage plus server-side type and size validation.

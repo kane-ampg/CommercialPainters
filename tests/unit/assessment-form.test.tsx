@@ -1,17 +1,14 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
 import { SiteAssessmentForm } from '@/components/forms/enquiry-forms';
 import { SiteSettingsProvider } from '@/components/providers/site-settings';
 import { defaultSiteSettings } from '@/lib/site';
 
 /**
- * The booking form on the contact page.
+ * The enquiry form on the contact page.
  *
- * The one rule the form has to enforce for itself is the Melbourne one: an
- * on-site visit is offered only when the visitor says the site is in
- * metropolitan Melbourne. The server refuses the combination regardless; the
- * form stops a visitor choosing it in the first place.
+ * Five fields, enough to qualify and call back a lead. Scheduling — on site or
+ * online, and when — is worked out on the callback, not asked here.
  */
 
 vi.mock('@/app/actions/enquiry', () => ({
@@ -26,47 +23,21 @@ beforeEach(() => {
   );
 });
 
-describe('the on-site option follows the site region', () => {
-  it('offers both assessment types once the site is in Melbourne', async () => {
-    const user = userEvent.setup();
-
-    await user.click(screen.getByLabelText('Metropolitan Melbourne'));
-
-    expect(screen.getByLabelText(/on-site visit/i)).toBeEnabled();
-    expect(screen.getByLabelText(/online assessment/i)).toBeEnabled();
-  });
-
-  it('disables the on-site visit outside Melbourne and says why', async () => {
-    const user = userEvent.setup();
-
-    await user.click(screen.getByLabelText('Elsewhere in Victoria'));
-
-    expect(screen.getByLabelText(/on-site visit/i)).toBeDisabled();
-    expect(screen.getByText(/melbourne-only for now/i)).toBeInTheDocument();
-  });
-
-  it('moves a visitor who had picked on-site over to online when they change region', async () => {
-    const user = userEvent.setup();
-
-    await user.click(screen.getByLabelText('Metropolitan Melbourne'));
-    await user.click(screen.getByLabelText(/on-site visit/i));
-    await user.click(screen.getByLabelText('Interstate'));
-
-    expect(screen.getByLabelText(/on-site visit/i)).not.toBeChecked();
-    expect(screen.getByLabelText(/online assessment/i)).toBeChecked();
-  });
-});
-
-describe('the form asks for a booking, not a quote', () => {
+describe('the form asks for a qualified lead, not a booking', () => {
   it('does not ask the visitor to choose a representative', () => {
     expect(screen.queryByLabelText(/representative/i)).not.toBeInTheDocument();
   });
 
-  it('asks when suits, because the time is confirmed by email', () => {
-    expect(screen.getByLabelText(/preferred times/i)).toBeInTheDocument();
+  it('does not ask when suits, or on-site vs online — that is worked out on the call', () => {
+    expect(screen.queryByLabelText(/preferred times/i)).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/assessment type/i)).not.toBeInTheDocument();
   });
 
-  it('asks for a work email address', () => {
+  it('asks for exactly the five qualifying fields', () => {
+    expect(screen.getByLabelText(/property or sector type/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/suburb or area/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/your name/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/phone/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/work email/i)).toHaveAttribute('type', 'email');
   });
 
@@ -75,7 +46,7 @@ describe('the form asks for a booking, not a quote', () => {
     expect(screen.queryByLabelText(/timeframe/i)).not.toBeInTheDocument();
   });
 
-  it('submits as a booking', () => {
-    expect(screen.getByRole('button', { name: /book my assessment/i })).toBeInTheDocument();
+  it('submits as a fast enquiry, not a scheduled booking', () => {
+    expect(screen.getByRole('button', { name: /request my free assessment/i })).toBeInTheDocument();
   });
 });

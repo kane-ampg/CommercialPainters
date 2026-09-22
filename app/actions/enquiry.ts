@@ -71,7 +71,7 @@ export async function submitEnquiry(
     status: 'success',
     delivered: result.delivered,
     message: result.delivered
-      ? 'Thanks — your site assessment request is with us. We will confirm a time by email.'
+      ? 'Thanks — your enquiry is with us. We will call you to arrange a time.'
       : undefined,
   };
 }

@@ -107,8 +107,8 @@ function channelsFor(settings: SiteSettings) {
  */
 const NEXT_STEPS = [
   {
-    heading: 'We confirm a time by email',
-    body: 'Pick on site or online and give us two or three windows that suit you. We confirm one by email, with a Google Meet link for online assessments.',
+    heading: 'We call to arrange a time',
+    body: 'On site in Melbourne, or a short Google Meet call anywhere else — we work out which suits and lock in a time.',
   },
   {
     heading: 'We look before we quote',

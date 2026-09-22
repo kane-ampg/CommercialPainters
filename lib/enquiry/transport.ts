@@ -1,11 +1,6 @@
 import 'server-only';
 import type { Enquiry } from '@/lib/validation/enquiry';
-import {
-  ASSESSMENT_TYPES,
-  COMMERCIAL_PROPERTY_TYPES,
-  SITE_REGIONS,
-  type EnquiryOption,
-} from '@/lib/enquiry/options';
+import { COMMERCIAL_PROPERTY_TYPES, type EnquiryOption } from '@/lib/enquiry/options';
 
 /**
  * Booking delivery.
@@ -39,7 +34,7 @@ export interface EnquiryTransport {
 function redact(enquiry: Enquiry): Record<string, unknown> {
   return {
     formType: enquiry.formType,
-    assessmentType: enquiry.assessmentType,
+    propertyType: enquiry.propertyType,
     // A count, not the content.
     fieldsSubmitted: Object.keys(enquiry).length,
   };
@@ -96,25 +91,21 @@ function labelOf(options: readonly EnquiryOption[], value: string): string {
 }
 
 /**
- * The email a booking becomes.
+ * The email a lead becomes.
  *
- * The subject is how the team triages an inbox, so it says what was booked
- * and by whom. The body reads back the labels the visitor saw rather than the
- * enum values the server stored — `On-site visit`, not `onsite`.
+ * The subject is how the team triages an inbox, so it says who is asking and
+ * what kind of site before anyone opens the message. The body reads back the
+ * label the visitor saw rather than the enum value the server stored —
+ * `Office`, not `office`.
  */
 export function describeRequest(enquiry: Enquiry): { subject: string; body: string } {
-  const assessmentType = labelOf(ASSESSMENT_TYPES, enquiry.assessmentType);
+  const sector = labelOf(COMMERCIAL_PROPERTY_TYPES, enquiry.propertyType);
 
-  const subject = `Site assessment request — ${assessmentType} — ${enquiry.name}, ${enquiry.organisation}`;
+  const subject = `Site assessment enquiry — ${enquiry.name} — ${sector}, ${enquiry.suburb}`;
 
   const lines: (readonly [string, string])[] = [
-    ['Assessment type', assessmentType],
-    ['Site region', labelOf(SITE_REGIONS, enquiry.siteRegion)],
-    ['Sector', labelOf(COMMERCIAL_PROPERTY_TYPES, enquiry.propertyType)],
-    ['Site address', enquiry.siteAddress],
-    ['Preferred times', enquiry.preferredTimes],
-    ['Notes', enquiry.notes || '—'],
-    ['Organisation', enquiry.organisation],
+    ['Sector', sector],
+    ['Suburb or area', enquiry.suburb],
     ['Name', enquiry.name],
     ['Phone', enquiry.phone],
     ['Email', enquiry.email],

@@ -4,17 +4,12 @@ import type { Enquiry } from '@/lib/validation/enquiry';
 
 /**
  * The email subject is how Farbod, Zac and Simon triage an inbox: it has to
- * say what was booked and where before anyone opens the message.
+ * say who is asking and what kind of site before anyone opens the message.
  */
 const request: Enquiry = {
   formType: 'commercial',
-  siteRegion: 'melbourne',
-  assessmentType: 'onsite',
   propertyType: 'office',
-  siteAddress: '1 Turbo Drive, Bayswater North VIC 3153',
-  preferredTimes: 'Monday morning.',
-  notes: '',
-  organisation: 'Example Pty Ltd',
+  suburb: 'Bayswater North VIC',
   name: 'Alex Chen',
   phone: '0400 000 000',
   email: 'alex@example.com',
@@ -23,9 +18,9 @@ const request: Enquiry = {
 };
 
 describe('describeRequest', () => {
-  it('names the assessment type and the contact in the subject', () => {
+  it('names the contact and the sector in the subject', () => {
     expect(describeRequest(request).subject).toBe(
-      'Site assessment request — On-site visit — Alex Chen, Example Pty Ltd',
+      'Site assessment enquiry — Alex Chen — Office, Bayswater North VIC',
     );
   });
 
@@ -33,11 +28,10 @@ describe('describeRequest', () => {
     expect(describeRequest(request).body).not.toMatch(/Representative/);
   });
 
-  it('reads the labels a visitor saw, not the enum values', () => {
-    const { body } = describeRequest({ ...request, assessmentType: 'online' });
-    expect(body).toMatch(/Assessment type: Online assessment/);
-    expect(body).toMatch(/Site region: Metropolitan Melbourne/);
-    expect(body).not.toMatch(/\bonsite\b|\bonline\b(?! assessment)/);
+  it('reads the label a visitor saw, not the enum value', () => {
+    const { body } = describeRequest({ ...request, propertyType: 'healthcare' });
+    expect(body).toMatch(/Sector: Healthcare or medical/);
+    expect(body).not.toMatch(/\bhealthcare\b(?! or medical)/);
   });
 
   it('never carries the anti-spam fields into the email', () => {

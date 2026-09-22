@@ -21,7 +21,7 @@ that built and shipped it.
 | Rendering  | Fully static. About 1,440 pages rendered at build time. No database, no admin.                           |
 | Content    | Typed TypeScript under `content/` and `lib/site.ts`. Editing the site means editing those and deploying. |
 | Search     | Indexed by Google since 14 September 2026 (homepage). 47 URLs in the sitemap.                            |
-| Tests      | 43 Vitest files, 504 tests, plus Playwright e2e on desktop and mobile                                    |
+| Tests      | 43 Vitest files, 494 tests, plus Playwright e2e on desktop and mobile                                    |
 
 ## Documents
 
@@ -29,7 +29,7 @@ that built and shipped it.
 | -------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
 | [architecture.md](architecture.md)                             | Stack, route map, directory layout, data flow, rendering, brand assets                                              |
 | [content-and-editing.md](content-and-editing.md)               | Where every piece of copy lives and how to change it safely                                                         |
-| [enquiries-and-chat.md](enquiries-and-chat.md)                 | The booking form, the assessment chat, validation, anti-spam, delivery adapters, the n8n workflow                   |
+| [enquiries-and-chat.md](enquiries-and-chat.md)                 | The enquiry form, the assessment chat, validation, anti-spam, delivery adapters, the superseded n8n workflow        |
 | [seo-and-indexation.md](seo-and-indexation.md)                 | Indexation policy, the 47 URLs, sitemap, robots, llms.txt, structured data, Search Console, Google Business Profile |
 | [deployment-and-environment.md](deployment-and-environment.md) | Vercel, domain and DNS, every environment variable, deploy runbook                                                  |
 | [media-and-data-pipelines.md](media-and-data-pipelines.md)     | Gallery encoder, hero video encoder, the 1,387-suburb dataset, council audit                                        |
@@ -39,7 +39,7 @@ that built and shipped it.
 
 Existing documents that stay where they are:
 
-- [automation/README.md](automation/README.md) — the n8n site-assessment booking workflow
+- [automation/README.md](automation/README.md) — the n8n site-assessment booking workflow (superseded 21 Sep, built for the pre-refactor payload)
 - [chat-knowledge-base.md](chat-knowledge-base.md) — what a model-backed chat would be allowed to say
 - [superpowers/specs/2026-09-10-commercial-painters-derivation-design.md](superpowers/specs/2026-09-10-commercial-painters-derivation-design.md) — how this site was derived from the previous build
 

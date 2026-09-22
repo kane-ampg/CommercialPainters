@@ -33,8 +33,8 @@ import { cn } from '@/lib/utils';
 /**
  * The floating site assessment assistant.
  *
- * A second route into the booking pipeline for visitors who will not start a
- * full form but will answer seven questions one at a time. It asks
+ * A second route into the enquiry pipeline for visitors who will not start a
+ * full form but will answer a few questions one at a time. It asks
  * exactly what the forms ask, validates with the same Zod rules, and posts to
  * the same Server Action — so it inherits the honeypot, the minimum-completion
  * check, the rate limit, and the refusal to claim a delivery that did not
@@ -486,7 +486,7 @@ export function AssessmentChat() {
                         type="submit"
                         className="rounded-chat-control bg-brand-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600 focus-visible:ring-offset-2 active:scale-95"
                       >
-                        {stepIndex + 1 >= steps.length ? 'Book my assessment' : 'Next'}
+                        {stepIndex + 1 >= steps.length ? 'Request my free assessment' : 'Next'}
                       </button>
 
                       {step.fields.every((field) => field.optional) && (

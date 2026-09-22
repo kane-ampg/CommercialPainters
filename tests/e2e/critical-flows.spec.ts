@@ -172,52 +172,36 @@ test.describe('projects', () => {
   });
 });
 
-test.describe('site assessment booking', () => {
+test.describe('site assessment enquiry', () => {
   test('rejects invalid data with accessible field errors', async ({ page }) => {
     await page.goto('/contact-us/#assessment');
 
-    const form = page.locator('form').filter({ has: page.getByLabel('Organisation') });
+    const form = page.locator('form').filter({ has: page.getByLabel('Suburb or area') });
     await form.getByLabel('Your name').fill('A');
     await form.getByLabel('Work email').fill('not-an-email');
-    await form.getByRole('button', { name: /book my assessment/i }).click();
+    await form.getByRole('button', { name: /request my free assessment/i }).click();
 
     const email = form.getByLabel('Work email');
     await expect(email).toHaveAttribute('aria-invalid', 'true');
     await expect(form.getByText(/valid email address/i)).toBeVisible();
   });
 
-  test('offers an on-site visit in Melbourne only', async ({ page }) => {
-    await page.goto('/contact-us/#assessment');
-
-    const form = page.locator('form').filter({ has: page.getByLabel('Organisation') });
-    await form.getByLabel('Interstate').check();
-    await expect(form.getByLabel(/on-site visit/i)).toBeDisabled();
-    await expect(form.getByText(/melbourne-only for now/i)).toBeVisible();
-
-    await form.getByLabel('Metropolitan Melbourne').check();
-    await expect(form.getByLabel(/on-site visit/i)).toBeEnabled();
-  });
-
-  test('accepts a booking and states plainly that nothing was delivered', async ({
+  test('accepts an enquiry and states plainly that nothing was delivered', async ({
     page,
   }, testInfo) => {
     await withOwnClientIp(page, testInfo, 1);
     await page.goto('/contact-us/#assessment');
 
-    const form = page.locator('form').filter({ has: page.getByLabel('Organisation') });
-    await form.getByLabel('Metropolitan Melbourne').check();
-    await form.getByLabel(/on-site visit/i).check();
+    const form = page.locator('form').filter({ has: page.getByLabel('Suburb or area') });
     await form.getByLabel('Property or sector type').selectOption('education-and-childcare');
-    await form.getByLabel('Site address').fill('12 Canterbury Road, Vermont VIC 3133');
-    await form.getByLabel('Preferred times').fill('Tuesday or Wednesday morning.');
-    await form.getByLabel('Organisation').fill('Vermont Secondary College');
+    await form.getByLabel('Suburb or area').fill('Vermont VIC');
     await form.getByLabel('Your name').fill('Alex Chen');
     await form.getByLabel('Phone').fill('03 9000 0000');
     await form.getByLabel('Work email').fill('facilities@example.edu.au');
 
     // The server enforces a minimum completion time to catch bots.
     await page.waitForTimeout(3500);
-    await form.getByRole('button', { name: /book my assessment/i }).click();
+    await form.getByRole('button', { name: /request my free assessment/i }).click();
 
     const status = form.getByRole('status');
     await expect(status).toBeVisible();
@@ -233,7 +217,7 @@ test.describe('site assessment chat', () => {
     await expect(page.getByRole('button', { name: /site assessment/i })).toHaveCount(0);
   });
 
-  test('answers a published question without starting a booking', async ({ page }) => {
+  test('answers a published question without starting an enquiry', async ({ page }) => {
     await page.goto('/');
     await page.getByRole('button', { name: 'Free site assessment' }).click();
 
@@ -244,22 +228,11 @@ test.describe('site assessment chat', () => {
     await expect(panel.getByRole('log')).toContainText(
       'We work across metropolitan Melbourne from our base at Bayswater North.',
     );
-    // The booking flow is still right there.
-    await expect(panel.getByRole('button', { name: 'Metropolitan Melbourne' })).toBeVisible();
+    // The enquiry flow is still right there.
+    await expect(panel.getByRole('button', { name: 'Office' })).toBeVisible();
   });
 
-  test('offers online only when the site is outside Melbourne', async ({ page }) => {
-    await page.goto('/');
-    await page.getByRole('button', { name: 'Free site assessment' }).click();
-
-    const panel = page.getByRole('dialog', { name: 'Free site assessment' });
-    await panel.getByRole('button', { name: 'Elsewhere in Victoria' }).click();
-
-    await expect(panel.getByRole('button', { name: /online assessment/i })).toBeVisible();
-    await expect(panel.getByRole('button', { name: /on-site visit/i })).toHaveCount(0);
-  });
-
-  test('walks the booking and states plainly that nothing was delivered', async ({
+  test('walks the enquiry and states plainly that nothing was delivered', async ({
     page,
   }, testInfo) => {
     await withOwnClientIp(page, testInfo, 3);
@@ -272,24 +245,15 @@ test.describe('site assessment chat', () => {
     // from the moment the panel opened.
     await page.waitForTimeout(3500);
 
-    await panel.getByRole('button', { name: 'Metropolitan Melbourne' }).click();
-    await panel.getByRole('button', { name: /on-site visit/i }).click();
     await panel.getByRole('button', { name: 'School or childcare' }).click();
 
-    await panel.getByLabel('Site address').fill('12 Canterbury Road, Vermont VIC 3133');
+    await panel.getByLabel('Suburb or area').fill('Vermont VIC');
     await panel.getByRole('button', { name: 'Next', exact: true }).click();
 
-    await panel.getByLabel('Preferred times').fill('Tuesday or Wednesday morning.');
-    await panel.getByRole('button', { name: 'Next', exact: true }).click();
-
-    await panel.getByLabel('Notes').fill('Term breaks only.');
-    await panel.getByRole('button', { name: 'Next', exact: true }).click();
-
-    await panel.getByLabel('Organisation').fill('Vermont Secondary College');
     await panel.getByLabel('Your name').fill('Sam Taylor');
     await panel.getByLabel('Phone').fill('0400 000 000');
     await panel.getByLabel('Work email').fill('sam@example.com');
-    await panel.getByRole('button', { name: /book my assessment/i }).click();
+    await panel.getByRole('button', { name: /request my free assessment/i }).click();
 
     const status = panel.getByRole('status');
     await expect(status).toBeVisible();
@@ -302,14 +266,12 @@ test.describe('site assessment chat', () => {
     await page.getByRole('button', { name: 'Free site assessment' }).click();
 
     const panel = page.getByRole('dialog', { name: 'Free site assessment' });
-    await panel.getByRole('button', { name: 'Metropolitan Melbourne' }).click();
-    await panel.getByRole('button', { name: /online assessment/i }).click();
     await panel.getByRole('button', { name: 'Office' }).click();
-    await panel.getByLabel('Site address').fill('x');
+    await panel.getByLabel('Suburb or area').fill('x');
     await panel.getByRole('button', { name: 'Next', exact: true }).click();
 
-    await expect(panel.getByLabel('Site address')).toHaveAttribute('aria-invalid', 'true');
-    await expect(panel.getByText(/enter the site address/i)).toBeVisible();
+    await expect(panel.getByLabel('Suburb or area')).toHaveAttribute('aria-invalid', 'true');
+    await expect(panel.getByText(/enter the suburb/i)).toBeVisible();
   });
 
   test('closes on Escape and returns focus to the launcher', async ({ page }) => {
@@ -339,21 +301,19 @@ test.describe('site assessment chat under reduced motion', () => {
     await page.getByRole('button', { name: 'Free site assessment' }).click();
 
     const panel = page.getByRole('dialog', { name: 'Free site assessment' });
-    await expect(panel.getByRole('button', { name: 'Metropolitan Melbourne' })).toBeVisible();
+    await expect(panel.getByRole('button', { name: 'Office' })).toBeVisible();
 
-    await panel.getByRole('button', { name: 'Metropolitan Melbourne' }).click();
+    await panel.getByRole('button', { name: 'Office' }).click();
 
     // The turn that arrived, and the control that came with it.
-    await expect(panel.getByRole('log')).toContainText(
-      'How would you like us to do the assessment?',
-    );
-    await expect(panel.getByRole('button', { name: /on-site visit/i })).toBeVisible();
+    await expect(panel.getByRole('log')).toContainText('Where is the site?');
+    await expect(panel.getByLabel('Suburb or area')).toBeVisible();
     await expect(panel.getByRole('button', { name: 'Back', exact: true })).toBeVisible();
 
     // Visible in the layout sense is not enough — assert it is actually painted.
     for (const locator of [
       panel.getByRole('log').locator('p').last(),
-      panel.getByRole('button', { name: /on-site visit/i }),
+      panel.getByLabel('Suburb or area'),
     ]) {
       await expect(locator).toHaveCSS('opacity', '1');
     }

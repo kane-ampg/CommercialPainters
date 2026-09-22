@@ -1,12 +1,10 @@
 import type { z } from 'zod';
 import {
-  ASSESSMENT_TYPES,
   COMMERCIAL_PROPERTY_TYPES,
-  SITE_REGIONS,
   availableOptions as filterOptions,
   type EnquiryOption,
 } from './options';
-import { siteAssessmentFields } from '@/lib/validation/enquiry';
+import { siteAssessmentSchema } from '@/lib/validation/enquiry';
 
 /**
  * The site assessment chat, as data.
@@ -62,8 +60,7 @@ export type ChatStep = {
   prompt: string;
   /**
    * Usually one field. Grouped only where splitting them would be worse for
-   * the visitor — organisation, name, phone and email belong on one turn, not
-   * four.
+   * the visitor — name, phone and email belong on one turn, not three.
    */
   fields: readonly ChatField[];
 };
@@ -76,15 +73,14 @@ export type ChatFlow = {
 };
 
 const SCHEMAS = {
-  commercial: siteAssessmentFields,
+  commercial: siteAssessmentSchema,
 } as const;
 
 /** The closing turn every branch ends on. */
 const CONTACT_STEP: ChatStep = {
   id: 'contact',
-  prompt: 'Last one — who should we confirm the booking with?',
+  prompt: 'Last one — who should we call back?',
   fields: [
-    { name: 'organisation', label: 'Organisation', kind: 'text', autoComplete: 'organization' },
     { name: 'name', label: 'Your name', kind: 'text', autoComplete: 'name' },
     { name: 'phone', label: 'Phone', kind: 'text', inputType: 'tel', autoComplete: 'tel' },
     {
@@ -93,7 +89,7 @@ const CONTACT_STEP: ChatStep = {
       kind: 'text',
       inputType: 'email',
       autoComplete: 'email',
-      hint: 'We send the confirmation, and the Google Meet link, here.',
+      hint: 'We send the confirmation here too.',
     },
   ],
 };
@@ -103,31 +99,6 @@ export const flows: Record<EnquiryFormType, ChatFlow> = {
     formType: 'commercial',
     label: 'Site assessment',
     steps: [
-      {
-        id: 'site-region',
-        prompt: 'Where is the site?',
-        fields: [
-          {
-            name: 'siteRegion',
-            label: 'Site region',
-            kind: 'choice',
-            options: SITE_REGIONS,
-          },
-        ],
-      },
-      {
-        id: 'assessment-type',
-        prompt: 'How would you like us to do the assessment?',
-        fields: [
-          {
-            name: 'assessmentType',
-            label: 'Assessment type',
-            kind: 'choice',
-            options: ASSESSMENT_TYPES,
-            hint: 'On-site visits are Melbourne-only for now. Everywhere else we start with a call.',
-          },
-        ],
-      },
       {
         id: 'property-type',
         prompt: 'What kind of site is it?',
@@ -141,40 +112,15 @@ export const flows: Record<EnquiryFormType, ChatFlow> = {
         ],
       },
       {
-        id: 'site-address',
-        prompt: 'Where exactly is the site?',
+        id: 'suburb',
+        prompt: 'Where is the site?',
         fields: [
           {
-            name: 'siteAddress',
-            label: 'Site address',
+            name: 'suburb',
+            label: 'Suburb or area',
             kind: 'text',
-            autoComplete: 'street-address',
-            hint: 'Street address for an on-site visit. A suburb is enough for an online assessment.',
-          },
-        ],
-      },
-      {
-        id: 'preferred-times',
-        prompt: 'When suits you?',
-        fields: [
-          {
-            name: 'preferredTimes',
-            label: 'Preferred times',
-            kind: 'textarea',
-            hint: 'Two or three windows, e.g. Tuesday morning or Thursday after 2pm. We confirm by email.',
-          },
-        ],
-      },
-      {
-        id: 'notes',
-        prompt: 'Anything we should know before we come?',
-        fields: [
-          {
-            name: 'notes',
-            label: 'Notes',
-            kind: 'textarea',
-            optional: true,
-            hint: 'Access, sign-in, what needs painting — whatever helps.',
+            autoComplete: 'address-level2',
+            hint: 'Just the suburb or area is fine.',
           },
         ],
       },

@@ -27,8 +27,7 @@ automation currently consumes this payload; a new one is planned separately.
 
 Three layers, all in the Server Action `app/actions/enquiry.ts`:
 
-1. **Honeypot.** `company_website` is hidden from users. Any value fails validation, and the
-   failure looks identical to a normal validation error from outside.
+1. **Honeypot.** `referral_source` is hidden from users. Any value fails validation.
 2. **Minimum completion time.** `renderedAt` is stamped when the form renders. A submit under
    3 seconds is rejected as automated.
 3. **Rate limit.** `lib/enquiry/rate-limit.ts`, 5 submissions per 10 minutes per client IP
@@ -38,6 +37,32 @@ Three layers, all in the Server Action `app/actions/enquiry.ts`:
 
 The rate-limit and provider-error messages quote the phone number from `getSiteSettings()`, never
 a literal, so they cannot disagree with the header.
+
+### The honeypot must stay invisible to autofill
+
+The honeypot was called `company_website`, with a "Company website" label, until 21 September 2026.
+Chrome fills an off-screen field named that way from a saved address profile whatever
+`autocomplete` says, and password managers do the same — so a real visitor's enquiry was rejected
+by a check they could not see. Kane hit it on the live form.
+
+Two things changed, and both need keeping:
+
+- **The name is outside autofill's vocabulary.** Browsers and password managers match on tokens
+  like `company`, `organization`, `website`, `url`, `name`, `email`, `tel`, `address`.
+  `referral_source` matches none of them, and the label no longer names a real-world thing. The
+  input also carries `data-1p-ignore`, `data-lpignore` and `data-form-type="other"`, the documented
+  opt-outs. **Never rename this field to something a browser recognises.**
+- **A hidden-field failure never tells a visitor to check their highlighted fields.** No form
+  renders an error against `referral_source`, `renderedAt` or `formType` — they are listed as
+  `MACHINE_FIELDS` in `lib/validation/enquiry.ts`. When a rejection is confined to them the Server
+  Action returns the phone number instead, because "check the highlighted fields" highlights
+  nothing and leaves the visitor stuck on a form where every answer is already correct. It costs
+  the honeypot some opacity — a bot reading the reply can tell an invisible check from a field
+  error — and that is the cheaper trade: the bots this catches fill every input and never read the
+  reply, while a lead that cannot get through is lost for good.
+
+Regression tests: `tests/unit/enquiry-action.test.ts` (both branches) and the autofill walk-through
+in `tests/e2e/critical-flows.spec.ts`.
 
 ## Delivery
 

@@ -251,7 +251,7 @@ describe('submitting', () => {
       name: 'Sam Taylor',
       phone: '0400 000 000',
       email: 'sam@example.com',
-      company_website: '',
+      referral_source: '',
     });
   });
 

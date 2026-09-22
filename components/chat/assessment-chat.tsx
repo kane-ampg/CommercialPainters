@@ -540,19 +540,22 @@ export function AssessmentChat() {
           {/*
             Honeypot. Hidden from sighted users and from assistive tech, so only
             a bot fills it. Its own id, because the real form's honeypot uses
-            `company_website` and two elements must not share one.
+            `referral_source` and two elements must not share one. Named, and
+            opted out, to keep browser autofill and password managers off it —
+            see the Honeypot in components/forms/fields.tsx.
           */}
           <div aria-hidden="true" className="absolute left-[-9999px] top-0 h-0 w-0 overflow-hidden">
-            <label htmlFor="assessment-chat-company-website">
-              Company website — leave this field empty
-            </label>
+            <label htmlFor="assessment-chat-referral-source">Leave this field empty</label>
             <input
               ref={honeypotRef}
-              id="assessment-chat-company-website"
-              name="company_website"
+              id="assessment-chat-referral-source"
+              name="referral_source"
               type="text"
               tabIndex={-1}
               autoComplete="off"
+              data-1p-ignore
+              data-lpignore="true"
+              data-form-type="other"
             />
           </div>
         </div>

@@ -51,7 +51,7 @@ function validForm(): FormData {
     phone: '(03) 9000 0000',
     email: 'facilities@example.edu.au',
     renderedAt: String(Date.now() - 60_000),
-    company_website: '',
+    referral_source: '',
   };
   for (const [k, v] of Object.entries(fields)) fd.set(k, v);
   return fd;
@@ -127,6 +127,42 @@ describe('submitEnquiry failure messages', () => {
 
     expect(result.status).toBe('error');
     expect(result.errors?.suburb?.[0]).toBeDefined();
+    expect(result.message).toMatch(/highlighted fields/i);
+  });
+
+  /*
+   * The 21 September 2026 dead end. The honeypot lives on no visible field, so
+   * a browser that autofilled it produced "check the highlighted fields" with
+   * nothing highlighted — a form the visitor could not fix by correcting
+   * anything on it. A failure with no visible home now gives them the phone.
+   */
+  it('gives a filled-honeypot submission the phone number, not an invisible field error', async () => {
+    settings.current = defaultSiteSettings;
+    const { submitEnquiry } = await import('@/app/actions/enquiry');
+
+    const fd = validForm();
+    fd.set('referral_source', 'http://spam.example');
+    const result = await submitEnquiry({ status: 'idle' }, fd);
+
+    expect(result.status).toBe('error');
+    expect(result.message).toContain(defaultSiteSettings.phone);
+    expect(result.message).not.toMatch(/highlighted fields/i);
+    // Nothing to highlight, so nothing is claimed to be highlightable.
+    expect(result.errors).toBeUndefined();
+  });
+
+  it('still points at the fields when a visible one is at fault alongside a hidden one', async () => {
+    settings.current = defaultSiteSettings;
+    const { submitEnquiry } = await import('@/app/actions/enquiry');
+
+    const fd = validForm();
+    fd.set('referral_source', 'http://spam.example');
+    fd.set('email', 'not-an-email');
+    const result = await submitEnquiry({ status: 'idle' }, fd);
+
+    expect(result.status).toBe('error');
+    expect(result.errors?.email?.[0]).toBeDefined();
+    expect(result.message).toMatch(/highlighted fields/i);
   });
 
   it('still reports a delivered submission as success', async () => {

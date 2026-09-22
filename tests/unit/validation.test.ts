@@ -16,7 +16,7 @@ const validEnquiry = {
   phone: '(03) 9000 0000',
   email: 'facilities@example.edu.au',
   renderedAt: 1700000000000,
-  company_website: '',
+  referral_source: '',
 };
 
 describe('site assessment schema', () => {
@@ -50,10 +50,36 @@ describe('site assessment schema', () => {
     expect(result.success).toBe(false);
   });
 
+  /*
+   * A real number typed a slightly unusual way is a lead, not a defect. The
+   * rule counts digits rather than characters, so punctuation is free and
+   * "12 34" cannot pass on length alone.
+   */
+  it.each([
+    '0400 000 000',
+    '0400.000.000',
+    '0400-000-000',
+    '(03) 9000 0000',
+    '+61 3 9000 0000',
+    '+61 (0)3 9000 0000',
+    '1300979740',
+  ])('accepts %s, however it is punctuated', (phone) => {
+    const result = siteAssessmentSchema.safeParse({ ...validEnquiry, phone });
+    expect(result.success, JSON.stringify(result.error?.flatten().fieldErrors)).toBe(true);
+  });
+
+  it('rejects a number with too few digits, whatever the punctuation adds', () => {
+    const result = siteAssessmentSchema.safeParse({ ...validEnquiry, phone: '(03) 90' });
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.flatten().fieldErrors.phone?.[0]).toMatch(/8 digits/i);
+    }
+  });
+
   it('rejects a filled honeypot', () => {
     const result = siteAssessmentSchema.safeParse({
       ...validEnquiry,
-      company_website: 'http://spam.example',
+      referral_source: 'http://spam.example',
     });
     expect(result.success).toBe(false);
   });

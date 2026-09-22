@@ -7,7 +7,10 @@ import {
   validateField,
   type ChatFlow,
 } from '@/lib/enquiry/chat-flow';
-import { siteAssessmentSchema } from '@/lib/validation/enquiry';
+import {
+  MACHINE_FIELDS as MACHINE_FIELD_NAMES,
+  siteAssessmentSchema,
+} from '@/lib/validation/enquiry';
 
 /**
  * The chat flow asks the same questions the enquiry form asks, and submits
@@ -19,8 +22,12 @@ import { siteAssessmentSchema } from '@/lib/validation/enquiry';
  * schema stays the single source of truth and drift fails the build.
  */
 
-/** Fields the schema owns rather than the conversation: set by machine. */
-const MACHINE_FIELDS = new Set(['formType', 'company_website', 'renderedAt']);
+/**
+ * Fields the schema owns rather than the conversation: set by machine. Taken
+ * from the schema module rather than restated, so the Server Action's idea of
+ * "has no visible home on the form" and this one cannot drift apart.
+ */
+const MACHINE_FIELDS = new Set(MACHINE_FIELD_NAMES);
 
 /** The schema's fields, indexable by name. */
 function shapeOf(schema: { shape: object }): Record<string, z.ZodTypeAny> {
@@ -167,7 +174,7 @@ describe('buildEnquiryFormData produces a payload the server accepts', () => {
 
   it('sends an empty honeypot, as a real visitor would', () => {
     const data = buildEnquiryFormData({ formType: 'commercial', answers: ANSWERS, renderedAt: 1 });
-    expect(data.get('company_website')).toBe('');
+    expect(data.get('referral_source')).toBe('');
   });
 
   it('stamps renderedAt so the timing check has something to measure', () => {
@@ -194,7 +201,7 @@ describe('buildEnquiryFormData produces a payload the server accepts', () => {
       answers: { name: 'Sam Taylor' },
       renderedAt: 1,
     });
-    expect([...data.keys()].sort()).toEqual(['company_website', 'formType', 'name', 'renderedAt']);
+    expect([...data.keys()].sort()).toEqual(['formType', 'name', 'referral_source', 'renderedAt']);
   });
 });
 
@@ -239,6 +246,6 @@ describe('the honeypot is carried through, not synthesised', () => {
       renderedAt: 1,
       honeypot: 'http://spam.example',
     });
-    expect(data.get('company_website')).toBe('http://spam.example');
+    expect(data.get('referral_source')).toBe('http://spam.example');
   });
 });

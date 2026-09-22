@@ -14,7 +14,7 @@ As of 16 September 2026.
 | Photography          | 54 frames across 7 sites live on the homepage, `/projects/` and five sector pages                                                                                                            |
 | Case studies         | 4, one thin and unfeatured                                                                                                                                                                   |
 | Blog                 | Built, empty, correctly hidden until the first post                                                                                                                                          |
-| Tests                | 493 of 494 unit tests pass. One known failure, `brand.test.ts`, pre-existing and unrelated to the 21 Sep enquiry form change. E2E green at last full run.                                    |
+| Tests                | 503 of 504 unit tests pass. One known failure, `brand.test.ts`, pre-existing and unrelated to the 21 Sep enquiry work. E2E green (63 passed) at last full run.                               |
 | Repository           | Clean and in sync with `main`. Public.                                                                                                                                                       |
 | n8n booking workflow | **Superseded 21 Sep** — built for the old 10-field booking payload, form cut to 5 fields, never run, not reachable from the site                                                             |
 | Model-backed chat    | Designed, not built                                                                                                                                                                          |

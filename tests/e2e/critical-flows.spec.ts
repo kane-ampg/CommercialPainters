@@ -209,6 +209,39 @@ test.describe('site assessment enquiry', () => {
     await expect(status).toContainText(/were not sent/i);
     await expect(status).toContainText('1300 97 97 40');
   });
+
+  /*
+   * The 21 September 2026 dead end, reproduced. The honeypot is off-screen and
+   * has no error of its own to render, so a browser that autofilled it left a
+   * real visitor staring at "check the highlighted fields" with every field
+   * correct and nothing highlighted. Filling it by script is what autofill
+   * does to an uncontrolled input.
+   */
+  test('a visitor whose browser autofills the honeypot is given the phone, not a dead end', async ({
+    page,
+  }, testInfo) => {
+    await withOwnClientIp(page, testInfo, 4);
+    await page.goto('/contact-us/#assessment');
+
+    const form = page.locator('form').filter({ has: page.getByLabel('Suburb or area') });
+    await form.getByLabel('Property or sector type').selectOption('office');
+    await form.getByLabel('Suburb or area').fill('Bayswater North VIC');
+    await form.getByLabel('Your name').fill('Alex Chen');
+    await form.getByLabel('Phone').fill('03 9000 0000');
+    await form.getByLabel('Work email').fill('alex@example.com');
+
+    await page.locator('input[name="referral_source"]').evaluate((input) => {
+      (input as HTMLInputElement).value = 'Example Pty Ltd';
+    });
+
+    await page.waitForTimeout(3500);
+    await form.getByRole('button', { name: /request my free assessment/i }).click();
+
+    const status = form.getByRole('status');
+    await expect(status).toBeVisible();
+    await expect(status).toContainText('1300 97 97 40');
+    await expect(status).not.toContainText(/highlighted fields/i);
+  });
 });
 
 test.describe('site assessment chat', () => {

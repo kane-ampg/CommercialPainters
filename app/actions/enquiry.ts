@@ -5,7 +5,11 @@ import { getSiteSettings } from '@/lib/content/source';
 import { checkRateLimit } from '@/lib/enquiry/rate-limit';
 import type { EnquiryState } from '@/lib/enquiry/state';
 import { getEnquiryTransport } from '@/lib/enquiry/transport';
-import { MIN_COMPLETION_SECONDS, siteAssessmentSchema } from '@/lib/validation/enquiry';
+import {
+  MACHINE_FIELDS,
+  MIN_COMPLETION_SECONDS,
+  siteAssessmentSchema,
+} from '@/lib/validation/enquiry';
 
 async function clientKey(): Promise<string> {
   const headerList = await headers();
@@ -21,10 +25,35 @@ export async function submitEnquiry(
   const parsed = siteAssessmentSchema.safeParse(Object.fromEntries(formData));
 
   if (!parsed.success) {
-    // Honeypot rejections look identical to validation failures from outside.
+    const errors = parsed.error.flatten().fieldErrors as Record<string, string[]>;
+
+    /*
+     * A failure confined to the hidden fields — the honeypot, the render
+     * timestamp, the form type — has nowhere to show itself, because no form
+     * renders an error against them. "Check the highlighted fields" then
+     * highlights nothing and the visitor is stuck on a form they cannot fix by
+     * correcting anything, which is what a real enquiry hit on 21 September
+     * 2026 after the browser autofilled the honeypot.
+     *
+     * It costs the honeypot some of its opacity: a bot reading this response
+     * can tell an invisible check from a field error. That is the cheaper of
+     * the two — the bots this catches fill every input and never read the
+     * reply, and a lead that cannot get through is lost for good. The message
+     * still does not say which check tripped.
+     */
+    const hasVisibleError = Object.keys(errors).some((field) => !MACHINE_FIELDS.includes(field));
+
+    if (!hasVisibleError) {
+      const { phone } = await getSiteSettings();
+      return {
+        status: 'error',
+        message: `We could not accept that submission. Please call us on ${phone} and we will take your details straight away.`,
+      };
+    }
+
     return {
       status: 'error',
-      errors: parsed.error.flatten().fieldErrors as Record<string, string[]>,
+      errors,
       message: 'Please check the highlighted fields and try again.',
     };
   }

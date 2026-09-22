@@ -21,7 +21,7 @@ that built and shipped it.
 | Rendering  | Fully static. About 1,440 pages rendered at build time. No database, no admin.                           |
 | Content    | Typed TypeScript under `content/` and `lib/site.ts`. Editing the site means editing those and deploying. |
 | Search     | Indexed by Google since 14 September 2026 (homepage). 47 URLs in the sitemap.                            |
-| Tests      | 43 Vitest files, 494 tests, plus Playwright e2e on desktop and mobile                                    |
+| Tests      | 43 Vitest files, 504 tests, plus Playwright e2e on desktop and mobile                                    |
 
 ## Documents
 

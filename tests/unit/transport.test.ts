@@ -14,7 +14,7 @@ const request: Enquiry = {
   phone: '0400 000 000',
   email: 'alex@example.com',
   renderedAt: 0,
-  company_website: '',
+  referral_source: '',
 };
 
 describe('describeRequest', () => {
@@ -36,7 +36,7 @@ describe('describeRequest', () => {
 
   it('never carries the anti-spam fields into the email', () => {
     const { body } = describeRequest(request);
-    expect(body).not.toMatch(/company_website|renderedAt|formType/);
+    expect(body).not.toMatch(/referral_source|renderedAt|formType/);
   });
 });
 

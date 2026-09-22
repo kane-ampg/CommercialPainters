@@ -371,17 +371,28 @@ export function CheckboxField({
 /**
  * Honeypot. Hidden from sighted users AND from assistive tech, so only a bot
  * fills it. Not `display:none` alone — some bots skip those.
+ *
+ * Nothing here names a field browser autofill recognises. It was
+ * `company_website` with a "Company website" label until 21 September 2026,
+ * and Chrome fills an off-screen field like that from a saved profile whatever
+ * `autocomplete` says — so a real visitor's enquiry was rejected by a check
+ * they could not see, could not fix, and were never told about. The
+ * `data-*` attributes are the documented opt-outs for 1Password, LastPass and
+ * the managers that follow them.
  */
 export function Honeypot() {
   return (
     <div aria-hidden="true" className="absolute left-[-9999px] top-0 h-0 w-0 overflow-hidden">
-      <label htmlFor="company_website">Company website — leave this field empty</label>
+      <label htmlFor="referral_source">Leave this field empty</label>
       <input
-        id="company_website"
-        name="company_website"
+        id="referral_source"
+        name="referral_source"
         type="text"
         tabIndex={-1}
         autoComplete="off"
+        data-1p-ignore
+        data-lpignore="true"
+        data-form-type="other"
       />
     </div>
   );

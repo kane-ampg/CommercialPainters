@@ -197,7 +197,7 @@ export function buildEnquiryFormData({
   const data = new FormData();
 
   data.set('formType', formType);
-  data.set('company_website', honeypot);
+  data.set('referral_source', honeypot);
   data.set('renderedAt', String(renderedAt));
 
   for (const [name, value] of Object.entries(answers)) {

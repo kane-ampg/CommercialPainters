@@ -1,0 +1,199 @@
+{
+  "name": "Commercial Painters - website enquiry notification",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "commercial-painters/enquiry",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "6f3c1a92-4d18-4c77-9f2b-1a5d0c7e4b10",
+      "name": "Enquiry received",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [-460, 300],
+      "webhookId": "0b7e2c41-5a63-4f8d-9e02-3c6a1d9f7b52"
+    },
+    {
+      "parameters": {
+        "jsCode": "// ---------------------------------------------------------------------------\n// EDIT THIS NODE AND NOTHING ELSE.\n// Every node downstream reads its configuration from here.\n// ---------------------------------------------------------------------------\nreturn [\n  {\n    json: {\n      config: {\n        // Where every website enquiry lands. One mailbox, on purpose: this\n        // workflow notifies, it does not assign. Whoever picks it up replies.\n        notifyEmail: 'outreach@apmgmaintenance.com.au',\n\n        businessName: 'Commercial Painters',\n        businessPhone: '1300 97 97 40',\n        timezone: 'Australia/Melbourne',\n      },\n    },\n  },\n];\n"
+      },
+      "id": "a1d47f30-9b25-4e61-8c73-2f9e5b0a6d18",
+      "name": "Settings",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-240, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// ---------------------------------------------------------------------------\n// Turn the website's enquiry into one email.\n//\n// The site validates before it posts and refuses bots before it posts, but a\n// webhook URL is public and anything can call it, so the cheap checks are\n// repeated here. Nothing is inferred and nothing is corrected: a payload that\n// does not look like an enquiry is refused rather than emailed half-empty.\n// ---------------------------------------------------------------------------\n\nconst cfg = $('Settings').first().json.config;\nconst incoming = $('Enquiry received').first().json;\nconst body = incoming.body ?? incoming;\n\nconst text = (value) => String(value ?? '').trim();\n\n// Mirrors COMMERCIAL_PROPERTY_TYPES in lib/enquiry/options.ts. The site posts\n// the value; the email reads the label, because \"Aged care or retirement\n// living\" is what somebody triaging an inbox needs to see.\nconst PROPERTY_TYPES = {\n  'education-and-childcare': 'School or childcare',\n  healthcare: 'Healthcare or medical',\n  'aged-care-and-retirement': 'Aged care or retirement living',\n  'body-corporate-and-strata': 'Body corporate or strata',\n  retail: 'Retail',\n  hospitality: 'Hospitality or venue',\n  'leisure-and-sports': 'Leisure or sports facility',\n  industrial: 'Industrial or warehouse',\n  office: 'Office',\n  other: 'Something else',\n};\n\nconst enquiry = {\n  name: text(body.name),\n  email: text(body.email).toLowerCase(),\n  phone: text(body.phone),\n  suburb: text(body.suburb),\n  propertyType: text(body.propertyType),\n  sector: PROPERTY_TYPES[text(body.propertyType)] ?? '',\n};\n\n// The honeypot the site renders off-screen. Named to stay clear of browser\n// autofill: see components/forms/fields.tsx.\nconst problems = [];\nif (text(body.referral_source)) problems.push('honeypot filled');\nif (enquiry.name.length < 2) problems.push('missing name');\nif (!/^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$/.test(enquiry.email)) problems.push('missing or invalid email');\nif (enquiry.phone.replace(/\\D/g, '').length < 8) problems.push('missing or invalid phone');\nif (enquiry.suburb.length < 2) problems.push('missing suburb');\nif (!enquiry.sector) problems.push('missing or unknown sector');\n\nconst received = DateTime.now()\n  .setZone(cfg.timezone)\n  .setLocale('en-AU')\n  .toFormat(\"cccc d LLLL yyyy 'at' h:mm a\");\n\nconst subject = `Website enquiry - ${enquiry.name} - ${enquiry.sector}, ${enquiry.suburb}`;\n\nconst message = [\n  'A new enquiry came in from the website.',\n  '',\n  `Name:    ${enquiry.name}`,\n  `Phone:   ${enquiry.phone}`,\n  `Email:   ${enquiry.email}`,\n  `Suburb:  ${enquiry.suburb}`,\n  `Sector:  ${enquiry.sector}`,\n  '',\n  `Received ${received} (Melbourne time).`,\n  '',\n  'They asked for a free site assessment, so the next step is a call to arrange',\n  'a time - on site in Melbourne, or a short online call anywhere else.',\n  '',\n  `Reply to this email to answer ${enquiry.name} directly, or call ${enquiry.phone}.`,\n].join('\\n');\n\nreturn [\n  {\n    json: {\n      route: problems.length ? 'reject' : 'send',\n      problems,\n      enquiry,\n      config: cfg,\n      subject,\n      message,\n    },\n  },\n];\n"
+      },
+      "id": "c82b5e14-7a39-4d02-b6f5-8e1c3a9d472f",
+      "name": "Build the notification",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-20, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "5d2e8b47-1c60-4a93-8f25-7b0d4e6a1c39",
+              "leftValue": "={{ $json.route }}",
+              "rightValue": "send",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "id": "e47a9c05-3b81-4f26-9d54-6a2c8e0b5f73",
+      "name": "Does it look like an enquiry?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [200, 300]
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "send",
+        "sendTo": "={{ $json.config.notifyEmail }}",
+        "subject": "={{ $json.subject }}",
+        "emailType": "text",
+        "message": "={{ $json.message }}",
+        "options": {
+          "appendAttribution": false,
+          "replyTo": "={{ $json.enquiry.email }}",
+          "senderName": "={{ $json.config.businessName }}"
+        }
+      },
+      "id": "b93f6d28-0e54-4a17-8c62-5d7b1f3a9e04",
+      "name": "Email the enquiry",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [440, 200]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ ok: true, status: 'received' }) }}",
+        "options": {}
+      },
+      "id": "7c1a4e93-6f20-4b85-9a37-0d8e2c5b6f41",
+      "name": "Acknowledge",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [680, 200]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ ok: false, errors: $json.problems }) }}",
+        "options": {
+          "responseCode": 400
+        }
+      },
+      "id": "2e6b8f15-9d43-4c70-a18e-4f5b7a0c3d96",
+      "name": "Refuse the submission",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [440, 420]
+    },
+    {
+      "parameters": {
+        "content": "## Website enquiry -> one email\n\nA visitor sends the enquiry form on /contact-us/ (or the chat on any other\npage). The site POSTs the five fields here, this workflow checks them and\nemails the office. Nothing is booked, held or promised.\n\n**Before it runs:** put the recipient in **Settings**, add a Gmail OAuth2\ncredential to **Email the enquiry**, activate, then copy the production webhook\nURL from **Enquiry received** into the site's `N8N_ENQUIRY_WEBHOOK_URL`.\n\nThe reply-to on the email is the enquirer, so hitting Reply answers them.\n",
+        "height": 260,
+        "width": 640
+      },
+      "id": "9a0d3c76-5e18-4f92-b743-1c6a8d2e5074",
+      "name": "How this works",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [-460, -20]
+    }
+  ],
+  "connections": {
+    "Enquiry received": {
+      "main": [
+        [
+          {
+            "node": "Settings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Settings": {
+      "main": [
+        [
+          {
+            "node": "Build the notification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build the notification": {
+      "main": [
+        [
+          {
+            "node": "Does it look like an enquiry?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Does it look like an enquiry?": {
+      "main": [
+        [
+          {
+            "node": "Email the enquiry",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Refuse the submission",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email the enquiry": {
+      "main": [
+        [
+          {
+            "node": "Acknowledge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Australia/Melbourne",
+    "saveManualExecutions": true
+  },
+  "tags": []
+}

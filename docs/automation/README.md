@@ -1,140 +1,126 @@
-# Free site assessment → Google Meet booking (n8n)
+# Website enquiry → email (n8n)
 
-> **Superseded 21 September 2026.** This workflow was built against the enquiry form's old
-> ten-field booking payload (`siteRegion`, `assessmentType`, `siteAddress`, `preferredTimes`,
-> `organisation`, and so on). That payload no longer exists — the form was cut back to five
-> lead-qualification fields (`propertyType`, `suburb`, `name`, `phone`, `email`; see
-> [../enquiries-and-chat.md](../enquiries-and-chat.md#the-enquiry)) — so this workflow's "Pointing
-> the website at it" section below is stale and it cannot be wired up as-is. It was never run and
-> never reachable from the site regardless. Kept for reference — the calendar-holding and
-> team-approval pattern may still be worth reusing — but a new automation, scoped to the five-field
-> payload, needs to be designed separately.
+`n8n-enquiry-notification.json` is a complete n8n workflow. Import it with
+**Workflows → … → Import from File**, or open a blank canvas, select everything in the file, and
+paste.
 
-`n8n-site-assessment-booking.json` is a complete n8n workflow. Import it with
-**Workflows → … → Import from File**, or open a blank canvas, select everything
-in the file, and paste.
-
-## What it does
-
-A booking arrives from the website. The workflow proposes a real time, holds it
-in Google Calendar, and asks Kane, Farbod, Simon and Zac to take it. **Nothing
-is promised to the client until one of them says yes.**
+It does one thing: an enquiry arrives from the website, it is checked, and it is emailed to the
+office. Nothing is booked, held, scheduled or promised.
 
 ```
-website form
-   └─ triage ─────────────► junk            → 400, nothing else happens
-      │                     on-site outside
-      │                     Melbourne       → office is emailed, no booking
-      ▼
-   rank the client's preferred times against real free/busy for all four
-      ▼
-   ┌─ online  → hold 30 min + create a Google Meet link
-   └─ on site → hold 90 min at the address, 45 min travel free either side
-      ▼
-   email all four: "who are you?" + "yes or no"
-      ├─ first YES → client gets a calendar invite (Meet link or address)
-      │              + a confirmation email; travel time blocked for on site
-      ├─ a NO      → that person drops off, whoever is left is re-asked,
-      │              the hold stays put
-      └─ 6 hours   → hold released, office emailed. No time was ever given
-         or all
-         passed
+website form or chat
+   └─ POST /webhook/commercial-painters/enquiry
+         ▼
+      Settings            ← the only node you edit
+         ▼
+      Build the notification
+         ├─ looks like an enquiry → Gmail → office mailbox → 200 { ok: true }
+         └─ junk or a bot         → 400 { ok: false, errors: [...] }
 ```
 
-## Before it will run
+Seven nodes. The previous version of this file was a 35-node booking workflow that ranked the
+client's preferred times against four team calendars, held a slot, and ran an approval round by
+email. It was never run, the site could never reach it, and the form it was built for no longer
+exists — the enquiry was cut to five fields on 21 September 2026. It is in the git history if any
+of it is ever wanted again.
 
-1. **`Team and settings` node** — the only node you should need to edit. Put the
-   real work emails and calendar IDs in. **The four addresses in there are
-   assumptions and need confirming.** Also set `holdCalendarId` (a shared "Site
-   assessments" calendar is better than a personal one) and `officeEmail`.
-2. **Credentials** — a Google Calendar OAuth2 credential on the four calendar
-   nodes and the free/busy HTTP node, and a Gmail OAuth2 credential on the four
-   Gmail nodes. The Google account must be able to write to the hold calendar
-   and read free/busy on all four team calendars (in Google Workspace, share
-   each calendar with at least "See only free/busy").
-3. **Activate**, then copy the **production** webhook URL from the first node.
+## What it sends
 
-## Pointing the website at it
-
-The workflow expects `POST` with the form fields as JSON:
+The payload is the five fields the form collects, posted as JSON:
 
 ```json
 {
   "name": "Priya Raman",
-  "organisation": "Eastwood Childcare Group",
   "email": "priya@example.com.au",
   "phone": "03 9123 4567",
-  "siteRegion": "melbourne",
-  "assessmentType": "online",
+  "suburb": "Kew VIC",
   "propertyType": "education-and-childcare",
-  "siteAddress": "12 Cotham Road, Kew VIC 3101",
-  "preferredTimes": "Tuesday morning, or Thursday after 2pm",
-  "notes": "Sign in at reception."
+  "referral_source": ""
 }
 ```
 
-Those are exactly the values in [lib/validation/enquiry.ts](../../lib/validation/enquiry.ts),
-so an `Enquiry` can be posted as-is. The site has no webhook transport yet —
-[lib/enquiry/transport.ts](../../lib/enquiry/transport.ts) ships `console` and
-`resend` only. Adding one is a small adapter:
+`propertyType` is the stored value; the workflow maps it to the label a human reads
+("School or childcare") using the same table as
+[lib/enquiry/options.ts](../../lib/enquiry/options.ts). `referral_source` is the honeypot — the
+site rejects a filled one before it ever posts, and the workflow checks it again because a webhook
+URL is public and the site is not the only thing that can call it.
 
-```ts
-const n8nTransport: EnquiryTransport = {
-  id: 'n8n',
-  async send(enquiry) {
-    const url = process.env.N8N_BOOKING_WEBHOOK_URL;
-    if (!url) return { delivered: false, reason: 'not-configured' };
-    try {
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(enquiry),
-      });
-      if (!response.ok) {
-        console.error('[enquiry] booking webhook rejected', { status: response.status });
-        return { delivered: false, reason: 'provider-error' };
-      }
-      return { delivered: true };
-    } catch {
-      console.error('[enquiry] booking webhook request failed');
-      return { delivered: false, reason: 'provider-error' };
-    }
-  },
-};
+The email that comes out:
+
+```
+Subject: Website enquiry - Priya Raman - School or childcare, Kew VIC
+
+A new enquiry came in from the website.
+
+Name:    Priya Raman
+Phone:   03 9123 4567
+Email:   priya@example.com.au
+Suburb:  Kew VIC
+Sector:  School or childcare
+
+Received Monday 22 September 2026 at 9:15 am (Melbourne time).
+
+They asked for a free site assessment, so the next step is a call to arrange
+a time - on site in Melbourne, or a short online call anywhere else.
+
+Reply to this email to answer Priya Raman directly, or call 03 9123 4567.
 ```
 
-…returned from `getEnquiryTransport()` when `ENQUIRY_TRANSPORT === 'n8n'`.
+The reply-to is set to the enquirer, so replying answers the customer rather than the workflow.
 
-## How the time gets chosen
+## Before it will run
 
-`preferredTimes` is free text, so `Normalise the booking` reads it — weekday
-names, "morning" / "afternoon", "after 2pm", "before Friday", "Thursday 10:30" —
-and scores every working slot in the next fortnight against it. `Pick the slot
-and who is free` then crosses that ranking with Google Calendar free/busy and
-keeps the best slot at least one assessor can actually make, breaking ties
-towards the slot more of the team could cover.
+1. **`Settings` node** — the only node you should need to edit. Put the receiving mailbox in
+   `notifyEmail`. It ships with the outreach address that `site.email` carries in
+   [lib/site.ts](../../lib/site.ts); change it there if enquiries should land somewhere else.
+2. **Credentials** — a Gmail OAuth2 credential on **Email the enquiry**. The account that
+   authorises it is the account the notification is sent from, which is the point: it already has
+   SPF and DKIM, so nothing depends on the brand domain's DNS.
+3. **Activate**, then copy the **production** webhook URL from **Enquiry received**.
 
-It is a heuristic, and it says so: the approval email always quotes the client's
-own words back, so whoever confirms can see the request and move the event
-before accepting if the match is poor.
+## Pointing the website at it
 
-## Things worth knowing
+Set two variables in Vercel (Production scope) and redeploy:
 
-- **The client's words are never auto-parsed into a promise.** The hold is a
-  `HOLD - …` event on one calendar with no attendees; the client sees nothing
-  until someone confirms.
-- **On-site is Melbourne-only**, mirroring the rule in `lib/validation/enquiry.ts`.
-  Anything else is handed to the office rather than silently downgraded.
-- **Travel time** (45 min each way, configurable) must be free _before_ an
-  on-site slot is offered, and is written to the assessor's own calendar once
-  confirmed — never onto the client's invitation.
-- **`maxRounds`** caps how many times a "no" may bounce. Default 4, i.e. once
-  per person.
-- The approval form asks who is answering because a single email goes to all
-  four; n8n's approval webhook cannot tell you who clicked.
+```
+ENQUIRY_TRANSPORT=n8n
+N8N_ENQUIRY_WEBHOOK_URL=https://<your-n8n-host>/webhook/commercial-painters/enquiry
+```
+
+That is all — the adapter already exists, in
+[lib/enquiry/transport.ts](../../lib/enquiry/transport.ts). It posts the JSON above, gives the
+workflow ten seconds to answer, and treats anything else as a provider error, which shows the
+visitor the "call us" message rather than a hung form.
+
+On Vercel production the transport is wrapped in a guard: if `N8N_ENQUIRY_WEBHOOK_URL` is unset the
+submission is refused and one line naming the missing variable is written to the function logs.
+Search the logs for `MISCONFIGURED` after any environment change.
+
+## Why n8n rather than Resend
+
+Both adapters ship. `resend` sends directly and needs no n8n at all, but it cannot send from the
+brand domain until that domain publishes SPF and DKIM — as of 14 September 2026 it had neither, and
+a DMARC policy of `p=quarantine`, so its own mail would be quarantined. The n8n route sends through
+an already-authenticated Gmail account, so it works today with no DNS changes.
+
+Pick one. Both configured at once is not double delivery — `ENQUIRY_TRANSPORT` selects exactly one
+adapter — but leaving the unused one's variables set is a trap for whoever reads the config next.
+
+## Testing it
+
+With the workflow active, post the sample payload straight at the webhook:
+
+```bash
+curl -X POST https://<your-n8n-host>/webhook/commercial-painters/enquiry \
+  -H 'Content-Type: application/json' \
+  -d '{"name":"Test Person","email":"you@example.com","phone":"0400 000 000","suburb":"Bayswater North VIC","propertyType":"office"}'
+```
+
+A `200 {"ok":true}` and an email in the office mailbox means it is working. A `400` returns the
+list of what it objected to. Then submit the real form on `/contact-us/` and confirm that one
+arrives too — the workflow answering curl proves the workflow; only the form proves the wiring.
 
 ## Not covered
 
-Reschedules and cancellations. If a client replies to the confirmation asking
-to move it, that is a human job today — the workflow has no second entry point
-for an existing booking.
+Reschedules, cancellations, calendars, assignment and auto-replies to the customer. This workflow
+notifies the office and stops. If an enquiry needs a booking, someone rings them.

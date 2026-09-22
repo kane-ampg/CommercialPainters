@@ -116,4 +116,110 @@ describe('getEnquiryTransport in production', () => {
     expect(result).toEqual({ delivered: false, reason: 'not-configured' });
     expect(info).toHaveBeenCalled();
   });
+
+  it('accepts the n8n adapter in production once its webhook URL is set', async () => {
+    stubProduction({
+      ENQUIRY_TRANSPORT: 'n8n',
+      N8N_ENQUIRY_WEBHOOK_URL: 'https://n8n.example/webhook/enquiry',
+    });
+    const error = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const fetchSpy = vi
+      .spyOn(globalThis, 'fetch')
+      .mockResolvedValue(new Response('{"ok":true}', { status: 200 }));
+
+    const result = await getEnquiryTransport().send(request);
+
+    expect(result).toEqual({ delivered: true });
+    expect(fetchSpy).toHaveBeenCalledOnce();
+    expect(error).not.toHaveBeenCalled();
+  });
+
+  it('refuses the n8n adapter in production when its webhook URL is unset', async () => {
+    stubProduction({ ENQUIRY_TRANSPORT: 'n8n', N8N_ENQUIRY_WEBHOOK_URL: '' });
+    const error = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const fetchSpy = vi.spyOn(globalThis, 'fetch');
+
+    const result = await getEnquiryTransport().send(request);
+
+    expect(result).toEqual({ delivered: false, reason: 'provider-error' });
+    expect(fetchSpy).not.toHaveBeenCalled();
+    expect(error).toHaveBeenCalledWith(
+      expect.stringMatching(/\[enquiry\] MISCONFIGURED/),
+      expect.objectContaining({ transport: 'n8n', missing: ['N8N_ENQUIRY_WEBHOOK_URL'] }),
+    );
+  });
+});
+
+/**
+ * What the workflow actually receives. It checks the honeypot itself, because
+ * a webhook URL is public and the site is not the only thing that can call it.
+ */
+describe('the n8n transport posts what the workflow expects', () => {
+  afterEach(() => {
+    vi.unstubAllEnvs();
+    vi.restoreAllMocks();
+  });
+
+  async function post(enquiry: Enquiry = request) {
+    vi.stubEnv('VERCEL_ENV', 'development');
+    vi.stubEnv('ENQUIRY_TRANSPORT', 'n8n');
+    vi.stubEnv('N8N_ENQUIRY_WEBHOOK_URL', 'https://n8n.example/webhook/enquiry');
+    const fetchSpy = vi
+      .spyOn(globalThis, 'fetch')
+      .mockResolvedValue(new Response('{"ok":true}', { status: 200 }));
+
+    const result = await getEnquiryTransport().send(enquiry);
+    const [url, init] = fetchSpy.mock.calls[0] ?? [];
+    return { result, url, init: init as RequestInit, body: JSON.parse(String(init?.body)) };
+  }
+
+  it('sends the five answered fields and the honeypot, as JSON', async () => {
+    const { url, init, body } = await post();
+
+    expect(url).toBe('https://n8n.example/webhook/enquiry');
+    expect(init.method).toBe('POST');
+    expect(body).toEqual({
+      name: 'Alex Chen',
+      email: 'alex@example.com',
+      phone: '0400 000 000',
+      suburb: 'Bayswater North VIC',
+      propertyType: 'office',
+      referral_source: '',
+    });
+  });
+
+  it('sends the sector as the value the workflow maps, not the label', async () => {
+    const { body } = await post({ ...request, propertyType: 'aged-care-and-retirement' });
+    expect(body.propertyType).toBe('aged-care-and-retirement');
+  });
+
+  it('gives up rather than hanging a visitor on an unreachable workflow', async () => {
+    vi.stubEnv('VERCEL_ENV', 'development');
+    vi.stubEnv('ENQUIRY_TRANSPORT', 'n8n');
+    vi.stubEnv('N8N_ENQUIRY_WEBHOOK_URL', 'https://n8n.example/webhook/enquiry');
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    vi.spyOn(globalThis, 'fetch').mockRejectedValue(new DOMException('aborted', 'TimeoutError'));
+
+    const result = await getEnquiryTransport().send(request);
+
+    expect(result).toEqual({ delivered: false, reason: 'provider-error' });
+  });
+
+  it('never logs what the visitor submitted when the workflow rejects it', async () => {
+    vi.stubEnv('VERCEL_ENV', 'development');
+    vi.stubEnv('ENQUIRY_TRANSPORT', 'n8n');
+    vi.stubEnv('N8N_ENQUIRY_WEBHOOK_URL', 'https://n8n.example/webhook/enquiry');
+    const error = vi.spyOn(console, 'error').mockImplementation(() => {});
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+      new Response('{"ok":false,"errors":["missing name"]}', { status: 400 }),
+    );
+
+    const result = await getEnquiryTransport().send(request);
+
+    expect(result).toEqual({ delivered: false, reason: 'provider-error' });
+    const logged = JSON.stringify(error.mock.calls);
+    expect(logged).toContain('400');
+    expect(logged).not.toContain('Alex Chen');
+    expect(logged).not.toContain('alex@example.com');
+  });
 });

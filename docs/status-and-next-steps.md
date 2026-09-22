@@ -4,20 +4,20 @@ As of 16 September 2026.
 
 ## Where things stand
 
-| Area                 | State                                                                                                                                                                                        |
-| -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Site                 | Live at `https://www.commercialpaintersau.com.au/`, apex redirects, deployment protection off                                                                                                |
-| Pages                | About 1,440 built, 47 indexable, all with unique title, description and canonical                                                                                                            |
-| Search               | Domain property verified. Sitemap read 14 Sep, 47 discovered. Homepage indexed 14 Sep. Zero inbound links.                                                                                   |
-| Enquiries            | Form and chat work end to end. **Production delivered nothing from launch to 15 Sep** (console adapter). Production guard added 16 Sep; Resend configuration in progress, see enquiries doc. |
-| Analytics            | GTM opt-in shipped and inert. `GTM_ID` not set.                                                                                                                                              |
-| Photography          | 54 frames across 7 sites live on the homepage, `/projects/` and five sector pages                                                                                                            |
-| Case studies         | 4, one thin and unfeatured                                                                                                                                                                   |
-| Blog                 | Built, empty, correctly hidden until the first post                                                                                                                                          |
-| Tests                | 503 of 504 unit tests pass. One known failure, `brand.test.ts`, pre-existing and unrelated to the 21 Sep enquiry work. E2E green (63 passed) at last full run.                               |
-| Repository           | Clean and in sync with `main`. Public.                                                                                                                                                       |
-| n8n booking workflow | **Superseded 21 Sep** — built for the old 10-field booking payload, form cut to 5 fields, never run, not reachable from the site                                                             |
-| Model-backed chat    | Designed, not built                                                                                                                                                                          |
+| Area              | State                                                                                                                                                                                           |
+| ----------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Site              | Live at `https://www.commercialpaintersau.com.au/`, apex redirects, deployment protection off                                                                                                   |
+| Pages             | About 1,440 built, 47 indexable, all with unique title, description and canonical                                                                                                               |
+| Search            | Domain property verified. Sitemap read 14 Sep, 47 discovered. Homepage indexed 14 Sep. Zero inbound links.                                                                                      |
+| Enquiries         | Form and chat work end to end. **Production delivered nothing from launch to 15 Sep** (console adapter). Production guard added 16 Sep; Resend configuration in progress, see enquiries doc.    |
+| Analytics         | GTM opt-in shipped and inert. `GTM_ID` not set.                                                                                                                                                 |
+| Photography       | 54 frames across 7 sites live on the homepage, `/projects/` and five sector pages                                                                                                               |
+| Case studies      | 4, one thin and unfeatured                                                                                                                                                                      |
+| Blog              | Built, empty, correctly hidden until the first post                                                                                                                                             |
+| Tests             | 503 of 504 unit tests pass. One known failure, `brand.test.ts`, pre-existing and unrelated to the 21 Sep enquiry work. E2E green (63 passed) at last full run.                                  |
+| Repository        | Clean and in sync with `main`. Public.                                                                                                                                                          |
+| n8n workflow      | Rewritten 22 Sep as a 7-node enquiry → email notification, replacing the 35-node booking one. The site can now reach it (`n8n` transport). Needs importing, a Gmail credential and its URL set. |
+| Model-backed chat | Designed, not built                                                                                                                                                                             |
 
 ## Decisions only the business can make
 
@@ -40,9 +40,10 @@ In order of how much they matter.
    the previous brand. Replace, crop, or accept.
 6. **Social profiles, coordinates, opening hours.** All null and all omitted from schema until
    supplied. Coordinates are the highest-value local signal of the three: geocode 1 Turbo Drive.
-7. **A new automation for the 5-field enquiry payload.** The n8n workflow in `docs/automation/` is
-   superseded — it targets the old 10-field booking payload — so this is a fresh design, not a
-   resurrection. Team addresses would need confirming for whatever replaces it too.
+7. **Which delivery route goes live.** Both now work: `n8n` (import the workflow, add a Gmail
+   credential, set `N8N_ENQUIRY_WEBHOOK_URL` — no DNS work) or `resend` (needs SPF and DKIM on the
+   brand domain first). `ENQUIRY_TRANSPORT` picks one. The n8n route is the faster path to a
+   delivered enquiry.
 8. **Repository visibility.** It is public. The site source and client-named photography are
    visible.
 

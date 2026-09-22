@@ -3,14 +3,19 @@ import type { Enquiry } from '@/lib/validation/enquiry';
 import { COMMERCIAL_PROPERTY_TYPES, type EnquiryOption } from '@/lib/enquiry/options';
 
 /**
- * Booking delivery.
+ * Enquiry delivery.
  *
- * No production email or CRM credentials exist for this project yet, and where
- * Contact Form 7 submissions currently land on the WordPress site is unknown.
- * Rather than pretend, this is an adapter interface with two implementations:
+ * An adapter interface with three implementations, chosen by
+ * `ENQUIRY_TRANSPORT`:
  *
  *   console  — the default. Records that a submission happened. Delivers nothing.
- *   resend   — a real provider, active only once RESEND_API_KEY is configured.
+ *   resend   — posts the enquiry as an email through the Resend API.
+ *   n8n      — posts the enquiry to the notification workflow, which emails it.
+ *
+ * `n8n` exists because `resend` cannot send until the brand domain publishes
+ * SPF and DKIM — until then its mail is quarantined by the domain's own DMARC
+ * policy. The workflow sends through a Gmail account that already has both, so
+ * it delivers today with no DNS work. See docs/automation/README.md.
  *
  * The console adapter reports `delivered: false`, and the UI tells the user to
  * phone instead. The site never claims a message was sent when it was not.
@@ -86,6 +91,56 @@ const resendTransport: EnquiryTransport = {
   },
 };
 
+/**
+ * The n8n notification workflow.
+ *
+ * Posts the five answered fields as JSON to the workflow's webhook, which
+ * checks them and emails the office. The anti-spam fields go with them: the
+ * webhook URL is public, so the workflow repeats the honeypot check rather
+ * than trusting whatever called it.
+ *
+ * The request is given a deadline. A webhook is a self-hosted service on the
+ * far side of the internet, and a visitor waiting on a submit button should
+ * get the "call us" message rather than a hung form if it is unreachable.
+ */
+const n8nTransport: EnquiryTransport = {
+  id: 'n8n',
+  async send(enquiry) {
+    const url = process.env.N8N_ENQUIRY_WEBHOOK_URL;
+    if (!url) return { delivered: false, reason: 'not-configured' };
+
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: enquiry.name,
+          email: enquiry.email,
+          phone: enquiry.phone,
+          suburb: enquiry.suburb,
+          propertyType: enquiry.propertyType,
+          referral_source: enquiry.referral_source,
+        }),
+        signal: AbortSignal.timeout(WEBHOOK_TIMEOUT_MS),
+      });
+
+      if (!response.ok) {
+        // Status only. The response body can echo submitted content.
+        console.error('[enquiry] booking webhook rejected', { status: response.status });
+        return { delivered: false, reason: 'provider-error' };
+      }
+
+      return { delivered: true };
+    } catch {
+      console.error('[enquiry] booking webhook request failed');
+      return { delivered: false, reason: 'provider-error' };
+    }
+  },
+};
+
+/** Long enough for a cold workflow to wake, short enough not to hang a form. */
+const WEBHOOK_TIMEOUT_MS = 10_000;
+
 function labelOf(options: readonly EnquiryOption[], value: string): string {
   return options.find((option) => option.value === value)?.label ?? value;
 }
@@ -114,7 +169,16 @@ export function describeRequest(enquiry: Enquiry): { subject: string; body: stri
   return { subject, body: lines.map(([key, value]) => `${key}: ${value}`).join('\n') };
 }
 
-const RESEND_VARIABLES = ['RESEND_API_KEY', 'ENQUIRY_TO_EMAIL', 'ENQUIRY_FROM_EMAIL'] as const;
+/**
+ * What each deliverable transport needs set before it can send anything.
+ *
+ * A transport absent from this map cannot deliver by definition — that is the
+ * console adapter, and the guard below refuses it in production.
+ */
+const REQUIRED_VARIABLES: Record<string, readonly string[]> = {
+  resend: ['RESEND_API_KEY', 'ENQUIRY_TO_EMAIL', 'ENQUIRY_FROM_EMAIL'],
+  n8n: ['N8N_ENQUIRY_WEBHOOK_URL'],
+};
 
 /**
  * Production guard.
@@ -134,14 +198,14 @@ function requireDelivery(transport: EnquiryTransport): EnquiryTransport {
   return {
     id: transport.id,
     async send(enquiry) {
-      const missing =
-        transport.id === 'resend'
-          ? RESEND_VARIABLES.filter((name) => !process.env[name])
-          : ['ENQUIRY_TRANSPORT=resend'];
+      const required = REQUIRED_VARIABLES[transport.id];
+      const missing = required
+        ? required.filter((name) => !process.env[name])
+        : ['ENQUIRY_TRANSPORT=resend or n8n'];
 
-      if (transport.id === 'console' || missing.length > 0) {
+      if (!required || missing.length > 0) {
         console.error(
-          '[enquiry] MISCONFIGURED: production cannot deliver enquiries. Set the Resend variables in Vercel Production and redeploy.',
+          '[enquiry] MISCONFIGURED: production cannot deliver enquiries. Set the delivery variables in Vercel Production and redeploy.',
           { transport: transport.id, missing },
         );
         return { delivered: false, reason: 'provider-error' };
@@ -152,8 +216,19 @@ function requireDelivery(transport: EnquiryTransport): EnquiryTransport {
   };
 }
 
+function selectTransport(): EnquiryTransport {
+  switch (process.env.ENQUIRY_TRANSPORT) {
+    case 'resend':
+      return resendTransport;
+    case 'n8n':
+      return n8nTransport;
+    default:
+      return consoleTransport;
+  }
+}
+
 export function getEnquiryTransport(): EnquiryTransport {
-  const transport = process.env.ENQUIRY_TRANSPORT === 'resend' ? resendTransport : consoleTransport;
+  const transport = selectTransport();
 
   return process.env.VERCEL_ENV === 'production' ? requireDelivery(transport) : transport;
 }

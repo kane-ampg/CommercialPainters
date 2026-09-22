@@ -9,7 +9,7 @@ are validated by the same Zod schema. It is one pipeline with two entrances.
 Refactored 21 September 2026. The form used to collect ten fields modelled as a booking request —
 site region, on-site-vs-online, a street address, preferred times, notes and an organisation name —
 enough to propose a specific calendar slot. None of that was reachable by an automation (see
-[The n8n booking workflow](#the-n8n-booking-workflow)), and it was a long form for what the site
+[The n8n notification workflow](#the-n8n-notification-workflow)), and it was a long form for what the site
 actually needed: a qualified lead to call back. It now collects five fields:
 
 | Field                    | Type                                    | Rule                                 |
@@ -20,8 +20,8 @@ actually needed: a qualified lead to call back. It now collects five fields:
 | `formType`               | literal `commercial`                    | The only audience this site serves   |
 
 Scheduling — on site in Melbourne or an online call, and when — is worked out on the callback, not
-collected here. Schema: `lib/validation/enquiry.ts`. Option labels: `lib/enquiry/options.ts`. No
-automation currently consumes this payload; a new one is planned separately.
+collected here. Schema: `lib/validation/enquiry.ts`. Option labels: `lib/enquiry/options.ts`. The
+n8n notification workflow accepts exactly this payload.
 
 ## Anti-spam
 
@@ -66,12 +66,14 @@ in `tests/e2e/critical-flows.spec.ts`.
 
 ## Delivery
 
-`lib/enquiry/transport.ts` defines an `EnquiryTransport` with two implementations:
+`lib/enquiry/transport.ts` defines an `EnquiryTransport` with three implementations, selected by
+`ENQUIRY_TRANSPORT`:
 
 | Adapter   | Selected by                                                                                  | Behaviour                                                                                                                  |
 | --------- | -------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
 | `console` | default                                                                                      | Logs `formType`, `propertyType` and a field count. Delivers nothing. Returns `delivered: false, reason: 'not-configured'`. |
 | `resend`  | `ENQUIRY_TRANSPORT="resend"` plus `RESEND_API_KEY`, `ENQUIRY_TO_EMAIL`, `ENQUIRY_FROM_EMAIL` | POSTs a plain-text email to the Resend API. Subject names the contact and the sector.                                      |
+| `n8n`     | `ENQUIRY_TRANSPORT="n8n"` plus `N8N_ENQUIRY_WEBHOOK_URL`                                     | POSTs the five fields as JSON to the notification workflow, which emails the office through Gmail. Ten-second deadline.    |
 
 The UI is honest about the result. With the console adapter, a valid submission shows "Your details
 passed validation, but were not sent" and the phone number. With `delivered: true` it says the
@@ -85,13 +87,16 @@ adapter logs only the HTTP status on failure, because a response body can echo t
 
 Added 16 September 2026, after the incident below. When `VERCEL_ENV` is `production`,
 `getEnquiryTransport()` wraps the selected adapter in `requireDelivery`. A transport that cannot
-deliver, meaning the console adapter, or the Resend adapter with any of its three variables unset,
-is refused: the result is `provider-error`, so the visitor is told to phone, and one line is
-written to the function logs:
+deliver — the console adapter, or a real adapter with any of its variables unset — is refused: the
+result is `provider-error`, so the visitor is told to phone, and one line is written to the
+function logs:
 
 ```
-[enquiry] MISCONFIGURED: production cannot deliver enquiries. Set the Resend variables in Vercel Production and redeploy. { transport: 'console', missing: [ 'ENQUIRY_TRANSPORT=resend' ] }
+[enquiry] MISCONFIGURED: production cannot deliver enquiries. Set the delivery variables in Vercel Production and redeploy. { transport: 'console', missing: [ 'ENQUIRY_TRANSPORT=resend or n8n' ] }
 ```
+
+What each adapter needs is declared once, in `REQUIRED_VARIABLES`, so a new transport cannot be
+added without telling the guard how to check it.
 
 It names the transport and the unset variable names, never values. Preview and local deployments
 are untouched, so the console adapter and the e2e assertions about "not sent" still work there.
@@ -100,7 +105,12 @@ Search Vercel logs for `MISCONFIGURED` after any environment change. Unit tests:
 
 ### Turning delivery on
 
-In Vercel, Production scope:
+In Vercel, Production scope, one of these two — then redeploy.
+
+```
+ENQUIRY_TRANSPORT=n8n
+N8N_ENQUIRY_WEBHOOK_URL=...
+```
 
 ```
 ENQUIRY_TRANSPORT=resend
@@ -109,11 +119,11 @@ ENQUIRY_TO_EMAIL=...
 ENQUIRY_FROM_EMAIL=...
 ```
 
-Then redeploy. Before that works, the sending domain has to be verified in Resend, which means DNS
-records at GoDaddy. As of 14 September 2026 the brand domain publishes a DMARC record with
+`n8n` works immediately: the workflow sends through a Gmail account that already has SPF and DKIM.
+`resend` does not, yet. As of 14 September 2026 the brand domain publishes a DMARC record with
 `p=quarantine` but has no SPF and no MX, so mail from it would be quarantined even with Resend
-configured. Either add SPF and DKIM for the brand domain or send from a domain that already has
-them.
+configured. Either add SPF and DKIM for the brand domain, or send from a domain that already has
+them, or take the n8n route.
 
 ### Incident: nothing delivered from launch to 15 September 2026
 
@@ -163,35 +173,45 @@ session transcript of 13 September and in the knowledge base's answering rules. 
 provision the Redis store through the Vercel Marketplace first and move the enquiry rate limiter onto
 it at the same time.
 
-## The n8n booking workflow
+## The n8n notification workflow
 
-**Superseded 21 September 2026.** `docs/automation/n8n-site-assessment-booking.json` is a 35-node
-n8n workflow built against the old ten-field booking payload (`siteRegion`, `assessmentType`,
-`siteAddress`, `preferredTimes`, `organisation`, and so on). That payload no longer exists — the
-enquiry schema was cut back to five lead-qualification fields (see [The
-enquiry](#the-enquiry)) — so this workflow no longer matches what the site sends and cannot be
-pointed at the form as-is. It was never run and never reachable from the site regardless (see
-below), so nothing live depended on it.
+`docs/automation/n8n-enquiry-notification.json`, described in `docs/automation/README.md`. Seven
+nodes: an enquiry arrives by webhook, is checked, and is emailed to the office through Gmail. It
+books nothing and promises nothing.
 
-It is kept for reference — the calendar-holding and team-approval pattern may still be worth
-reusing — but a new automation, scoped to the five-field payload, needs to be designed separately
-before anything is wired up. Full detail in `docs/automation/README.md`.
+It replaced a 35-node booking workflow on 22 September 2026. That one ranked the client's preferred
+times against four team calendars, held a slot and ran an approval round by email — all built on
+the ten-field booking payload that the 21 September field reduction removed. It had never been run
+and the site had never been able to reach it. It is in the git history if any of it is wanted back.
 
-State of it, unchanged since before the schema cut:
+Unlike its predecessor, **the site can reach this one**: `lib/enquiry/transport.ts` has an `n8n`
+adapter, selected by `ENQUIRY_TRANSPORT="n8n"` with `N8N_ENQUIRY_WEBHOOK_URL`.
 
-- It has **never been run**. An adversarial audit was started on 10 September and did not finish.
-- The four team email addresses and the hold calendar ID in its `Team and settings` node are
-  **assumptions** and need confirming.
-- **The site cannot reach it.** There is no `n8n` transport in `lib/enquiry/transport.ts`.
-- Reschedules and cancellations are not covered.
+Still to do before it delivers anything: import it, set the recipient in its `Settings` node, add a
+Gmail OAuth2 credential, activate it, and put its production webhook URL into Vercel.
 
 ## Go-live checklist for enquiries
 
-1. Decide where enquiries land (an inbox, a new automation, or both) — see the note on the
-   superseded n8n workflow above.
-2. Verify the sending domain in Resend and add its DNS records at GoDaddy.
-3. Set the four `ENQUIRY_*` and `RESEND_*` variables in Vercel Production and redeploy.
-4. Submit a real test enquiry from the live site and confirm receipt.
-5. Move the rate limiter to a shared store before any paid traffic.
-6. File uploads remain unbuilt. The form says so rather than inviting an attachment. They need
+Two routes deliver. Pick one — `ENQUIRY_TRANSPORT` selects exactly one adapter.
+
+**Route A — n8n and Gmail.** Nothing to do at the registrar, because it sends from an
+already-authenticated Gmail account.
+
+1. Import `docs/automation/n8n-enquiry-notification.json`, set `notifyEmail` in its `Settings`
+   node, add the Gmail credential, activate.
+2. Set `ENQUIRY_TRANSPORT=n8n` and `N8N_ENQUIRY_WEBHOOK_URL` in Vercel Production and redeploy.
+
+**Route B — Resend.** Fewer moving parts, but blocked on DNS.
+
+1. Verify the sending domain in Resend and add its DNS records at GoDaddy — the brand domain has no
+   SPF and no MX, with DMARC `p=quarantine`, so mail from it is quarantined until that is fixed.
+2. Set `ENQUIRY_TRANSPORT=resend` and the three `RESEND_*`/`ENQUIRY_*` variables in Vercel
+   Production and redeploy.
+
+Then, either way:
+
+3. Submit a real test enquiry from the live site and confirm it arrives. Search the Vercel function
+   logs for `MISCONFIGURED` if it does not.
+4. Move the rate limiter to a shared store before any paid traffic.
+5. File uploads remain unbuilt. The form says so rather than inviting an attachment. They need
    private storage plus server-side type and size validation.

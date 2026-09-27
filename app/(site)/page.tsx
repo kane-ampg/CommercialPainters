@@ -11,8 +11,9 @@ import {
   ProjectGrid,
   GoogleReviewWall,
   RecentWorkStrip,
+  ProofStrip,
   SectorGrid,
-  ServiceAreas,
+  ServiceAreaGroups,
   ServiceGrid,
 } from '@/components/sections';
 import { JsonLd } from '@/components/seo/json-ld';
@@ -21,34 +22,34 @@ import { faqSchema } from '@/lib/schema';
 import { differentiators } from '@/content/approach';
 import { homeFaqs } from '@/content/faqs';
 import { galleries, galleryCovers } from '@/content/galleries';
-import { indexableLocalities } from '@/lib/locations';
+import { roundedDown, scale, scaleFigures } from '@/content/scale';
+import { metroAreaGroups, regionalTowns } from '@/content/service-areas';
 import { getFeaturedProjects, getServices, getSiteSettings } from '@/lib/content/source';
 import { googleAggregate } from '@/content/reviews';
 import { sectors } from '@/content/sectors';
 import { site } from '@/lib/site';
 
 /**
- * Homepage.
+ * Homepage — the page that owns "commercial painters in Melbourne", the site's
+ * primary keyword since 27 September 2026.
  *
- * The title is brand-led, deliberately. /commercial/ is the page that targets
- * "commercial painters Melbourne" as a service query; the homepage's job is to
- * carry proof, not to compete with it for the same phrase.
- *
- * The description carries "how to choose a commercial painter in Melbourne".
- * That phrase used to be the H2 over the differentiator grid, where it read as
- * copy written for a crawler rather than for a facilities manager. The section
- * heading is now plain English; the query it was targeting is served from the
- * description instead. Do not put it back on the page.
+ * It used to be brand-led, leaving the phrase to /commercial/. That was
+ * reversed because every link the business can earn — the Google Business
+ * Profile, directory listings, vans, invoices — points here, so this is where
+ * the ranking strength accrues. /commercial/ now targets "commercial painting
+ * services" instead, so the two do not compete. Title, h1 and description all
+ * lead with the phrase; tests hold that.
  *
  * Everything below is assembled from the typed content files. No figure, quote
  * or credential is written as a literal in this file — if it appears on this
  * page it exists in content/ or lib/site.ts and has survived the same
  * verification rule as every other surface.
  */
+const sitesFigure = roundedDown(scale.activeSites, 50);
+
 export const metadata: Metadata = buildMetadata({
-  title: 'Commercial Painters | Melbourne Commercial Painting Contractor',
-  description:
-    'How to choose a commercial painter in Melbourne — six questions answered by a contractor working across schools, healthcare, strata and industrial sites.',
+  title: `Commercial Painters in Melbourne | ${roundedDown(scale.activeClients, 25)} Clients, ${sitesFigure} Sites`,
+  description: `Commercial painters in Melbourne since ${site.founded}, servicing ${sitesFigure} sites for schools, healthcare, strata, retail and industrial clients. Staged around your hours.`,
   path: '/',
 });
 
@@ -98,11 +99,11 @@ export default async function HomePage() {
       <JsonLd data={faqSchema([...differentiators, ...homeFaqs])} />
 
       <HomeHero
-        eyebrow="Melbourne painting contractor"
-        heading="Painters for buildings that"
-        headingAccent="cannot stop running"
-        lede="Commercial painting across metropolitan Melbourne — schools mid-term, clinics between patients, warehouses mid-shift, and buildings that cannot stop operating for the job to get done."
-        primaryCta={{ label: 'Commercial painting', href: '/commercial/' }}
+        eyebrow={`Painting contractor since ${site.founded}`}
+        heading="Commercial painters in Melbourne,"
+        headingAccent="for buildings that cannot stop running"
+        lede="Schools mid-term, clinics between patients, warehouses mid-shift. We stage the work around the people still using the building, across metropolitan Melbourne and regional Victoria."
+        primaryCta={{ label: 'Commercial painting services', href: '/commercial/' }}
         secondaryCta={{ label: 'See our projects', href: '/projects/' }}
         proof={[
           { figure: `${yearsTrading} years`, label: 'In business' },
@@ -119,6 +120,8 @@ export default async function HomePage() {
         scrollTo={{ label: 'What we paint', href: '#services' }}
         phone={settings.phone}
       />
+
+      <ProofStrip figures={scaleFigures} source={`From our client records, ${scale.asOf}.`} />
 
       <ContentBlock eyebrow="Services" heading="What we paint" id="services" width="wide">
         <Prose className="mb-8">
@@ -202,17 +205,24 @@ export default async function HomePage() {
 
       <GoogleReviewWall />
 
-      <ContentBlock eyebrow="Areas" heading="Where we work across Melbourne">
-        <ServiceAreas locations={indexableLocalities()} baseSuburb={settings.address.suburb} />
+      <ContentBlock eyebrow="Areas" heading="Areas we service">
+        <Prose className="mb-8">
+          <p>
+            {scale.victoriaSharePercent}% of our work is in Victoria. We work from{' '}
+            {settings.address.suburb} across metropolitan Melbourne and into regional Victoria.
+          </p>
+        </Prose>
+        <ServiceAreaGroups groups={metroAreaGroups} regionalTowns={regionalTowns} />
       </ContentBlock>
 
       <ContentBlock tone="sunken" heading={`About ${site.name}`}>
         <Prose>
           <p>
-            {site.name} was founded in {site.founded} and has grown into a painting and property
-            maintenance contractor working across schools, healthcare, aged care, strata, retail and
-            industrial sites. Those clients rate the work {googleAggregate.rating.toFixed(1)} out of
-            5 across {googleAggregate.count} Google reviews.
+            {site.name} was founded in {site.founded} and has grown into a Melbourne painting and
+            property maintenance contractor working across schools, healthcare, aged care, strata,
+            retail and industrial sites. Those clients rate the work{' '}
+            {googleAggregate.rating.toFixed(1)} out of 5 across {googleAggregate.count} Google
+            reviews.
           </p>
           <p>
             The approach has not changed much: do the work properly, keep the standard consistent,
@@ -235,7 +245,7 @@ export default async function HomePage() {
         <p className="mb-8 max-w-prose text-ink-soft">
           The questions that come up before anyone has decided on scope. The{' '}
           <Link href="/commercial/" className="font-semibold text-brand-700 hover:underline">
-            commercial
+            commercial painting services
           </Link>{' '}
           page answers the ones specific to a sector.
         </p>

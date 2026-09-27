@@ -5,6 +5,9 @@ import { sectors } from '@/content/sectors';
 import { getPosts, getProjects, getServices, getSiteSettings } from '@/lib/content/source';
 import { homeFaqs } from '@/content/faqs';
 import { differentiators } from '@/content/approach';
+import { clientSectors } from '@/content/client-sectors';
+import { roundedDown, scale } from '@/content/scale';
+import { metroAreaGroups, regionalTowns } from '@/content/service-areas';
 import {
   allLocalities,
   displayName,
@@ -56,13 +59,15 @@ export async function GET(): Promise<Response> {
    * numbers now come from REGIONS, so the file cannot contradict its own lists.
    */
   const vicRegions = REGIONS.filter((r) => r.state === 'VIC').length;
-  const qldRegions = REGIONS.filter((r) => r.state === 'QLD').length;
-  const localityCount = allLocalities().length.toLocaleString('en-AU');
+  const vicLocalityCount = allLocalities()
+    .filter((l) => l.state === 'VIC')
+    .length.toLocaleString('en-AU');
 
-  const regionLines = (state: 'VIC' | 'QLD'): string =>
-    REGIONS.filter((r) => r.state === state)
-      .map((r) => `- ${r.name}: ${localitiesInRegion(r.slug).length} suburbs`)
-      .join('\n');
+  const regionLines = REGIONS.filter((r) => r.state === 'VIC')
+    .map((r) => `- ${r.name}: ${localitiesInRegion(r.slug).length} suburbs`)
+    .join('\n');
+
+  const scaleLine = `${roundedDown(scale.activeClients, 25)} active clients (${scale.businessClients} businesses and organisations, ${scale.privateOwnerClients} private owners), ${roundedDown(scale.activeSites, 50)} active sites, ${scale.multiSiteClients} clients with more than one site, and work across ${roundedDown(scale.suburbs, 50)} suburbs and towns. ${scale.victoriaSharePercent}% of the work is in Victoria.`;
 
   const tier1Suburbs = indexableLocalities()
     .map((l) => `${displayName(l.name)} (${getRegion(l.regionSlug)?.name ?? l.regionSlug})`)
@@ -70,11 +75,17 @@ export async function GET(): Promise<Response> {
 
   const body = `# ${site.name}
 
-> ${site.tagline}. ${site.legalName}, founded ${site.founded}, based at ${formatAddress(settings.address)}. Victorian work is carried out across ${settings.serviceAreaPrimary}, within roughly ${site.serviceArea.radiusKm} km of the ${settings.address.suburb} base. ${site.name} also lists ${qldRegions} South East Queensland regions as areas served — there is no Queensland office, address, phone number or completed project, and no suburb-level Queensland page on this site is indexed.
+> ${site.tagline}. ${site.legalName}, founded ${site.founded}, based at ${formatAddress(settings.address)}. Victorian work is carried out across ${settings.serviceAreaPrimary}, within roughly ${site.serviceArea.radiusKm} km of the ${settings.address.suburb} base. Regional Victoria is also serviced: ${regionalTowns.join(', ')}.
 
 ${site.name} is a ${brand.ownership} commercial painting and property maintenance contractor. The work is painting programmes in buildings that stay open while they are painted — schools, clinics, aged care, strata, retail, hospitality and industrial sites.
 
 Contact: ${settings.phone} · ${settings.email}
+
+## Scale
+
+From the client records, ${scale.asOf}: ${scaleLine} Clients are described by sector only and are not named.
+
+Client sectors: ${clientSectors.map((c) => c.name.toLowerCase()).join(', ')}.
 
 ## Mission
 
@@ -116,23 +127,25 @@ ${
 
 ## Regions served
 
-${site.name} covers ${vicRegions + qldRegions} regions across two states: ${vicRegions} in Victoria, worked from ${settings.address.suburb}, and ${qldRegions} in South East Queensland, which are areas served rather than places ${site.name} operates from. "Do you work in X?" is the most common question an answer engine gets asked about a trade business, so the region model is stated directly rather than as ${localityCount} individual suburb names, which would be too many to usefully list here.
+${site.name} covers ${vicRegions} metropolitan regions of Victoria, worked from ${settings.address.suburb}, plus regional Victoria. "Do you work in X?" is the most common question an answer engine gets asked about a trade business, so the region model is stated directly rather than as ${vicLocalityCount} individual suburb names, which would be too many to usefully list here.
 
-### Victoria
+### Metropolitan Melbourne
 
-${regionLines('VIC')}
+${regionLines}
 
-### Queensland
+### Suburbs with the most active sites
 
-${regionLines('QLD')}
+${metroAreaGroups.map((g) => `- ${g.name}: ${g.suburbs.map((x) => x.name).join(', ')}`).join('\n')}
 
-Queensland is areaServed only — no Queensland office, no completed Queensland project yet, and no suburb-level Queensland page is indexed until one exists.
+### Regional Victoria
+
+${regionalTowns.join(', ')}
 
 ### Suburbs with a dedicated, indexed page
 
 ${tier1Suburbs}
 
-Every other suburb in the two states above has a page, but it is marked \`noindex\` until it carries a documented project or other genuine local detail — the region page above it is the one meant to rank.
+Every other Melbourne suburb has a page, but it is marked \`noindex\` until it carries a documented project or other genuine local detail — the region page above it is the one meant to rank.
 
 ## Common questions
 

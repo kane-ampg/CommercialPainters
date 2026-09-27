@@ -80,8 +80,26 @@ Graph block, a Twitter card and the robots directive. Titles are absolute and al
 brand, so the layout's `%s | Commercial Painters` template is bypassed. `metaDescription()` cuts
 prose at the last full sentence that fits 155 characters, never mid-word.
 
-The homepage title is brand-led; `/commercial/` targets "Commercial Painters Melbourne" so the two
-do not compete. An e2e test holds that.
+### Keyword map
+
+**"Commercial painters in Melbourne" is the site's primary keyword** (decided 27 September 2026),
+and the homepage owns it. Every link the business can earn points at the homepage (the Google
+Business Profile website field, directory listings, vehicles, invoices), so that is where ranking
+strength builds up. Until that date the homepage was brand-led and `/commercial/` held the phrase.
+
+| Page           | Target query                           | Title                                                            | h1                                                                       |
+| -------------- | -------------------------------------- | ---------------------------------------------------------------- | ------------------------------------------------------------------------ |
+| `/`            | commercial painters (in) Melbourne     | `Commercial Painters in Melbourne \| 225+ Clients, 1,350+ Sites` | Commercial painters in Melbourne, for buildings that cannot stop running |
+| `/commercial/` | commercial painting services Melbourne | `Commercial Painting Services Melbourne \| Commercial Painters`  | Commercial painting services                                             |
+
+The figures in the homepage title are read from `content/scale.ts`. `/commercial/` must not lead its
+title, description or h1 with the homepage's phrase, or the two pages compete for one query.
+`tests/unit/primary-keyword.test.ts` holds the metadata side of the split and
+`tests/e2e/critical-flows.spec.ts` holds the h1 side.
+
+Because the trading name is "Commercial Painters", every `| Commercial Painters` title suffix and
+every "Commercial Painters" wordmark link to `/` also carries the keyword's words. That is
+unavoidable and harmless. What matters is which page _leads_ with the phrase.
 
 The default Open Graph card is drawn at build time by `app/(site)/opengraph-image.tsx`. Project
 pages override it with their cover photograph.
@@ -123,8 +141,14 @@ Rules, all tested:
 - **No `aggregateRating` from Google reviews.** Only first-party reviews the site collects would be
   aggregated, and there are none yet.
 - **Canonical phone only**, in `+61` form. Never a dynamically inserted tracking number.
-- **`areaServed`** is Melbourne, Victoria and the Queensland regions as administrative areas, plus a
-  `GeoCircle` once `coords` is set. Not 1,387 `City` nodes.
+- **`areaServed`** is Victoria, Melbourne and the twelve regional towns in
+  `content/service-areas.ts` (each a `City` with `containedInPlace: Victoria`), plus a `GeoCircle`
+  once `coords` is set. Not 1,387 `City` nodes. Queensland was removed on 23 September 2026: the
+  client records put 97% of work in Victoria and interstate work is not promoted. The site menu and
+  footer still link `/areas/queensland/`; that is a separate decision.
+- **Proof of scale** figures live in `content/scale.ts` (client records, September 2026). Stored
+  exact, published rounded down with a "+". The proof strip, the homepage title, the `/commercial/`
+  description and `/llms.txt` all read from there. Clients are never named.
 - **Accreditations** appear only when `verified: true`.
 - **`sameAs`** carries the Google Business Profile place ID URL and, when set, the social profiles.
 - **`logo`** is `/brand/logo.png`, drawn at build time.

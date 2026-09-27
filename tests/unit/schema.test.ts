@@ -10,6 +10,7 @@ import { getProject } from '@/content/projects';
 import { qldPresence } from '@/content/locations.overrides';
 import { site, defaultSiteSettings } from '@/lib/site';
 import { services } from '@/content/services';
+import { regionalTowns } from '@/content/service-areas';
 
 describe('structured data', () => {
   it('never emits an aggregateRating', () => {
@@ -167,17 +168,24 @@ describe('areaServed after the VIC + QLD expansion', () => {
     expect(areas.length).toBeLessThan(20);
   });
 
-  it('names Victoria and the three Queensland service regions', () => {
+  it('names Victoria, Melbourne and every regional town the page lists', () => {
     const names = areas.map((a) => a.name).filter(Boolean);
     expect(names).toContain('Victoria');
-    expect(names).toContain('Brisbane');
-    expect(names).toContain('Gold Coast');
-    expect(names).toContain('Sunshine Coast');
+    expect(names).toContain('Melbourne');
+    for (const town of regionalTowns) expect(names).toContain(town);
   });
 
-  it('never labels a Queensland area as Victorian', () => {
-    const json = JSON.stringify(areas);
-    expect(json).not.toMatch(/"addressRegion":"VIC"[^}]*(Brisbane|Gold Coast|Sunshine)/);
+  it('places every city inside Victoria', () => {
+    for (const city of areas.filter((a) => a['@type'] === 'City')) {
+      expect(city.containedInPlace).toEqual({ '@type': 'State', name: 'Victoria' });
+    }
+  });
+
+  it('does not promote interstate work as a service area', () => {
+    const json = JSON.stringify(business);
+    expect(json).not.toMatch(
+      /Queensland|Brisbane|Gold Coast|Sunshine Coast|New South Wales|Sydney/,
+    );
   });
 
   it('emits exactly one LocalBusiness while qldPresence is false', () => {

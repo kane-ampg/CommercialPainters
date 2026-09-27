@@ -1,5 +1,6 @@
 import { brand, internationalPhone, site, siteUrl, verifiedAccreditations } from '@/lib/site';
 import { averageRating, firstPartyReviews } from '@/content/reviews';
+import { regionalTowns } from '@/content/service-areas';
 import type { Post, Project, Service, SiteSettings } from '@/lib/content/types';
 
 /** The logo as a file, drawn at build time by app/brand/logo.png/route.tsx. */
@@ -55,9 +56,14 @@ function sameAsFragment(settings: SiteSettings): string[] {
  * Queensland suburbs Victorian.
  *
  * Stated at the level the entity actually operates at instead: a GeoCircle for
- * the Victorian radius once coordinates exist, the state, and an
- * AdministrativeArea per Queensland service region. Suburb-level coverage is
- * expressed by the pages themselves, which is what Google reads them for.
+ * the metro radius once coordinates exist, the state, Melbourne, and the
+ * regional towns named on the page (content/service-areas.ts, one list for
+ * both). Suburb-level coverage is expressed by the pages themselves, which is
+ * what Google reads them for.
+ *
+ * Queensland was listed here until 23 September 2026. The client records put
+ * 97% of the work in Victoria and the interstate remainder is not promoted as
+ * a service area, so it came out. The Queensland pages were already noindex.
  */
 function areaServedFragment(settings: SiteSettings): JsonLdValue[] {
   const circle = settings.coords
@@ -74,15 +80,15 @@ function areaServedFragment(settings: SiteSettings): JsonLdValue[] {
       ]
     : [];
 
+  const victoria = { '@type': 'State', name: 'Victoria' };
+
   return [
     ...circle,
-    { '@type': 'State', name: 'Victoria' },
-    { '@type': 'City', name: 'Melbourne' },
-    // Queensland is areaServed and nothing more — no address, no projects, no
-    // second LocalBusiness entity (spec §9).
-    { '@type': 'AdministrativeArea', name: 'Brisbane' },
-    { '@type': 'AdministrativeArea', name: 'Gold Coast' },
-    { '@type': 'AdministrativeArea', name: 'Sunshine Coast' },
+    victoria,
+    { '@type': 'City', name: 'Melbourne', containedInPlace: victoria },
+    // Named with their state so Bendigo or Traralgon can only resolve to the
+    // Victorian town.
+    ...regionalTowns.map((name) => ({ '@type': 'City', name, containedInPlace: victoria })),
   ];
 }
 
@@ -177,10 +183,9 @@ export function localBusinessSchema(
     // The Google Business Profile is the entity link that matters most for the
     // map pack.
     sameAs: sameAsFragment(settings),
-    // The description states the same footprint areaServed declares — it
-    // used to say Melbourne only while areaServed listed three Queensland
-    // regions, a contradiction inside a single node.
-    description: `${site.name} is a ${brand.ownership} commercial painting and property maintenance contractor established in ${site.founded}. Based in ${settings.address.suburb}, it serves metropolitan Melbourne and South East Queensland.`,
+    // The description states the same footprint areaServed declares, so the
+    // node never contradicts itself.
+    description: `${site.name} is a ${brand.ownership} commercial painting and property maintenance contractor established in ${site.founded}. Based in ${settings.address.suburb}, it serves metropolitan Melbourne and regional Victoria.`,
     ...(knowsAbout.length > 0 ? { knowsAbout } : {}),
     ...offerCatalogFragment(services),
     ...openingHoursFragment(settings),

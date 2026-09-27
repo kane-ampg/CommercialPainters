@@ -3,13 +3,16 @@ import Link from 'next/link';
 import { buildMetadata } from '@/lib/seo/metadata';
 import { Breadcrumbs } from '@/components/navigation/breadcrumbs';
 import {
+  ClientSectors,
   ContentBlock,
   CtaBand,
   FaqList,
   Hero,
   ProcessSteps,
   ProjectGrid,
+  ProofStrip,
   SectorGrid,
+  ServiceAreaGroups,
 } from '@/components/sections';
 import { Container, Prose, Section, SectionHeading } from '@/components/ui';
 import { JsonLd } from '@/components/seo/json-ld';
@@ -17,19 +20,29 @@ import { faqSchema, serviceSchema } from '@/lib/schema';
 import { sectors } from '@/content/sectors';
 import { getFeaturedProjects, getSiteSettings } from '@/lib/content/source';
 import { faqsFor } from '@/content/faqs';
+import { clientSectors } from '@/content/client-sectors';
+import { roundedDown, scale, scaleFigures } from '@/content/scale';
+import { metroAreaGroups, regionalTowns } from '@/content/service-areas';
 
 /**
- * Commercial hub — now the page that owns "commercial painters Melbourne".
+ * Commercial hub — targets "commercial painting services Melbourne".
  *
- * The live version is 541 words with no case study, no sector detail, no
- * process and no accreditation. It also carries the site's only national claim
- * ("hundreds of ... all throughout Australia"), which is not repeated here:
- * every project the business can evidence is Victorian.
+ * Until 27 September 2026 this page owned "commercial painters Melbourne". The
+ * homepage owns that phrase now (see app/(site)/page.tsx for why), so this
+ * page takes the service query beside it and must not lead with the homepage's
+ * phrase in its title or h1. Tests hold both sides of that split.
+ *
+ * It also carries none of the old site's national claim ("hundreds of ... all
+ * throughout Australia"): every project the business can evidence is
+ * Victorian.
  */
+// The sites figure is read from content/scale.ts, so a new count updates the
+// SERP snippet with the page. The client count moved to the homepage title
+// with the primary keyword. The description must stay under 160 characters;
+// a test holds that.
 export const metadata: Metadata = buildMetadata({
-  title: 'Commercial Painters Melbourne | Commercial Painting Contractors',
-  description:
-    'Commercial painting contractors in Melbourne. Schools, healthcare, aged care, strata, retail and industrial sites — programmed around your operating hours.',
+  title: 'Commercial Painting Services Melbourne | Commercial Painters',
+  description: `Commercial painting services in Melbourne for strata, childcare, aged care, retail and property managers. ${roundedDown(scale.activeSites, 50)} sites serviced, staged around your hours.`,
   path: '/commercial/',
 });
 
@@ -71,9 +84,9 @@ export default async function CommercialPage() {
     <>
       <JsonLd
         data={serviceSchema({
-          name: 'Commercial painting',
+          name: 'Commercial Painting',
           description:
-            'Commercial painting contracting across Melbourne, including education, healthcare, aged care, strata, retail, hospitality and industrial sites.',
+            'Commercial painting across metropolitan Melbourne and regional Victoria for strata and body corporate, childcare, real estate and property management, commercial property, aged care, community and retail clients.',
           path: '/commercial/',
           settings,
         })}
@@ -87,8 +100,8 @@ export default async function CommercialPage() {
       </Container>
 
       <Hero
-        eyebrow="Commercial painting"
-        heading="Commercial painters in Melbourne"
+        eyebrow="Melbourne and regional Victoria"
+        heading="Commercial painting services"
         lede="Painting commercial buildings is mostly a coordination problem. The coating matters, but what decides whether a project works is how well it is staged around the people still using the building."
         primaryCta={{ label: 'Get a free site assessment', href: '/contact-us/#assessment' }}
         secondaryCta={{ label: 'See our projects', href: '/projects/' }}
@@ -97,6 +110,8 @@ export default async function CommercialPage() {
           alt: 'A painter working from a boom lift, harnessed, cutting the line between white and green tilt panels on a warehouse elevation',
         }}
       />
+
+      <ProofStrip figures={scaleFigures} source={`From our client records, ${scale.asOf}.`} />
 
       <ContentBlock heading="What commercial work actually involves">
         <Prose>
@@ -137,11 +152,31 @@ export default async function CommercialPage() {
       <ContentBlock heading="Sectors we work in">
         <Prose className="mb-8">
           <p>
-            Each sector below has its own operating constraints. The pages set out what those are
-            rather than repeating the same paint copy with a different heading.
+            Of our {scale.activeClients} active clients, {scale.businessClients} are businesses and
+            organisations. These are the sectors they sit in, and what commercial painting has to
+            work around in each.
           </p>
         </Prose>
+        <ClientSectors items={clientSectors} />
+
+        <h3 className="mb-3 mt-14 font-display text-2xl">Sector guides</h3>
+        <p className="mb-8 max-w-prose text-ink-soft">
+          Each guide sets out one sector&rsquo;s operating constraints in detail, rather than
+          repeating the same paint copy with a different heading.
+        </p>
         <SectorGrid sectors={sectors} />
+      </ContentBlock>
+
+      <ContentBlock tone="sunken" heading="Areas we service" id="areas">
+        <Prose className="mb-8">
+          <p>
+            {scale.victoriaSharePercent}% of our work is in Victoria, across{' '}
+            {roundedDown(scale.suburbs, 50)} suburbs and towns in metropolitan Melbourne and
+            regional Victoria. {scale.multiSiteClients} of our clients have more than one site with
+            us, so a programme often runs across several of the areas below at once.
+          </p>
+        </Prose>
+        <ServiceAreaGroups groups={metroAreaGroups} regionalTowns={regionalTowns} />
       </ContentBlock>
 
       <Section tone="sunken">

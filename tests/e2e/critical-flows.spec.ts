@@ -91,19 +91,22 @@ test.describe('navigation', () => {
     await expect(drawer.getByRole('link', { name: /1300 97 97 40/ })).toBeInViewport();
   });
 
-  test('reaches the commercial page and it targets the commercial query', async ({ page }) => {
-    await page.goto('/commercial/');
-    await expect(page).toHaveTitle(/Commercial Painters Melbourne/i);
+  test('the homepage targets the primary keyword', async ({ page }) => {
+    await page.goto('/');
+    await expect(page).toHaveTitle(/^Commercial Painters in Melbourne/);
     await expect(page.getByRole('heading', { level: 1 })).toHaveText(
-      /Commercial painters in Melbourne/i,
+      /^Commercial painters in Melbourne/i,
     );
   });
 
-  test('the homepage no longer competes for the commercial query', async ({ page }) => {
-    await page.goto('/');
-    const title = await page.title();
-    expect(title).not.toMatch(/^Commercial Painters Melbourne/i);
-    expect(title).toMatch(/Commercial Painters/);
+  test('the commercial page targets the service query, not the primary keyword', async ({
+    page,
+  }) => {
+    await page.goto('/commercial/');
+    await expect(page).toHaveTitle(/^Commercial Painting Services Melbourne/);
+    const h1 = page.getByRole('heading', { level: 1 });
+    await expect(h1).toHaveText(/Commercial painting services/i);
+    await expect(h1).not.toHaveText(/Commercial painters in Melbourne/i);
   });
 
   test('every page has exactly one h1', async ({ page }) => {

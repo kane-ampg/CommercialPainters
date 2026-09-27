@@ -26,7 +26,10 @@ import {
   googleAggregate,
   googleReviews,
 } from '@/content/reviews';
-import { displayName, getRegion, stateSlug, type Locality } from '@/lib/locations';
+import { hrefForVicSlug, REGIONS, stateSlug } from '@/lib/locations';
+import type { ClientSector } from '@/content/client-sectors';
+import type { ScaleFigure } from '@/content/scale';
+import type { AreaGroup } from '@/content/service-areas';
 import type { Faq, Project, Sector, Service } from '@/lib/content/types';
 
 /* ------------------------------------------------------------------ */
@@ -163,7 +166,9 @@ export function HomeHero({
   /** Opening of the h1, set in white. */
   heading: string;
   /** Closing phrase of the h1, carried in red. Splitting it is what stops the
-   *  headline reading as one undifferentiated block at display size. */
+   *  headline reading as one undifferentiated block at display size. From lg
+   *  up it starts its own line: in the half-width column the first word of a
+   *  long accent otherwise strands at the end of the white line. */
   headingAccent: string;
   lede: string;
   primaryCta: { label: string; href: string };
@@ -209,7 +214,7 @@ export function HomeHero({
                * can sit behind the descenders when the loop restarts.
                */}
               <h1 className="mt-4 text-balance font-display text-[2.15rem] leading-[1.05] [text-shadow:0_2px_28px_rgba(15,17,19,0.6)] sm:text-[3rem] lg:text-[3.3rem] xl:text-[3.7rem] short:text-[2.5rem] sm:short:text-[3rem] tight:text-[1.85rem]">
-                {heading} <span className="text-brand-400">{headingAccent}</span>
+                {heading} <span className="text-brand-400 lg:block">{headingAccent}</span>
               </h1>
 
               <p className="mt-5 max-w-lg text-base text-white/85 [text-shadow:0_1px_16px_rgba(15,17,19,0.7)] sm:text-lg short:mt-4 short:text-base tight:text-sm">
@@ -1079,71 +1084,173 @@ export function FeatureGrid({ items }: { items: readonly { heading: string; body
 }
 
 /* ------------------------------------------------------------------ */
+/* Proof of scale                                                       */
+/* ------------------------------------------------------------------ */
+
+/**
+ * The client-records figures, on the signature slab.
+ *
+ * The same figure / label / detail treatment as the footer facts, so the two
+ * read as one system. The figures come from content/scale.ts, already rounded
+ * down; nothing is typed here. The source line is not decoration — a number
+ * with a date and a source is a claim someone can stand behind.
+ *
+ * Not revealed on scroll: it sits directly under the hero and is often in the
+ * first viewport.
+ */
+export function ProofStrip({
+  figures,
+  source,
+}: {
+  figures: readonly ScaleFigure[];
+  source: string;
+}) {
+  return (
+    <Section tone="brand" reveal={false} className="py-10 sm:py-12">
+      <Container width="wide">
+        <h2 className="sr-only">Our scale</h2>
+        <dl className="grid grid-cols-2 gap-x-6 gap-y-8 lg:grid-cols-4">
+          {figures.map((item) => (
+            <div key={item.label}>
+              <dt className={cn(microLabel, 'text-white/60')}>{item.label}</dt>
+              <dd className="mt-2">
+                <span className="font-display text-3xl font-semibold leading-none text-brand-400 sm:text-4xl">
+                  {item.figure}
+                </span>
+                <span className="mt-2 hidden text-sm leading-relaxed text-white/70 sm:block">
+                  {item.detail}
+                </span>
+              </dd>
+            </div>
+          ))}
+        </dl>
+        <p className="mt-8 text-xs text-white/50">{source}</p>
+      </Container>
+    </Section>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* Client sectors                                                       */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Who the clients are, by sector. Cards link to a sector guide only where one
+ * exists; see content/client-sectors.ts.
+ */
+export function ClientSectors({ items }: { items: readonly ClientSector[] }) {
+  return (
+    <ul className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+      {items.map((item) => (
+        <Card
+          as="li"
+          key={item.name}
+          className={cn(
+            'gap-3',
+            item.href &&
+              'transition-[border-color,box-shadow] duration-300 ease-out focus-within:border-brand-600 hover:border-brand-600 hover:shadow-lg hover:shadow-ink/10 motion-reduce:transition-none',
+          )}
+        >
+          <h3 className="font-display text-lg">
+            {item.href ? (
+              <Link
+                href={item.href}
+                className="rounded after:absolute after:inset-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600"
+              >
+                {item.name}
+              </Link>
+            ) : (
+              item.name
+            )}
+          </h3>
+          <p className="flex-1 text-sm leading-relaxed text-ink-soft">{item.body}</p>
+        </Card>
+      ))}
+    </ul>
+  );
+}
+
+/* ------------------------------------------------------------------ */
 /* Service areas                                                        */
 /* ------------------------------------------------------------------ */
 
 /**
- * The suburbs that carry a dedicated, indexed page — currently every Tier 1
- * locality, all of them Victorian, since Queensland has no indexable locality
- * while `qldPresence` is false. `Locality` carries no per-suburb project
- * count the way the old hand-written `Location` records did, so this lists
- * the suburbs themselves rather than a project tally, and links to the areas
- * hub for the full directory rather than shipping a wall of name-swapped
- * links, which is the exact pattern the rebuild is undoing.
+ * Where the work is, grouped the way clients describe Melbourne.
+ *
+ * Real text, not an image, so every suburb name is crawlable. Metro suburbs
+ * link to their locality page; those pages are mostly `noindex, follow`, which
+ * is fine — the link still carries a visitor to a page about their suburb and
+ * the crawl on up to the region hub. Regional towns have no page and are
+ * plain text. The paragraph underneath keeps the links to the Victorian region
+ * hubs, which are the pages meant to rank for region-level queries.
  */
-export function ServiceAreas({
-  locations,
-  baseSuburb,
+export function ServiceAreaGroups({
+  groups,
+  regionalTowns,
 }: {
-  locations: readonly Locality[];
-  /** The suburb the business works from, from the site settings. */
-  baseSuburb: string;
+  groups: readonly AreaGroup[];
+  regionalTowns: readonly string[];
 }) {
-  // One entry per region, carrying the hub URL: the region hubs are the pages
-  // meant to rank for region-level queries, and this paragraph used to name
-  // them as plain text while linking only /areas/.
-  const regions = [
-    ...new Map(
-      locations.map((l) => [
-        l.regionSlug,
-        {
-          name: getRegion(l.regionSlug)?.name ?? l.regionSlug,
-          href: `/areas/${stateSlug(l.state)}/${l.regionSlug}/`,
-        },
-      ]),
-    ).values(),
-  ];
+  const chip =
+    'inline-flex rounded-md border border-paper-edge bg-white px-3 py-2 text-sm font-semibold text-ink';
+  const regions = REGIONS.filter((r) => r.state === 'VIC');
 
   return (
-    <div className="flex flex-col gap-6">
-      <ul className="flex flex-wrap gap-2">
-        {locations.map((location) => (
-          <li key={location.href}>
-            <Link
-              href={location.href}
-              className="inline-flex items-baseline gap-2 rounded-md border border-paper-edge bg-white px-3 py-2 text-sm font-semibold text-ink hover:border-ink-muted/40 hover:bg-paper-sunken focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600"
-            >
-              {displayName(location.name)}
-            </Link>
-          </li>
+    <div className="flex flex-col gap-8">
+      <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        {groups.map((group) => (
+          <Card key={group.name} className="gap-4">
+            <h3 className="font-display text-lg">{group.name}</h3>
+            <ul className="flex flex-wrap gap-2">
+              {group.suburbs.map((suburb) => {
+                const href = hrefForVicSlug(suburb.slug);
+                return (
+                  <li key={suburb.slug}>
+                    {href ? (
+                      <Link
+                        href={href}
+                        className={cn(
+                          chip,
+                          'hover:border-ink-muted/40 hover:bg-paper-sunken focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600',
+                        )}
+                      >
+                        {suburb.name}
+                      </Link>
+                    ) : (
+                      <span className={chip}>{suburb.name}</span>
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
+          </Card>
         ))}
-      </ul>
+        <Card className="gap-4">
+          <h3 className="font-display text-lg">Regional Victoria</h3>
+          <ul className="flex flex-wrap gap-2">
+            {regionalTowns.map((town) => (
+              <li key={town}>
+                <span className={chip}>{town}</span>
+              </li>
+            ))}
+          </ul>
+        </Card>
+      </div>
       <p className="max-w-prose text-sm text-ink-soft">
-        Those are the suburbs with a dedicated page. We work right across {regions.length} regions
-        of Victoria —{' '}
+        Those are the places we have the most sites. Around Melbourne the work runs across{' '}
+        {regions.length} regions —{' '}
         {regions.map((region, i) => (
-          <Fragment key={region.href}>
+          <Fragment key={region.slug}>
             {i > 0 && (i === regions.length - 1 ? ' and ' : ', ')}
             <Link
-              href={region.href}
+              href={`/areas/${stateSlug(region.state)}/${region.slug}/`}
               className="font-semibold text-brand-700 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600"
             >
               {region.name}
             </Link>
           </Fragment>
-        ))}{' '}
-        — from our base at {baseSuburb}, and we service Brisbane, Gold Coast and Sunshine Coast in
-        Queensland.{' '}
+        ))}
+        .{' '}
         <Link
           href="/areas/"
           className="font-semibold text-brand-700 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600"

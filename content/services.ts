@@ -136,3 +136,28 @@ export function servicePath(slug: string): string {
   if (slug === 'builders-and-head-contractors') return '/trade-services/';
   return '/commercial/';
 }
+
+const SERVICE_PAGE_LABELS: Record<string, string> = {
+  '/office-painters/': 'Office painting',
+  '/trade-services/': 'Trade services',
+  '/commercial/': 'Commercial painting',
+};
+
+/**
+ * Sidebar chips for a set of related services, one per destination page.
+ *
+ * Service chips used to hard-code href '/commercial/', which rendered several
+ * same-page links to one URL under mismatched anchors — including an "Office"
+ * chip pointing at /commercial/ while /office-painters/ exists. Each chip goes
+ * through servicePath(), and services that share a page collapse into one chip
+ * so a sidebar never repeats a destination. Used by project and blog pages.
+ */
+export function serviceLinks(related: readonly Service[]): { label: string; href: string }[] {
+  const seen = new Set<string>();
+  return related
+    .map((service) => {
+      const href = servicePath(service.slug);
+      return { label: SERVICE_PAGE_LABELS[href] ?? service.shortTitle, href };
+    })
+    .filter((link) => (seen.has(link.href) ? false : (seen.add(link.href), true)));
+}

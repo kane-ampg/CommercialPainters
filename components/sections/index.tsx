@@ -500,7 +500,7 @@ export function ProjectGrid({ projects }: { projects: readonly Project[] }) {
 /* FAQ — details/summary, so it works with no JavaScript                */
 /* ------------------------------------------------------------------ */
 
-export function FaqList({ items }: { items: readonly Faq[] }) {
+export function FaqList({ items }: { items: readonly Pick<Faq, 'question' | 'answer'>[] }) {
   return (
     <div className="divide-y divide-paper-edge border-y border-paper-edge">
       {items.map((faq) => (

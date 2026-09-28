@@ -16,7 +16,7 @@ placeholder (see below) rather than inventing a value.
 | Services (five)                                                                    | `content/services.ts`                                | Which page a service links to is `servicePath()`.                                              |
 | Sectors (eight)                                                                    | `content/sectors.ts`                                 | `legacyPath` is the page URL. `projectSlugs` is the evidence list.                             |
 | Case studies (four)                                                                | `content/projects.ts`                                | `isFeatured` gates the featured grid. Images under `public/images/projects/`.                  |
-| Blog posts (none yet)                                                              | `content/posts.ts`                                   | See "Publishing the first post".                                                               |
+| Blog posts                                                                         | `content/posts.ts`                                   | See "Publishing the first post".                                                               |
 | Site photography galleries (seven)                                                 | `content/galleries.ts` + `media/photography/`        | See "Adding a photo shoot".                                                                    |
 | Reviews                                                                            | `content/reviews.ts`                                 | Google reviews vs first-party reviews. See below.                                              |
 | FAQs                                                                               | `content/faqs.ts`                                    | Four sets: `faqs`, `officeFaqs`, `tradeFaqs`, `homeFaqs`.                                      |
@@ -93,7 +93,18 @@ Add one entry to `content/posts.ts`. That single change:
 - lists the post in `/llms.txt`
 
 `body` is Markdown rendered without raw HTML. Keep `excerpt` under 300 characters and
-`metaDescription` under 160. Posts publish as the business, not under an invented byline.
+`metaDescription` under 160, and end `metaTitle` in "| Commercial Painters". List the services the
+post is about in `relatedServiceSlugs` — they render as sidebar links into the service pages, next
+to links to the three newest other posts, with the site-assessment call-to-action below. Posts
+publish as the business, not under an invented byline. `tests/unit/page-metadata.test.ts` fails the
+build if a post breaks any of these rules.
+
+Photographs come from the site galleries only. Set `cover` with `galleryImage('/images/gallery/…')`
+and embed inline with `![alt](/images/gallery/… "Caption")` — the caption shows under the photo. Any
+other image path is not rendered and fails the test above, which keeps photographers' full-size
+masters off the page. Optional `faqs` render below the body and as FAQPage JSON-LD. A post built on a
+gallery may claim only what its photographs show: galleries have no project record behind them (see
+`content/galleries.ts`).
 
 ## Adding a photo shoot
 

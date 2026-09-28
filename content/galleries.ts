@@ -334,6 +334,17 @@ export function getGallery(slug: string): WorkGallery | undefined {
   return galleries.find((gallery) => gallery.slug === slug);
 }
 
+/**
+ * One published frame, by path, with its measured size, blur and alt text —
+ * for a blog post's cover. Throws on an unknown path so a mistyped cover fails
+ * the build instead of shipping a post without its photograph.
+ */
+export function galleryImage(src: string): MediaRef {
+  const image = galleries.flatMap((gallery) => gallery.images).find((frame) => frame.src === src);
+  if (!image) throw new Error(`No gallery image at ${src}`);
+  return image;
+}
+
 /** The gallery shown beside a sector page, if that sector has one. */
 export function galleryForSector(sectorSlug: string): WorkGallery | undefined {
   return galleries.find((gallery) => gallery.sectorSlug === sectorSlug);

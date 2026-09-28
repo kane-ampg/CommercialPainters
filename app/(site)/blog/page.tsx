@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { buildMetadata } from '@/lib/seo/metadata';
 import { Breadcrumbs } from '@/components/navigation/breadcrumbs';
 import { ContentImage } from '@/components/media/content-image';
+import { formatPostDate } from '@/components/pages/post-article';
 import { Container, Section, SectionHeading } from '@/components/ui';
 import { getPosts } from '@/lib/content/source';
 
@@ -76,11 +77,7 @@ export default async function BlogIndexPage() {
                     dateTime={post.publishedAt}
                     className="text-xs uppercase tracking-label text-ink-soft"
                   >
-                    {new Date(post.publishedAt).toLocaleDateString('en-AU', {
-                      day: 'numeric',
-                      month: 'long',
-                      year: 'numeric',
-                    })}
+                    {formatPostDate(post.publishedAt)}
                   </time>
                 </li>
               ))}

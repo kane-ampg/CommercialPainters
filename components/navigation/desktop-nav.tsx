@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useId, useRef, useState } from 'react';
-import { mainNav } from './nav-data';
+import type { NavItem } from './nav-data';
 import { isCurrentPage, isSamePath, navActiveState } from '@/lib/nav/active';
 import { cn } from '@/lib/utils';
 
@@ -20,8 +20,14 @@ import { cn } from '@/lib/utils';
  * separate the red from the black (WCAG 1.4.1 — colour is never the only cue).
  * The section a page belongs to is marked the same way but a shade quieter, and
  * without `aria-current`: only one item in a menu can be *the* current page.
+ *
+ * `items` is handed down by the server-rendered header rather than imported
+ * here. nav-data builds the menu from the content modules — every sector's
+ * full page copy, every blog post's body — and a client component that
+ * imports it ships all of that to the browser on every page to render a list
+ * of links. The prop is only the links.
  */
-export function DesktopNav() {
+export function DesktopNav({ items }: { items: readonly NavItem[] }) {
   const [openLabel, setOpenLabel] = useState<string | null>(null);
   const navRef = useRef<HTMLElement>(null);
   const pathname = usePathname();
@@ -63,7 +69,7 @@ export function DesktopNav() {
   return (
     <nav ref={navRef} aria-label="Main" className="hidden lg:block">
       <ul className="flex items-center gap-1">
-        {mainNav.map((item) => {
+        {items.map((item) => {
           const isOpen = openLabel === item.label;
           const active = navActiveState(pathname, item);
           const panelId = `${menuId}-${item.href.replace(/[^a-z0-9]+/gi, '-')}`;

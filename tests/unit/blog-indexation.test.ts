@@ -19,6 +19,10 @@ import { mainNav, footerNav } from '@/components/navigation/nav-data';
  *
  * `/blog/{slug}/` needs no equivalent guard: with no posts there are no
  * routes to generate.
+ *
+ * Both states are asserted, each skipped while the other holds, so adding the
+ * first post flips which block runs instead of failing the suite — the same
+ * shape as tests/e2e/blog.spec.ts.
  */
 
 type Robots = { index?: boolean; follow?: boolean };
@@ -32,11 +36,7 @@ function navHrefs(): string[] {
   ];
 }
 
-describe('blog indexation while the section is empty', () => {
-  it('has no posts, which is the state this policy governs', () => {
-    expect(hasPosts).toBe(false);
-  });
-
+describe.skipIf(hasPosts)('blog indexation while the section is empty', () => {
   it('renders noindex, follow on the blog index', async () => {
     const meta = await generateMetadata();
     expect(meta.robots as Robots).toMatchObject({ index: false, follow: true });
@@ -50,7 +50,31 @@ describe('blog indexation while the section is empty', () => {
   it('links to the blog from neither the header nor the footer', () => {
     expect(navHrefs()).not.toContain('/blog/');
   });
+});
 
+describe.skipIf(!hasPosts)('blog indexation once a post is published', () => {
+  it('renders index, follow on the blog index', async () => {
+    const meta = await generateMetadata();
+    expect(meta.robots as Robots).toMatchObject({ index: true, follow: true });
+  });
+
+  it('lists the blog index and every post in the sitemap', async () => {
+    const urls = (await sitemap()).map((entry) => entry.url);
+    expect(urls.some((url) => url.endsWith('/blog/'))).toBe(true);
+    for (const post of posts) {
+      expect(
+        urls.some((url) => url.endsWith(`/blog/${post.slug}/`)),
+        post.slug,
+      ).toBe(true);
+    }
+  });
+
+  it('links to the blog from the header and the footer', () => {
+    expect(navHrefs()).toContain('/blog/');
+  });
+});
+
+describe('blog indexation in either state', () => {
   /**
    * All four surfaces read the same fact, so they cannot drift apart: the day
    * a post lands, the directive, the sitemap entry and both nav slots flip

@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MobileMenu } from '@/components/navigation/mobile-menu';
+import { mainNav } from '@/components/navigation/nav-data';
 import { SiteSettingsProvider } from '@/components/providers/site-settings';
 import { defaultSiteSettings } from '@/lib/site';
 
@@ -29,7 +30,7 @@ async function openDrawer() {
   const user = userEvent.setup();
   render(
     <SiteSettingsProvider value={defaultSiteSettings}>
-      <MobileMenu />
+      <MobileMenu items={mainNav} />
     </SiteSettingsProvider>,
   );
   await user.click(screen.getByRole('button', { name: /^menu$/i }));

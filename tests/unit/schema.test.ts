@@ -216,6 +216,7 @@ describe('blog posting schema', () => {
     updatedAt: '2026-09-08',
     author: 'Commercial Painters',
     tags: ['office'],
+    relatedServiceSlugs: ['office-painting'],
     metaTitle: 'Sequencing an occupied office repaint | Commercial Painters',
     metaDescription: 'How zones are handed back.',
   };

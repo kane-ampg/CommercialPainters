@@ -8,7 +8,7 @@ import { JsonLd } from '@/components/seo/json-ld';
 import { projectSchema } from '@/lib/schema';
 import { isPlaceholder } from '@/lib/content/types';
 import type { Project, Sector, Service, SiteSettings } from '@/lib/content/types';
-import { servicePath } from '@/content/services';
+import { serviceLinks } from '@/content/services';
 import { displayName, getLocalityByHref, hrefForVicSlug } from '@/lib/locations';
 
 /**
@@ -19,29 +19,6 @@ import { displayName, getLocalityByHref, hrefForVicSlug } from '@/lib/locations'
 function vicLocality(slug: string) {
   const href = hrefForVicSlug(slug);
   return href ? getLocalityByHref(href) : undefined;
-}
-
-/**
- * Service chips used to hard-code href '/commercial/', which rendered several
- * same-page links to one URL under mismatched anchors — including an "Office"
- * chip pointing at /commercial/ while /office-painters/ exists. servicePath()
- * is the shared mapping to each service's real page, and services that share
- * a page collapse into one chip so the sidebar never repeats a destination.
- */
-const SERVICE_PAGE_LABELS: Record<string, string> = {
-  '/office-painters/': 'Office painting',
-  '/trade-services/': 'Trade services',
-  '/commercial/': 'Commercial painting',
-};
-
-function relatedServiceLinks(services: readonly Service[]) {
-  const seen = new Set<string>();
-  return services
-    .map((service) => {
-      const href = servicePath(service.slug);
-      return { label: SERVICE_PAGE_LABELS[href] ?? service.shortTitle, href };
-    })
-    .filter((link) => (seen.has(link.href) ? false : (seen.add(link.href), true)));
 }
 
 function DetailList({ heading, items }: { heading: string; items?: readonly string[] }) {
@@ -200,10 +177,7 @@ export function ProjectArticle({ project, sector, relatedServices = [], settings
                 </dl>
               </div>
 
-              <RelatedLinks
-                heading="Related services"
-                links={relatedServiceLinks(relatedServices)}
-              />
+              <RelatedLinks heading="Related services" links={serviceLinks(relatedServices)} />
 
               <RelatedLinks
                 heading="Nearby"

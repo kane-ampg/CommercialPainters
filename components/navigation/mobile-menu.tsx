@@ -4,15 +4,15 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useId, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { mainNav } from './nav-data';
+import type { NavItem } from './nav-data';
 import { isCurrentPage, isSamePath, navActiveState } from '@/lib/nav/active';
 import { cn } from '@/lib/utils';
 import { phoneHref } from '@/lib/site';
 import { useSiteSettings } from '@/components/providers/site-settings';
 
 /** The menu section the given page sits under, if it is not a top-level item. */
-function activeSection(pathname: string): string | null {
-  return mainNav.find((item) => navActiveState(pathname, item) === 'section')?.label ?? null;
+function activeSection(items: readonly NavItem[], pathname: string): string | null {
+  return items.find((item) => navActiveState(pathname, item) === 'section')?.label ?? null;
 }
 
 /**
@@ -38,12 +38,15 @@ function activeSection(pathname: string): string | null {
  * current page carries `aria-current="page"`, and is marked visually by both a
  * colour change and a rule down its left edge so the cue survives for anyone
  * who cannot separate the two colours (WCAG 1.4.1).
+ *
+ * `items` comes from the header for the same reason as DesktopNav's: importing
+ * nav-data here would ship the content modules behind it to the browser.
  */
-export function MobileMenu() {
+export function MobileMenu({ items }: { items: readonly NavItem[] }) {
   const pathname = usePathname();
   const settings = useSiteSettings();
   const [open, setOpen] = useState(false);
-  const [expanded, setExpanded] = useState<string | null>(() => activeSection(pathname));
+  const [expanded, setExpanded] = useState<string | null>(() => activeSection(items, pathname));
   const panelId = useId();
   const triggerRef = useRef<HTMLButtonElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
@@ -121,7 +124,7 @@ export function MobileMenu() {
   if (renderedPath !== pathname) {
     setRenderedPath(pathname);
     setOpen(false);
-    setExpanded(activeSection(pathname));
+    setExpanded(activeSection(items, pathname));
   }
 
   return (
@@ -193,7 +196,7 @@ export function MobileMenu() {
 
               <nav aria-label="Main">
                 <ul className="flex flex-col gap-1">
-                  {mainNav.map((item) => {
+                  {items.map((item) => {
                     const active = navActiveState(pathname, item);
                     /*
                      * Three states, each separated from the next by something

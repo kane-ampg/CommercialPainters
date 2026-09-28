@@ -237,6 +237,19 @@ export type Post = {
   updatedAt?: string;
   author: string;
   tags: readonly string[];
+  /**
+   * Service slugs from content/services.ts. Rendered as the post's "Related
+   * services" links, so a reader finishing the post has a service page to go
+   * to next. Empty is allowed; unknown slugs are dropped.
+   */
+  relatedServiceSlugs: readonly string[];
+  /**
+   * Rendered below the body as an accordion and emitted as FAQPage JSON-LD
+   * from the same array, so the visible answers and the structured ones
+   * cannot disagree. Each answer should stand on its own when quoted.
+   */
+  faqs?: readonly { question: string; answer: string }[];
+  /** Absolute — must end in "| Commercial Painters", as every other title does. */
   metaTitle: string;
   metaDescription: string;
 };

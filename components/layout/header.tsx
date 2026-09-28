@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { DesktopNav } from '@/components/navigation/desktop-nav';
 import { MobileMenu } from '@/components/navigation/mobile-menu';
+import { mainNav } from '@/components/navigation/nav-data';
 import { AssessmentCta } from '@/components/navigation/assessment-cta';
 import { Wordmark } from '@/components/layout/wordmark';
 import { Container } from '@/components/ui';
@@ -25,7 +26,7 @@ export function Header({ settings }: { settings: SiteSettings }) {
             <Wordmark tone="ink" className="h-11 sm:h-14" />
           </Link>
 
-          <DesktopNav />
+          <DesktopNav items={mainNav} />
 
           <div className="flex items-center gap-2 sm:gap-3">
             <a
@@ -38,7 +39,7 @@ export function Header({ settings }: { settings: SiteSettings }) {
             <AssessmentCta className="hidden rounded-md bg-brand-700 px-4 py-2.5 text-sm font-semibold text-white hover:bg-brand-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600 focus-visible:ring-offset-2 lg:inline-block">
               Get a free site assessment
             </AssessmentCta>
-            <MobileMenu />
+            <MobileMenu items={mainNav} />
           </div>
         </div>
       </Container>

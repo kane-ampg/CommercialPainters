@@ -34,10 +34,20 @@ import type { Review } from '@/lib/content/types';
  * Displayed as an attributed third-party figure — "5.0 on Google, from 70
  * reviews" — and never emitted as `aggregateRating`, for the reason above.
  * Re-read it off the profile when it drifts; nothing derives it.
+ *
+ * These are the group's reviews, not this business's own profile. They sit on
+ * the group's earlier profile (Chirnside Park), while `site.social.google` is
+ * the business's own profile at 1 Turbo Drive, which is still new. The client
+ * chose on 2026-09-29 to keep showing the seventy, so every surface that
+ * states the figure has to name `profileName` beside it. The link below
+ * points at that profile and not at the one in `sameAs`, because this is
+ * where a visitor can check the seventy.
  */
 export const googleAggregate = {
   rating: 5.0,
   count: 70,
+  /** The profile's own name, as Google shows it. Visitors see it next to the figure. */
+  profileName: 'APMG Painting Services',
   /** Where the number was read, and where a visitor can check it. */
   url: 'https://search.google.com/local/reviews?placeid=ChIJnV9lqRIw1moRftY3Ankvfdw',
   /** Date the figure above was last read off the profile. */

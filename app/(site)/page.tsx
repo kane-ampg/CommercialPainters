@@ -103,13 +103,14 @@ export default async function HomePage() {
         heading="Commercial painters in Melbourne,"
         headingAccent="for buildings that cannot stop running"
         lede="Schools mid-term, clinics between patients, warehouses mid-shift. We stage the work around the people still using the building, across metropolitan Melbourne and regional Victoria."
-        primaryCta={{ label: 'Commercial painting services', href: '/commercial/' }}
+        primaryCta={{ label: 'Get a free site assessment', href: '/contact-us/#assessment' }}
         secondaryCta={{ label: 'See our projects', href: '/projects/' }}
         proof={[
           { figure: `${yearsTrading} years`, label: 'In business' },
           {
             figure: `${googleAggregate.rating.toFixed(1)} on Google`,
-            label: `From ${googleAggregate.count} reviews`,
+            label: `${googleAggregate.count} group reviews`,
+            wideLabel: `${googleAggregate.count} reviews · ${googleAggregate.profileName}`,
           },
           { figure: 'Cm3', label: 'OHS prequalified' },
         ]}
@@ -220,9 +221,9 @@ export default async function HomePage() {
           <p>
             {site.name} was founded in {site.founded} and has grown into a Melbourne painting and
             property maintenance contractor working across schools, healthcare, aged care, strata,
-            retail and industrial sites. Those clients rate the work{' '}
-            {googleAggregate.rating.toFixed(1)} out of 5 across {googleAggregate.count} Google
-            reviews.
+            retail and industrial sites. Across the group, clients rate the work{' '}
+            {googleAggregate.rating.toFixed(1)} out of 5 in {googleAggregate.count} Google reviews
+            on the {googleAggregate.profileName} profile.
           </p>
           <p>
             The approach has not changed much: do the work properly, keep the standard consistent,

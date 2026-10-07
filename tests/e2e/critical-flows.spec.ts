@@ -247,14 +247,39 @@ test.describe('site assessment enquiry', () => {
   });
 });
 
+/**
+ * Where the chat tests open the launcher. Any page without the homepage fold:
+ * on `/` the launcher stands aside until the fold's bottom edge has scrolled up
+ * past it, which the test below asserts on its own.
+ */
+const CHAT_PAGE = '/projects/';
+
 test.describe('site assessment chat', () => {
   test('is absent from the contact page, where the full form already is', async ({ page }) => {
     await page.goto('/contact-us/');
     await expect(page.getByRole('button', { name: /site assessment/i })).toHaveCount(0);
   });
 
-  test('answers a published question without starting an enquiry', async ({ page }) => {
+  test('stands aside over the homepage fold, then returns once it scrolls away', async ({
+    page,
+  }) => {
     await page.goto('/');
+    // The fold carries its own route to the form.
+    await expect(
+      page.locator('.hero-viewport').getByRole('link', { name: 'Get a free site assessment' }),
+    ).toHaveAttribute('href', '/contact-us/#assessment');
+
+    const launcher = page.getByRole('button', { name: 'Free site assessment' });
+    // Mounted on idle, so wait for it to exist before asserting it is hidden.
+    await expect(page.locator('button', { hasText: 'Free site assessment' })).toHaveCount(1);
+    await expect(launcher).toBeHidden();
+
+    await page.evaluate(() => window.scrollTo(0, window.innerHeight));
+    await expect(launcher).toBeVisible();
+  });
+
+  test('answers a published question without starting an enquiry', async ({ page }) => {
+    await page.goto(CHAT_PAGE);
     await page.getByRole('button', { name: 'Free site assessment' }).click();
 
     const panel = page.getByRole('dialog', { name: 'Free site assessment' });
@@ -272,7 +297,7 @@ test.describe('site assessment chat', () => {
     page,
   }, testInfo) => {
     await withOwnClientIp(page, testInfo, 3);
-    await page.goto('/');
+    await page.goto(CHAT_PAGE);
     await page.getByRole('button', { name: 'Free site assessment' }).click();
 
     const panel = page.getByRole('dialog', { name: 'Free site assessment' });
@@ -298,7 +323,7 @@ test.describe('site assessment chat', () => {
   });
 
   test('refuses an answer the server would reject, and says why', async ({ page }) => {
-    await page.goto('/');
+    await page.goto(CHAT_PAGE);
     await page.getByRole('button', { name: 'Free site assessment' }).click();
 
     const panel = page.getByRole('dialog', { name: 'Free site assessment' });
@@ -311,7 +336,7 @@ test.describe('site assessment chat', () => {
   });
 
   test('closes on Escape and returns focus to the launcher', async ({ page }) => {
-    await page.goto('/');
+    await page.goto(CHAT_PAGE);
     const launcher = page.getByRole('button', { name: 'Free site assessment' });
     await launcher.click();
     await expect(page.getByRole('dialog', { name: 'Free site assessment' })).toBeVisible();
@@ -333,7 +358,7 @@ test.describe('site assessment chat under reduced motion', () => {
    * control is painted and readable, whatever the keyframes are doing.
    */
   test('shows every turn and control with motion switched off', async ({ page }) => {
-    await page.goto('/');
+    await page.goto(CHAT_PAGE);
     await page.getByRole('button', { name: 'Free site assessment' }).click();
 
     const panel = page.getByRole('dialog', { name: 'Free site assessment' });

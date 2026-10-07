@@ -191,9 +191,18 @@ Requesting indexing through URL Inspection on `/`, `/commercial/`, `/contact-us/
 
 ## Google Business Profile
 
-The profile already exists (place ID `ChIJnV9lqRIw1moRftY3Ankvfdw`, 5.0 from 70 reviews). For a
-local trade it will out-earn organic search. Before go-live its registered name and address must
-match `lib/site.ts` exactly, and its website field must be the `www` URL.
+There are two profiles, and the site uses them for different things.
+
+| Profile | Place ID | Used for |
+| --- | --- | --- |
+| The business's own, 1 Turbo Drive, Bayswater North (verified, new) | `ChIJA6digAI71moRKXSFas1hjRI` | `sameAs` in `lib/site.ts`, the entity link |
+| The group's earlier profile, Chirnside Park (5.0 from 70 reviews) | `ChIJnV9lqRIw1moRftY3Ankvfdw` | The review figure and "Read them on Google" link in `content/reviews.ts` |
+
+The own profile's address and phone match `lib/site.ts`. Its name does not: Google lists it under
+the group name, while the site trades as Commercial Painters by the client's decision of 29
+September 2026. The 70 reviews stay on the site, and every surface names the profile they come
+from (`googleAggregate.profileName`). Its website field must be the `www` URL. For a local trade
+the profile will out-earn organic search.
 
 A description was drafted on 14 September for Business Profile Manager. 742 of 750 characters,
 policy-clean (no URL, phone, superlatives or offers), every claim backed by `lib/site.ts` or

@@ -59,7 +59,7 @@ Canonical source: [lib/site.ts](../lib/site.ts).
 | Address           | 1 Turbo Drive, Bayswater North VIC 3153, Australia          |
 | Instagram         | None yet. Do not name one.                                  |
 | Facebook          | None yet. Do not name one.                                  |
-| Google profile    | Place ID `ChIJnV9lqRIw1moRftY3Ankvfdw`                      |
+| Google profile    | Place ID `ChIJA6digAI71moRKXSFas1hjRI` (own profile)        |
 | Ownership         | Melbourne-based, Australian-owned                           |
 
 The vision, mission and four core values (expertise, passion, professionalism, integrity) are
@@ -119,9 +119,10 @@ and any price.
 
 ### Reviews
 
-The Google Business Profile shows 5.0 from 70 reviews (read 24 August 2026). The site reproduces
-three of them, with attribution. Quote those three freely. State the 5.0 as **Google's** figure,
-never as the site's own rating, and never invent a review or a client count.
+The group's Google Business Profile, listed as APMG Painting Services, shows 5.0 from 70 reviews
+(read 24 August 2026). The site reproduces three of them, with attribution. Quote those three
+freely. State the 5.0 as **Google's** figure for that profile, never as the site's own rating or
+as the rating of the business's own, newer profile, and never invent a review or a client count.
 
 ---
 

@@ -54,7 +54,7 @@ function FooterFacts() {
     {
       label: 'Client rating',
       figure: `${googleAggregate.rating.toFixed(1)} on Google`,
-      detail: `Averaged across ${googleAggregate.count} reviews from schools, healthcare, strata, retail and industrial clients.`,
+      detail: `Averaged across ${googleAggregate.count} reviews on the ${googleAggregate.profileName} profile, from schools, healthcare, strata, retail and industrial clients.`,
     },
     {
       label: 'Commercial sectors',
@@ -240,7 +240,11 @@ export function Footer({ settings }: { settings: SiteSettings }) {
         <div className="grid gap-10 py-14 sm:grid-cols-2 lg:grid-cols-4">
           <div>
             {/* The wordmark in white, on the ink ground. */}
-            <Wordmark tone="white" className="mb-5 h-16" />
+            <Wordmark tone="white" className="mb-3 h-16" />
+            {/* Sits beside the group inbox below, which it explains. */}
+            <p className="mb-5 text-sm text-white/70">
+              The commercial painting division of the {site.group} group.
+            </p>
             <address className="text-sm not-italic leading-relaxed text-white/85">
               {formatAddress(settings.address)}
               {/* Self-expiring: see settings.address.effectiveFrom. */}

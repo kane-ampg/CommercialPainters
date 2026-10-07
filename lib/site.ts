@@ -33,6 +33,15 @@ export const site = {
    */
   legalName: 'Commercial Painters',
 
+  /**
+   * The parent group, named in one line under the footer wordmark. The crews'
+   * shirts, the vans, the inbox, the client portal and the review profile all
+   * carry it, and a site that never says so reads to a procurement buyer as a
+   * front for someone else. Client decision 2026-10-01. A descriptor only,
+   * never the trading name: tests/unit/brand.test.ts holds that.
+   */
+  group: 'APMG',
+
   /** Not yet supplied. Required for complete LocalBusiness schema. */
   abn: null as string | null,
 
@@ -132,12 +141,16 @@ export const site = {
      * business. Nothing else in this file matters as much for map-pack
      * visibility.
      *
-     * NEEDS-CLIENT-CONFIRMATION: the profile's registered name and address
-     * must match the trading name and address published here before go-live,
-     * or the site and the profile disagree on the facts the map pack weighs
-     * most heavily.
+     * This business's own profile at 1 Turbo Drive, client supplied
+     * 2026-09-29. Its address and phone match this file. Its name does not:
+     * the profile is registered as "APMG Commercial Painting" and the site
+     * keeps "Commercial Painters" by the client's decision, so the name is
+     * the one NAP fact still in disagreement.
+     *
+     * Not the profile the review figure comes from. That is the group's
+     * earlier profile, see `googleAggregate` in content/reviews.ts.
      */
-    google: 'https://www.google.com/maps/place/?q=place_id:ChIJnV9lqRIw1moRftY3Ankvfdw',
+    google: 'https://www.google.com/maps/place/?q=place_id:ChIJA6digAI71moRKXSFas1hjRI',
   },
 } as const;
 

@@ -4,6 +4,7 @@ import { CarouselControls } from '@/components/media/carousel-controls';
 import { carouselTrack, useCarousel } from '@/components/media/use-carousel';
 import { GoogleMark, Stars } from '@/components/sections/review-parts';
 import { Card } from '@/components/ui';
+import { googleAggregate } from '@/content/reviews';
 import { cn } from '@/lib/utils';
 import type { Review } from '@/lib/content/types';
 
@@ -45,7 +46,7 @@ export function GoogleReviewCarousel({ reviews }: { reviews: readonly Review[] }
       // attach to. This carousel has been missing one since it was written.
       role="group"
       aria-roledescription="carousel"
-      aria-label="Reviews from our Google Business Profile"
+      aria-label={`Reviews from the ${googleAggregate.profileName} Google profile`}
       {...pauseHandlers}
     >
       <ul

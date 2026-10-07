@@ -214,6 +214,10 @@ export function HeroReel({
   return (
     <section
       ref={rootRef}
+      // The floating assessment launcher stands aside while this fold is
+      // under it: the fold carries its own assessment button, and the
+      // launcher would otherwise sit on the proof strip along its bottom edge.
+      data-chat-launcher-clear=""
       className={cn(
         'hero-viewport relative isolate flex flex-col overflow-hidden bg-ink text-white',
         className,

@@ -67,6 +67,9 @@ describe('Google reviews stay out of review markup', () => {
     // somebody re-reads it — hence `asOf`.
     expect(googleAggregate.url).toContain('placeid=');
     expect(googleAggregate.count).toBeGreaterThan(googleReviews.length);
+    // The seventy are on the group's profile, not this business's own, so the
+    // profile has to be named wherever the figure is shown.
+    expect(googleAggregate.profileName).toBeTruthy();
     expect(googleAggregate.asOf).toMatch(/^\d{4}-\d{2}-\d{2}$/);
   });
 });
@@ -148,9 +151,10 @@ describe('the office address', () => {
     expect(site.address).not.toHaveProperty('effectiveFrom');
   });
 
-  it('routes directions by street address, not by the stale place ID', () => {
-    // The Google Business Profile is still registered to Chirnside Park, so a
-    // place-ID deep link would navigate a visitor to the previous premises.
+  it('routes directions by street address, not by a place ID', () => {
+    // The review figure's profile is still registered to Chirnside Park, so a
+    // place-ID deep link built from the wrong ID would navigate a visitor to
+    // the previous premises. The street address cannot go stale that way.
     const url = directionsUrl(defaultSiteSettings.address);
     expect(url).toContain(encodeURIComponent('1 Turbo Drive'));
     expect(url).not.toContain('place_id');

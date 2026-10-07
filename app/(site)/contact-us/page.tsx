@@ -310,7 +310,7 @@ export default async function ContactPage() {
                         <span className="font-display text-lg text-ink group-hover:underline">
                           {googleAggregate.rating.toFixed(1)} on Google
                         </span>{' '}
-                        from {googleAggregate.count} reviews
+                        from {googleAggregate.count} reviews for {googleAggregate.profileName}
                       </span>
                     </a>
 

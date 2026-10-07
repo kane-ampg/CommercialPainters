@@ -51,6 +51,18 @@ import { cn } from '@/lib/utils';
 /** Below the sticky header (z-40) and the mobile menu (z-50), never over them. */
 const LAYER = 'z-30';
 
+/**
+ * Elements the closed launcher stands aside for (the homepage fold), and the
+ * strip along the viewport's bottom edge where the launcher sits. While one of
+ * those elements is inside that strip the launcher would be drawn over it.
+ */
+const LAUNCHER_CLEAR = '[data-chat-launcher-clear]';
+const LAUNCHER_BAND = 0.1;
+
+function underLauncher(rect: DOMRect): boolean {
+  return rect.top < window.innerHeight && rect.bottom > window.innerHeight * (1 - LAUNCHER_BAND);
+}
+
 type Turn = { role: 'bot' | 'user'; text: string };
 
 export function AssessmentChat() {
@@ -138,6 +150,32 @@ export function AssessmentChat() {
     }
     node.scrollTop = node.scrollHeight;
   }, [formType, stepIndex, submitted, asked]);
+
+  /**
+   * The page the launcher is currently standing aside on, if any.
+   *
+   * Keyed by pathname rather than a boolean so a client-side navigation away
+   * from the homepage can never leave the launcher hidden on a page with no
+   * fold. The initial value is measured, not assumed: this component mounts
+   * after an idle callback, by which time the visitor may already have
+   * scrolled.
+   */
+  const [clearingFor, setClearingFor] = useState<string | null>(() => {
+    const target = document.querySelector(LAUNCHER_CLEAR);
+    return target && underLauncher(target.getBoundingClientRect()) ? pathname : null;
+  });
+
+  useEffect(() => {
+    const target = document.querySelector(LAUNCHER_CLEAR);
+    if (!target) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => setClearingFor(entries[0]?.isIntersecting ? pathname : null),
+      { rootMargin: `-${(1 - LAUNCHER_BAND) * 100}% 0px 0px 0px` },
+    );
+    observer.observe(target);
+    return () => observer.disconnect();
+  }, [pathname]);
 
   useEffect(() => {
     if (!open || closing) return;
@@ -294,6 +332,9 @@ export function AssessmentChat() {
    */
   const showing = open && !closing;
 
+  /** Never while open: the launcher is then the panel's close control. */
+  const standingAside = !showing && clearingFor === pathname;
+
   return (
     <>
       <button
@@ -320,6 +361,10 @@ export function AssessmentChat() {
           // opens are visibly one movement rather than two.
           'transition-all duration-200 ease-out',
           showing ? 'h-12 w-12 justify-center' : 'py-3 pl-4 pr-5',
+          // `invisible` as well as transparent, so a keyboard user cannot tab
+          // onto a control they cannot see. Visibility flips at the end of the
+          // fade out and at the start of the fade in.
+          standingAside && 'invisible translate-y-3 opacity-0',
           'active:scale-95',
           LAYER,
         )}

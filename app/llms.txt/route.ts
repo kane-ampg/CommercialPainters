@@ -171,7 +171,9 @@ ${
 
 ## Reviews
 
-The ${site.name} Google Business Profile shows ${googleAggregate.rating.toFixed(1)} out of 5 from ${googleAggregate.count} reviews, read on ${googleAggregate.asOf}: ${googleAggregate.url}
+The group's Google Business Profile, listed as ${googleAggregate.profileName}, shows ${googleAggregate.rating.toFixed(1)} out of 5 from ${googleAggregate.count} reviews, read on ${googleAggregate.asOf}: ${googleAggregate.url}
+
+${site.name} also has its own, newer Google Business Profile at ${formatAddress(settings.address)}: ${settings.social.google}
 
 That figure belongs to Google, not to this site. This site reproduces ${googleReviews.length} of those reviews in full, with attribution, and publishes no rating of its own.
 `;

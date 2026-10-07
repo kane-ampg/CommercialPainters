@@ -8,6 +8,7 @@ import {
 } from '@/lib/schema';
 import { getProject } from '@/content/projects';
 import { qldPresence } from '@/content/locations.overrides';
+import { googleAggregate } from '@/content/reviews';
 import { site, defaultSiteSettings } from '@/lib/site';
 import { services } from '@/content/services';
 import { regionalTowns } from '@/content/service-areas';
@@ -109,7 +110,12 @@ describe('structured data', () => {
     // told that this entity and that profile are the same business.
     const schema = localBusinessSchema(services, defaultSiteSettings);
 
-    expect(defaultSiteSettings.social.google).toContain('place_id:');
+    // The business's own profile at 1 Turbo Drive, client supplied 2026-09-29.
+    // Not the group profile the review figure is read from.
+    expect(defaultSiteSettings.social.google).toContain('place_id:ChIJA6digAI71moRKXSFas1hjRI');
+    expect(defaultSiteSettings.social.google).not.toContain(
+      new URL(googleAggregate.url).searchParams.get('placeid') ?? '',
+    );
     expect(schema.sameAs).toContain(defaultSiteSettings.social.google);
   });
 

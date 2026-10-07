@@ -174,8 +174,9 @@ export function HomeHero({
   primaryCta: { label: string; href: string };
   secondaryCta: { label: string; href: string };
   /** Figures for the strip on the fold's bottom edge. Facts only — every one
-   *  of these is stated at length further down the page. */
-  proof: readonly { figure: string; label: string }[];
+   *  of these is stated at length further down the page. `wideLabel` replaces
+   *  `label` from lg up, for a label too long to share a line below that. */
+  proof: readonly { figure: string; label: string; wideLabel?: string }[];
   /** The reel's own first frame. It is the LCP element, and it is what the
    *  fold falls back to whenever the video does not load. */
   poster: { src: string; alt: string };
@@ -191,11 +192,16 @@ export function HomeHero({
             <div className="lg:pr-12">
               {/* A step down on the tightest phones, where the pause control
                   in the opposite corner comes within a few pixels of this line
-                  and the label would otherwise run under it. */}
+                  and the label would otherwise run under it.
+
+                  White, not red: at 12px the brand red measured 1.05–2.7:1
+                  over the reel's sky frames on a phone and 3.6–4.7:1 on
+                  desktop, short of the 4.5:1 small text needs. The red stays
+                  in the rule beside it. */}
               <p
                 className={cn(
                   microLabel,
-                  'flex items-center gap-3 text-brand-400 tight:text-[0.625rem]',
+                  'flex items-center gap-3 text-white/90 [text-shadow:0_1px_16px_rgba(15,17,19,0.7)] tight:text-[0.625rem]',
                 )}
               >
                 <span aria-hidden="true" className="h-px w-8 bg-brand-500" />
@@ -279,8 +285,15 @@ export function HomeHero({
                   className="flex flex-col sm:flex-row sm:items-baseline sm:gap-2"
                 >
                   <span className="font-display text-base sm:text-lg">{item.figure}</span>
-                  <span className={cn(microLabel, 'text-[0.625rem] text-white/70 sm:text-xs')}>
-                    {item.label}
+                  <span className={cn(microLabel, 'text-[0.6875rem] text-white/70 sm:text-xs')}>
+                    {item.wideLabel ? (
+                      <>
+                        <span className="lg:hidden">{item.label}</span>
+                        <span className="hidden lg:inline">{item.wideLabel}</span>
+                      </>
+                    ) : (
+                      item.label
+                    )}
                   </span>
                 </li>
               ))}
@@ -1274,7 +1287,8 @@ export function ServiceAreaGroups({
  * linked back to the profile so any of it can be checked in one click. The
  * aggregate figure is stated as Google's — "5.0 on Google, from 70 reviews" —
  * rather than as the site's own, because it is: the site hosts three of those
- * seventy and says so.
+ * seventy and says so. The profile is named beside it, because the seventy
+ * are on the group's profile rather than this business's own.
  *
  * None of this reaches `aggregateRating` markup. See the header of
  * content/reviews.ts for why that line is drawn where it is.
@@ -1295,7 +1309,8 @@ export function GoogleReviewWall() {
                 <span className="font-semibold text-ink">
                   {googleAggregate.rating.toFixed(1)} out of 5
                 </span>{' '}
-                from {googleAggregate.count} Google reviews
+                from {googleAggregate.count} Google reviews on the {googleAggregate.profileName}{' '}
+                profile
               </span>
             </p>
           </div>
@@ -1312,8 +1327,9 @@ export function GoogleReviewWall() {
         <GoogleReviewCarousel reviews={googleReviews} />
 
         <p className="mt-6 text-xs text-ink-muted">
-          The {googleReviews.length} reviews shown are reproduced from our Google Business Profile
-          as written; the profile carries {googleAggregate.count} in total.
+          The {googleReviews.length} reviews shown are reproduced as written from the{' '}
+          {googleAggregate.profileName} Google Business Profile, which carries{' '}
+          {googleAggregate.count} in total.
         </p>
       </Container>
     </Section>

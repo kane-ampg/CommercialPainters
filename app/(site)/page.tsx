@@ -199,7 +199,7 @@ export default async function HomePage() {
       <RecentWorkStrip
         images={galleryCovers}
         heading="On site recently"
-        body={`Commercial buildings across ${galleries.length} sites — dealership showrooms, an office fitout, a school teaching block, a bar and an apartment foyer. Photographed as the work was happening.`}
+        body={`Commercial buildings across ${galleries.length} sites — dealership showrooms, childcare centres, a factory, open-plan offices, a school teaching block and a bar. Photographed as the work was happening.`}
         action={{ label: 'See every site', href: '/projects/' }}
       />
 

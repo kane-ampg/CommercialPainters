@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { PhotoCarousel } from '@/components/media/photo-carousel';
 import { ButtonLink, Container, microLabel, Section } from '@/components/ui';
 import { cn } from '@/lib/utils';
@@ -15,7 +16,7 @@ import type { MediaRef } from '@/lib/content/types';
  * display face on the left, the sentence describing what the photographs show
  * on the right, and a printer's rule tying the two to the strip beneath them.
  * It is the same 2:3 split the figure captions and the schedule lists use, so
- * a page that stacks seven of these still reads as one grid rather than seven
+ * a page that stacks fourteen of these still reads as one grid rather than fourteen
  * separate widgets.
  *
  * `ink` is the default ground for the same reason the media band defaults to
@@ -58,9 +59,31 @@ export function WorkGalleryBlock({
           </Heading>
         </div>
 
-        <p className={cn('text-pretty leading-relaxed', onInk ? 'text-white/70' : 'text-ink-soft')}>
-          {gallery.caption}
-        </p>
+        <div>
+          <p
+            className={cn('text-pretty leading-relaxed', onInk ? 'text-white/70' : 'text-ink-soft')}
+          >
+            {gallery.caption}
+          </p>
+          {/*
+           * The two sites that are also written up. The photographs say what
+           * happened on site; the case study says what was specified and why,
+           * and a reader who has just looked at one wants the other.
+           */}
+          {gallery.projectSlug && (
+            <Link
+              href={`/projects/${gallery.projectSlug}/`}
+              className={cn(
+                'mt-3 inline-block rounded font-semibold underline decoration-2 underline-offset-4 focus-visible:outline-none focus-visible:ring-2',
+                onInk
+                  ? 'text-white decoration-brand-500 hover:text-brand-400 focus-visible:ring-brand-400'
+                  : 'text-ink decoration-brand-600 hover:text-brand-700 focus-visible:ring-brand-600',
+              )}
+            >
+              Read the case study
+            </Link>
+          )}
+        </div>
       </div>
 
       {/*
@@ -90,9 +113,9 @@ export function WorkGalleryBlock({
 /**
  * The full set of galleries, stacked.
  *
- * One `<Section>` around all of them rather than one each: seven ink slabs in
- * a row would put six seams down the page that mean nothing, and the scroll
- * reveal would fire seven times. The separation between sites is the rule and
+ * One `<Section>` around all of them rather than one each: fourteen ink slabs in
+ * a row would put thirteen seams down the page that mean nothing, and the scroll
+ * reveal would fire fourteen times. The separation between sites is the rule and
  * the heading, which is enough.
  */
 export function WorkGalleries({
@@ -122,7 +145,7 @@ export function WorkGalleries({
 /* ------------------------------------------------------------------ */
 
 /**
- * A strip that stands for all seven sites rather than any one of them.
+ * A strip that stands for every site rather than any one of them.
  *
  * For the homepage, which already carries a case-study grid and does not need
  * a second list of the same shape underneath it. This is the other thing the

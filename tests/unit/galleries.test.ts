@@ -9,6 +9,7 @@ import {
   galleryCovers,
   galleryFrameCount,
 } from '@/content/galleries';
+import { projects } from '@/content/projects';
 import { sectors } from '@/content/sectors';
 
 const sectorSlugs = new Set(sectors.map((sector) => sector.slug));
@@ -98,6 +99,18 @@ describe('work galleries', () => {
     }
   });
 
+  it('links every case-study gallery to a project that shows its photographs', () => {
+    for (const gallery of galleries.filter((g) => g.projectSlug)) {
+      const project = projects.find((p) => p.slug === gallery.projectSlug);
+      expect(project, gallery.slug).toBeDefined();
+      const frames = new Set(gallery.images.map((image) => image.src));
+      expect(
+        project!.images.some((image) => frames.has(image.src)),
+        `${gallery.slug}: ${gallery.projectSlug} uses none of its frames`,
+      ).toBe(true);
+    }
+  });
+
   it('resolves every sector association to a real sector', () => {
     for (const gallery of galleries) {
       if (gallery.sectorSlug) expect(sectorSlugs.has(gallery.sectorSlug), gallery.slug).toBe(true);
@@ -159,7 +172,27 @@ describe('gallery alt text', () => {
     const slugs = galleries.map((gallery) => gallery.slug);
     expect(slugs).not.toContain('lindisfarne-avenue-croydon');
     expect(slugs).not.toContain('rigby-avenue-carnegie');
-    expect(slugs).toHaveLength(7);
+    // By source folder too, so a renamed slug cannot let a shoot back in. The
+    // clinic is out for showing no painting rather than for being a dwelling.
+    const sources = manifest.sites.map((site) => site.sourceDir);
+    for (const excluded of ['Lindisfarne', 'Rigby', 'Malvern']) {
+      expect(
+        sources.some((dir) => dir.includes(excluded)),
+        excluded,
+      ).toBe(false);
+    }
+    // A tripwire: a new site should arrive with its alt text, cover and this
+    // number changed together, deliberately.
+    expect(slugs).toHaveLength(14);
+  });
+
+  it('never delivers two frames under one file name', () => {
+    // Alt text is keyed on the delivered name alone. The October 2026 shoots
+    // keep the cameras' own names (1O8A4117.JPG), which are unique only while
+    // each camera's counter is — a repeat would give two photographs one
+    // description, silently.
+    const names = manifest.sites.flatMap((site) => site.images.map((image) => image.sourceFile));
+    expect(new Set(names).size).toBe(names.length);
   });
 
   it('keys alt text on the delivered file name, not the published one', () => {

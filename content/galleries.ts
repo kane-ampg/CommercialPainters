@@ -4,20 +4,26 @@ import type { MediaRef } from '@/lib/content/types';
 /**
  * Site photography.
  *
- * Seven commercial sites the business has photographed properly. This file is
- * the editorial half of that: what each site is, and what each frame shows.
+ * Fourteen commercial sites the business has photographed properly. This file
+ * is the editorial half of that: what each site is, and what each frame shows.
  * The other half — dimensions and blur placeholders — is measured off the
  * files by scripts/build-gallery-images.mjs into galleries.generated.json, and
  * the two are joined by `galleries` at the bottom.
  *
  * ## What a gallery is allowed to claim
  *
- * Nothing that is not in the photograph. These sites have no project record
- * behind them — no scope, no preparation, no coating system, no duration, no
- * outcome — so they are NOT case studies and must never be presented as one.
- * `content/projects.ts` is where a documented project lives, and every field
- * in it is transcribed from the business's own records. A gallery says only
- * "here is this site, and here is what the photographs show happening on it".
+ * Nothing that is not in the photograph. Most of these sites have no project
+ * record behind them — no scope, no preparation, no coating system, no
+ * duration, no outcome — so they are NOT case studies and must never be
+ * presented as one. `content/projects.ts` is where a documented project lives,
+ * and every field in it is transcribed from the business's own records. A
+ * gallery says only "here is this site, and here is what the photographs show
+ * happening on it".
+ *
+ * Two are the photographs OF a documented project — the Noble Park factory and
+ * the Frankston office, one of the eleven in the NDIS programme. Those carry a
+ * `projectSlug`, and the facts live on the project, not here: the caption and
+ * alt text still describe only the frame.
  *
  * Alt text was written against each frame and then checked against it a second
  * time, adversarially, for claims the picture does not support. That is why
@@ -25,13 +31,21 @@ import type { MediaRef } from '@/lib/content/types';
  * office is visible across the set but not in that frame, and alt text
  * describes the frame it is attached to.
  *
- * ## Why two of the nine shoots are missing
+ * ## Why some delivered shoots are missing
  *
  * Two of the delivered shoots are of private dwellings, and this site is
  * commercial only. The unit test that holds that line scans this file for the
- * adjective it bans, which is why the paragraph talks around it. The shoots
- * are excluded by the allow-list in scripts/build-gallery-images.mjs, so their
- * frames are never encoded and do not exist under public/ at all.
+ * adjective it bans, which is why the paragraph talks around it. A third (a
+ * clinic, October 2026) shows no painting. All three are excluded by the
+ * allow-list in scripts/build-gallery-images.mjs, so their frames are never
+ * encoded and do not exist under public/ at all.
+ *
+ * ## Naming
+ *
+ * Goodstart and Ironman 4x4 are named, as Toyota and BYD are — their signage
+ * is in the frames and the client approved naming them (7 October 2026). The
+ * industrial unit is not: the client asked for its owner to stay unnamed, so
+ * its label is the building type and its suburb is left off.
  */
 
 /**
@@ -173,6 +187,124 @@ const ALT: Record<string, string> = {
     'Painter in company uniform with an extension-pole roller in a part-stripped corridor, tripod work light, timber bracing and stepladder behind',
   '47 Kinkora Rd, Hawthorn-3.jpg':
     'A painter on a stepladder applying sealant from a cartridge under the verandah gutter, beside cream-painted verandah lacework, scaffolding overhead',
+
+  /*
+   * From here down the keys are the cameras' own file names (1O8A…, 2M6A…,
+   * DJI_…), not the photographer's site-named exports. They are unique only
+   * because each camera's counter is: tests/unit/galleries.test.ts fails if two
+   * delivered frames ever share a name, since one line here would then describe
+   * both.
+   */
+
+  /* Goodstart Early Learning, Mount Martha */
+  '2M6A0192_1.jpg':
+    'A painter in company uniform sanding a wall with a vacuum-fed pole sander, room furniture under plastic sheeting in front of him',
+  '2M6A0208.jpg':
+    'Two of the crew draping plastic sheeting over low timber shelving beside a window, a convex safety mirror above',
+  '2M6A0212.jpg':
+    'A painter in company uniform decanting paint from one pail into another among stacked Taubmans and Haymes tins, plants behind',
+  '2M6A0214.jpg':
+    'A painter in company uniform and face mask spraying along the top of a run of glazed door frames with a handheld sprayer',
+  '2M6A0225.jpg':
+    'A painter in white and a face mask cutting in a ceiling from a stepladder, a second painter seen through the internal window',
+  '2M6A0232.jpg':
+    'A painter in company uniform cutting in the edge of a white ceiling with a brush, paint pail in his other hand',
+  '2M6A0237.jpg':
+    'A painter in company uniform brushing the ceiling beside a cassette air conditioner, faux vines and branches hanging from the beam',
+  '2M6A0239.jpg':
+    'Four painters working across a childcare room, two on stepladders and two on extension poles, furniture heaped under plastic sheeting',
+  '2M6A0240.jpg':
+    'A painter cutting in the ceiling line with a brush beside hanging branches and faux vines, a crew member in the foreground',
+  '2M6A0261.jpg':
+    'Three painters cutting in a childcare room ceiling, two on stepladders, while a fourth works the plastic sheeting over the furniture',
+  '2M6A0276.jpg':
+    'A painter in company uniform kneeling to fix a timber-framed board to a wall with a cordless drill, plants and shelving beside him',
+  '2M6A0278.jpg':
+    'A painter in a high-visibility company shirt on a ladder brushing the exterior eave lining above two air conditioning units',
+  '2M6A0305.jpg':
+    'A crew member running a backpack vacuum along the edge of a childcare room carpet, play furniture and shelving in place behind',
+  '2M6A0323.jpg':
+    'A crew member vacuuming the floor of a childcare room with a backpack vacuum, low shelving, chairs and a couch around him',
+
+  /* Goodstart Early Learning, Belgrave Heights */
+  '1O8A5015.jpg':
+    'A painter on a stepladder pressure washing the fascia and gutter line of a weatherboard building, spray falling past a downpipe',
+  '1O8A5029.jpg':
+    'A painter on a stepladder reaching a pressure-washer wand up to the eaves of a weatherboard wall, trees behind',
+  '1O8A5038.jpg':
+    'A painter in company uniform working the weatherboard wall beside a playground, items under a blue tarp and a shade sail overhead',
+  '1O8A5047.jpg':
+    'A painter in company uniform brushing a white timber paling fence, seen through the gaps between the palings',
+  '1O8A5081.jpg':
+    'A painter in company uniform setting up a tall stepladder beside a weatherboard wall, a second stepladder and the street behind',
+  '1O8A5084.jpg':
+    'A painter in company uniform brushing along a weatherboard line, a second painter crouched behind him with a pail, stepladders beyond',
+  '1O8A5088.jpg':
+    'A painter in company uniform brushing the weatherboards around a wall-mounted switchboard cabinet, a ladder alongside',
+  '2M6A0147.jpg':
+    'A painter in company uniform cutting in the top of a wall in a sunlit room, reflected in a round safety mirror',
+  '2M6A0151.jpg':
+    'A painter in company uniform reaching across the top of a cabinet to paint the wall behind it, paint pail in hand',
+  '2M6A0165.jpg':
+    'A painter on a stepladder cutting in a ceiling line, a second painter crossing the room behind, shelving under plastic sheeting',
+  '2M6A0181_1.jpg':
+    'A painter in company uniform rolling the wall above a black-framed glazed door with an extension pole, potted flowers in front',
+
+  /* Croydon kindergarten */
+  '1O8A3965.jpg':
+    "A painter in company uniform running gap filler along the top of a door frame, children's artwork on the wall beside it",
+  '1O8A3968.jpg':
+    'A painter in company uniform kneeling to run gap filler along the base of a door frame at the floor line',
+  '1O8A3971.jpg':
+    'A painter in company uniform running a bead of gap filler along a door frame beside a noticeboard of photographs',
+  '1O8A4024.jpg':
+    'A painter in company uniform crouched at the base of an open glass door, seen from the playground past a blurred post',
+  '1O8A4032.jpg':
+    'A painter in company uniform rolling the head of a timber door frame with a mini roller',
+
+  /* Factory, Noble Park */
+  '1O8A4117.JPG':
+    'A painter in company uniform and dust mask spraying a white block wall with an airless spray gun, rooftops behind',
+  '1O8A4126.JPG':
+    'A painter in a dust mask spraying a white block wall beside an air conditioning unit wrapped in plastic sheeting',
+  '1O8A4144.JPG':
+    'Two of the team in company uniform standing on a metal factory roof, one pointing upward',
+  '1O8A4204.JPG':
+    'A painter in company uniform sorting a yellow safety harness at the back of a work van, a boom lift parked behind',
+  'DJI_0113.JPG':
+    'A harnessed painter on a scissor lift rolling bright green onto a panelled factory wall with an extension pole',
+
+  /* NDIS provider office, Frankston */
+  '1O8A4784.jpg':
+    'A painter on a stepladder cutting in where a stairwell wall meets the ceiling, a black stair rail in the foreground',
+  '1O8A4792.jpg':
+    'A painter in white crouched on drop sheets with a roller and pail at a stair landing wall, seen through a black balustrade',
+  '1O8A4796.jpg':
+    'A painter in company uniform rolling a wall section between frosted glass partitions with an extension-pole roller',
+  '1O8A4799.jpg':
+    'A painter in company uniform on a stepladder cutting in high on a wall above an open-plan office of workstations and monitors',
+  '1O8A4811.jpg':
+    'A painter in company uniform running an extension-pole roller up a wall beside glass offices, drop sheets down and a second painter behind',
+  '1O8A4817.jpg':
+    'A painter on a stepladder working the far wall of an open-plan office, seen past two monitors on the desks',
+
+  /* Ironman 4x4, Kilsyth */
+  '1O8A5002.jpg':
+    'Two painters in company uniform rolling a lime-green slatted ceiling with small rollers, showroom wall signage behind',
+  '1O8A5005.jpg':
+    'A painter in company uniform rolling the underside of a lime-green slatted ceiling, drop sheets on the polished showroom floor',
+  '1O8A5009.jpg':
+    'A painter in company uniform reaching up with a small roller to a lime-green slatted ceiling, a stepladder in the foreground',
+
+  /* Industrial unit */
+  '1O8A3913.JPG':
+    'A painter in company uniform working over a graffiti tag on a grey wall panel with a hand tool',
+  '1O8A3940.JPG':
+    'A painter in company uniform reaching an extension-pole roller up the wall beside a glazed entry door, wheelie bins behind',
+  '1O8A3958.JPG':
+    'A painter in company uniform holding an extension-pole roller and looking up at a pale grey wall',
+  '1O8A3964.JPG':
+    'A painter in company uniform handling a tube beside a mobile aluminium scaffold on the concrete apron, a stepladder behind',
 };
 
 export type WorkGallery = {
@@ -193,6 +325,12 @@ export type WorkGallery = {
    * a sector must not become "evidenced" because a gallery was pointed at it.
    */
   sectorSlug?: string;
+  /**
+   * The case study these are the photographs of, where there is one. Rendered
+   * as a link from the gallery to the written record, which is where the
+   * scope, preparation and outcome live.
+   */
+  projectSlug?: string;
   images: readonly MediaRef[];
 };
 
@@ -237,6 +375,35 @@ const SITES: readonly (Omit<WorkGallery, 'images'> & { cover: string })[] = [
     cover: '20 Christensen Street, Cheltenham-6.jpg',
   },
   {
+    slug: 'goodstart-mount-martha',
+    label: 'Goodstart Early Learning, Mount Martha',
+    buildingType: 'Childcare centre',
+    suburb: 'Mount Martha',
+    caption:
+      'A childcare centre repainted while it was closed: furniture sheeted, walls sanded with dust extraction, ceilings cut in by a full crew and frames sprayed, then the rooms vacuumed out around the play furniture.',
+    cover: '2M6A0261.jpg',
+  },
+  {
+    slug: 'noble-park-factory',
+    label: 'Factory, Noble Park',
+    buildingType: 'Manufacturing facility',
+    suburb: 'Noble Park',
+    caption:
+      'Block walls sprayed white and wall panels rolled in bright green from a scissor lift, with plant wrapped in plastic and the crew harnessed at height.',
+    projectSlug: 'case-study-factory-exterior-painting-in-noble-park-victoria',
+    cover: 'DJI_0113.JPG',
+  },
+  {
+    slug: 'ndis-frankston',
+    label: 'NDIS provider office, Frankston',
+    buildingType: 'Open-plan office',
+    suburb: 'Frankston',
+    caption:
+      'An open-plan office repainted around its workstations: walls rolled off extension poles, ceilings cut in from stepladders, and drop sheets down through the corridors and the stair.',
+    projectSlug: 'ndis-commercial-painting',
+    cover: '1O8A4811.jpg',
+  },
+  {
     slug: 'byd-bayswater',
     label: 'BYD dealership, Bayswater',
     buildingType: 'Dealership and workshop',
@@ -247,6 +414,15 @@ const SITES: readonly (Omit<WorkGallery, 'images'> & { cover: string })[] = [
     cover: 'BYD 899 Mountain Highway Bayswater-6.jpg',
   },
   {
+    slug: 'ironman-kilsyth',
+    label: 'Ironman 4x4, Kilsyth',
+    buildingType: 'Vehicle accessories showroom',
+    suburb: 'Kilsyth',
+    caption:
+      'A lime-green slatted ceiling rolled by hand from stepladders, over a polished showroom floor laid with drop sheets.',
+    cover: '1O8A5005.jpg',
+  },
+  {
     slug: 'our-lady-of-the-pines',
     label: 'Our Lady of the Pines Primary School',
     buildingType: 'Primary school teaching block',
@@ -254,6 +430,24 @@ const SITES: readonly (Omit<WorkGallery, 'images'> & { cover: string })[] = [
       'A primary school teaching block mid-repaint: doorways masked and cut in by brush and roller, detached cupboard doors rolled flat on the tables, joinery pulled clear of the walls.',
     sectorSlug: 'education-and-childcare',
     cover: 'Our Lady of the Pines Primary School-2.jpg',
+  },
+  {
+    slug: 'goodstart-belgrave-heights',
+    label: 'Goodstart Early Learning, Belgrave Heights',
+    buildingType: 'Childcare centre',
+    suburb: 'Belgrave Heights',
+    caption:
+      'Weatherboards pressure washed from ladders and brushed out along the playground and fence line, and the playrooms inside cut in and rolled with the shelving sheeted.',
+    cover: '1O8A5084.jpg',
+  },
+  {
+    slug: 'croydon-kindergarten',
+    label: 'Kindergarten, Croydon',
+    buildingType: 'Kindergarten',
+    suburb: 'Croydon',
+    caption:
+      "Door frames gap-filled and rolled through a kindergarten's rooms, with the children's displays left up on the walls.",
+    cover: '1O8A3965.jpg',
   },
   {
     slug: 'saint-bar',
@@ -282,6 +476,14 @@ const SITES: readonly (Omit<WorkGallery, 'images'> & { cover: string })[] = [
     caption:
       'A stripped internal corridor rolled out off an extension pole, and the fascia sealed beneath a scaffolded cast-iron verandah.',
     cover: '47 Kinkora Rd, Hawthorn-1.jpg',
+  },
+  {
+    slug: 'industrial-unit',
+    label: 'Industrial unit',
+    buildingType: 'Industrial unit exterior',
+    caption:
+      'A graffiti tag worked back by hand on a grey wall panel, the entry rolled off an extension pole, and a mobile scaffold alongside.',
+    cover: '1O8A3913.JPG',
   },
 ] as const;
 

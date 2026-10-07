@@ -62,11 +62,13 @@ export default async function ProjectsPage() {
               <SectionHeading className="mb-3">Sites we have photographed</SectionHeading>
               <Prose>
                 <p>
-                  {galleryFrameCount} photographs across {galleries.length} commercial sites. These
-                  are not case studies — there is no written record of scope, preparation or
-                  programme behind them, so nothing is claimed here beyond what the photographs
-                  show. They are the work itself: the access, the masking, the preparation and the
-                  finish, as each site actually looked while the crew was on it.
+                  {galleryFrameCount} photographs across {galleries.length} commercial sites. Two of
+                  them — the Noble Park factory and the Frankston office from the NDIS programme —
+                  are the case studies above, photographed, and link back to them. For the rest
+                  there is no written record of scope, preparation or programme, so nothing is
+                  claimed beyond what the photographs show. They are the work itself: the access,
+                  the masking, the preparation and the finish, as each site actually looked while
+                  the crew was on it.
                 </p>
               </Prose>
             </Container>

@@ -17,11 +17,15 @@
  * Three decisions are baked in:
  *
  * 1. Only commercial sites are encoded. `SITES` below is an allow-list, not a
- *    directory scan, and two of the nine shoots are deliberately absent: the
+ *    directory scan, and two of the shoots are deliberately absent: the
  *    Croydon house and the Carnegie courtyard are residential work, and this
  *    site is commercial-only (there is a `no-residential` test enforcing it,
  *    and scripts/encode-hero-video.mjs cuts the hero reel on the same line).
  *    A scan would quietly re-admit them the next time the folder changes.
+ *    The Malvern children's clinic shoot (October 2026 delivery) is absent
+ *    too, for a different reason: its three frames show sealant run along a
+ *    benchtop and nothing of the painting, by crew whose uniform carries no
+ *    marking, so there is nothing in it for a painting contractor to publish.
  *
  * 2. Long edge 1800px, quality 78. The frames are shot at 3:2 and 2:3 and a
  *    good half of them are portrait, so nothing is cropped to a house ratio
@@ -29,11 +33,13 @@
  *    adapts to the photograph rather than the other way round.
  *
  * 3. Individual frames can be held back by name. `exclude` is for a frame that
- *    is fine as photography and wrong as publication — the only one so far
- *    carries the previous trading name and its old domain across the side of a
- *    van, legibly, which is exactly what tests/unit/brand.test.ts exists to
- *    stop appearing anywhere else on the site. Excluding it here rather than
- *    dropping its alt text keeps one reason in one place.
+ *    is fine as photography and wrong as publication — most of them carry the
+ *    group name and one of its old domains across the side of a van or ute,
+ *    legibly, which is exactly what tests/unit/brand.test.ts exists to stop
+ *    appearing anywhere else on the site. The rest are near-duplicates of a
+ *    neighbouring frame, or a frame filed under the wrong site; each says
+ *    which. Excluding here rather than dropping alt text keeps one reason in
+ *    one place.
  *
  * 4. Dimensions and a blur placeholder are recorded per image. `MediaRef`
  *    already carries all three, and `ContentImage` reserves the box and paints
@@ -97,6 +103,61 @@ const SITES = [
   { dir: 'Saint Bar', slug: 'saint-bar' },
   { dir: '2-4 Heather Street, South Melbourne', slug: 'heather-street-south-melbourne' },
   { dir: '47 Kinkora Rd, Hawthorn', slug: 'kinkora-road-hawthorn' },
+
+  /*
+   * The October 2026 delivery. These shoots came with the photographer's
+   * picks in an `Edited/` subfolder and nothing at the top level, so `dir`
+   * points inside it.
+   */
+  {
+    dir: 'Good Start Mount Martha/Edited',
+    slug: 'goodstart-mount-martha',
+    exclude: [
+      // The van at the kerb outside the centre, wordmark and old domain legible.
+      '2M6A0345.jpg',
+      // Filed here, but its frame number and timestamp sit inside the Belgrave
+      // Heights interior sequence (2M6A0168 to 2M6A0181, 24 Aug 2025), a week
+      // before the rest of this set, and the roller blinds are Belgrave's. Held
+      // back rather than published under a guessed site.
+      '2M6A0170.jpg',
+      // Near-duplicate of 2M6A0305: the same crew member and backpack vacuum.
+      '2M6A0284.jpg',
+    ],
+  },
+  {
+    dir: 'Belgrave Good Start/Edited',
+    slug: 'goodstart-belgrave-heights',
+    exclude: [
+      // The van parked outside the centre, old domain down its flank.
+      '1O8A5065.jpg',
+      // The ute at the centre's sign, a second old domain across the canopy.
+      '2M6A0168_1.jpg',
+    ],
+  },
+  { dir: 'Croydon Kinder Soccial Done/Edited', slug: 'croydon-kindergarten' },
+  // The documented case study (content/projects.ts). Two of these frames were
+  // already on that page as hand-exported webps before the shoot arrived here.
+  { dir: 'Noble Park Factory/Edited', slug: 'noble-park-factory' },
+  // One of the eleven offices in the NDIS case study, confirmed by the client
+  // on 7 October 2026.
+  { dir: 'NDIS Frankston/Edited', slug: 'ndis-frankston' },
+  {
+    dir: 'Iron Man Kilsyth/Edited',
+    slug: 'ironman-kilsyth',
+    exclude: [
+      // The storefront, with the company ute and its lettering filling the
+      // right of the frame.
+      '1O8A4999.jpg',
+      // Burst frames of 1O8A5002 and 1O8A5005: same people, same pose.
+      '1O8A5003.jpg',
+      '1O8A5006.jpg',
+      '1O8A5007.jpg',
+    ],
+  },
+  // Delivered under the client's name, which is not published (Kane, 7 Oct
+  // 2026). The master folder was renamed on arrival so the name appears
+  // nowhere in the repository, the manifest included.
+  { dir: 'Industrial Unit/Edited', slug: 'industrial-unit' },
 ];
 
 /**
@@ -115,8 +176,21 @@ function frameOrder(name) {
   return digits.length === 2 ? digits : [digits[0], 0];
 }
 
+/**
+ * The October 2026 shoots keep the camera's own names — `1O8A4117.JPG`,
+ * `2M6A0192_1.jpg`, `DJI_0113.JPG` — with no "-N" suffix to sort on, and
+ * `frameOrder` reads the camera body's model digits as a frame number. For
+ * those a plain name sort is already right: one camera's frames in shutter
+ * order, then the next camera's, and an `_1` re-edit beside its original.
+ * Only names without the suffix take this path, so the earlier sites keep
+ * their numbering — the published file names are positional, and blog posts
+ * link to them.
+ */
+const SUFFIXED = /-\d+(?:-\d+)?\.[^.]+$/;
+
 function sortFrames(names) {
   return [...names].sort((a, b) => {
+    if (!SUFFIXED.test(a) && !SUFFIXED.test(b)) return a < b ? -1 : a > b ? 1 : 0;
     const [aMajor, aMinor] = frameOrder(a);
     const [bMajor, bMinor] = frameOrder(b);
     return aMajor - bMajor || aMinor - bMinor;

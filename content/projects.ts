@@ -1,3 +1,4 @@
+import { galleryImage } from '@/content/galleries';
 import { placeholder, type Project } from '@/lib/content/types';
 
 /**
@@ -105,15 +106,16 @@ export const projects: readonly Project[] = [
     duration: placeholder(
       'Project duration not stated on the source record — confirm with the client.',
     ),
+    // The site's own shoot (content/galleries.ts, `noble-park-factory`). The
+    // two hand-exported frames that stood here were from the same shoot, but
+    // their alt text described a finished exterior and a boom lift where the
+    // frames showed a harness being sorted at a van and two people on a roof.
     images: [
-      {
-        src: '/images/projects/noble-park-factory-01.webp',
-        alt: 'Repainted factory exterior in Noble Park showing the client’s brand colour scheme',
-      },
-      {
-        src: '/images/projects/noble-park-factory-02.webp',
-        alt: 'Large-format factory wall repainted using boom lift access in Noble Park',
-      },
+      galleryImage('/images/gallery/noble-park-factory/noble-park-factory-05.webp'),
+      galleryImage('/images/gallery/noble-park-factory/noble-park-factory-01.webp'),
+      galleryImage('/images/gallery/noble-park-factory/noble-park-factory-02.webp'),
+      galleryImage('/images/gallery/noble-park-factory/noble-park-factory-03.webp'),
+      galleryImage('/images/gallery/noble-park-factory/noble-park-factory-04.webp'),
     ],
     outcome: [
       'A brand-aligned exterior that reads as a deliberate, professional presentation',
@@ -160,13 +162,16 @@ export const projects: readonly Project[] = [
     duration: placeholder(
       'Programme length not stated on the source record — confirm with the client.',
     ),
+    // Photographed at the Frankston office, one of the eleven (confirmed by the
+    // client, 7 October 2026). This replaced a representative office image
+    // that was not taken at an NDIS site.
     images: [
-      {
-        // Representative of the business's commercial interior work, NOT photographed at
-        // an NDIS site. Alt text says only what the image actually shows.
-        src: '/images/projects/ndis-offices-01.webp',
-        alt: 'Repainted commercial office interior, walls and ceiling finished in white',
-      },
+      galleryImage('/images/gallery/ndis-frankston/ndis-frankston-05.webp'),
+      galleryImage('/images/gallery/ndis-frankston/ndis-frankston-04.webp'),
+      galleryImage('/images/gallery/ndis-frankston/ndis-frankston-06.webp'),
+      galleryImage('/images/gallery/ndis-frankston/ndis-frankston-03.webp'),
+      galleryImage('/images/gallery/ndis-frankston/ndis-frankston-01.webp'),
+      galleryImage('/images/gallery/ndis-frankston/ndis-frankston-02.webp'),
     ],
     outcome: [
       'All eleven sites delivered on time and within budget',

@@ -1,6 +1,7 @@
 import type { MetadataRoute } from 'next';
 import { siteUrl } from '@/lib/site';
 import { sectors } from '@/content/sectors';
+import { team } from '@/content/team';
 import { getPosts, getProjects } from '@/lib/content/source';
 import { indexableLocalities, REGIONS, stateIsIndexable, stateSlug } from '@/lib/locations';
 
@@ -23,6 +24,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { path: '/projects/', priority: 0.8 },
     { path: '/trade-services/', priority: 0.6 },
     { path: '/about-us/', priority: 0.5 },
+    // Only once there is a team to show — the page is `noindex` until then.
+    ...(team.length > 0 ? [{ path: '/about-us/our-team/', priority: 0.4 }] : []),
     { path: '/contact-us/', priority: 0.7 },
     /*
      * /areas/ sits above the two state hubs and the 22 region hubs, so it

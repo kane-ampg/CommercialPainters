@@ -1,5 +1,6 @@
 import { sectors } from '@/content/sectors';
 import { posts } from '@/content/posts';
+import { team } from '@/content/team';
 
 export type NavChild = { label: string; href: string; description?: string };
 export type NavItem = { label: string; href: string; children?: NavChild[] };
@@ -19,6 +20,14 @@ export type NavItem = { label: string; href: string; children?: NavChild[] };
  * is async. It is the same array either way.
  */
 const blogNav: readonly NavChild[] = posts.length > 0 ? [{ label: 'Blog', href: '/blog/' }] : [];
+
+/**
+ * The team page, on the same terms as the blog: linked only once
+ * `content/team.ts` has people in it. Until then the page is a placeholder
+ * rendered `noindex`, and app/sitemap.ts leaves it out on the same count.
+ */
+const teamNav: readonly NavChild[] =
+  team.length > 0 ? [{ label: 'Our team', href: '/about-us/our-team/' }] : [];
 
 /**
  * Main navigation.
@@ -65,6 +74,7 @@ export const footerNav = {
   ],
   company: [
     { label: 'About us', href: '/about-us/' },
+    ...teamNav,
     { label: 'Projects', href: '/projects/' },
     ...blogNav,
     { label: 'Contact us', href: '/contact-us/' },

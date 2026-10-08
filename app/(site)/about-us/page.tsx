@@ -1,10 +1,12 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import { buildMetadata } from '@/lib/seo/metadata';
 import { Breadcrumbs } from '@/components/navigation/breadcrumbs';
 import { ContentBlock, CtaBand, Hero } from '@/components/sections';
 import { Card, Container, Eyebrow, Prose, Section, SectionHeading } from '@/components/ui';
 import { accreditations, brand, directionsUrl, formatAddress, site } from '@/lib/site';
 import { getSiteSettings } from '@/lib/content/source';
+import { team } from '@/content/team';
 
 export const metadata: Metadata = buildMetadata({
   title: 'About Commercial Painters | Melbourne Painting Contractor',
@@ -51,6 +53,17 @@ export default async function AboutPage() {
             service consistent. Whether it is a single tenancy or a larger commercial or industrial
             programme, the same care and attention goes in.
           </p>
+          {team.length > 0 && (
+            <p>
+              <Link
+                href="/about-us/our-team/"
+                className="font-semibold text-brand-700 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600"
+              >
+                Meet the team
+              </Link>{' '}
+              behind the work.
+            </p>
+          )}
         </Prose>
       </ContentBlock>
 

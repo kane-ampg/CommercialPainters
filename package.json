@@ -12,6 +12,7 @@
     "format:check": "prettier --check .",
     "locations:build": "node --experimental-strip-types --import ./scripts/register-ts-extension-hooks.mjs scripts/build-locations.mts",
     "gallery:build": "node scripts/build-gallery-images.mjs",
+    "team:build": "node scripts/build-team-images.mjs",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",

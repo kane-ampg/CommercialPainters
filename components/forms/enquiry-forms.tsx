@@ -50,7 +50,13 @@ function SubmitButton({ children }: { children: string }) {
   );
 }
 
-export function SiteAssessmentForm() {
+/**
+ * `defaultSuburb` pre-fills the suburb field where the page already knows it —
+ * a suburb page — so the visitor is one field shorter and the lead arrives
+ * with the place spelled the way the page spells it. Still editable: the
+ * building may be next door.
+ */
+export function SiteAssessmentForm({ defaultSuburb }: { defaultSuburb?: string } = {}) {
   const [state, formAction] = useActionState(submitEnquiry, initialEnquiryState);
 
   return (
@@ -73,6 +79,7 @@ export function SiteAssessmentForm() {
           name="suburb"
           autoComplete="address-level2"
           hint="Just the suburb or area is fine."
+          defaultValue={defaultSuburb}
           errors={state.errors?.suburb}
         />
       </div>

@@ -675,4 +675,151 @@ Commercial Painters is based at 1 Turbo Drive, Bayswater North, the suburb next 
       },
     ],
   },
+
+  /*
+   * Built on the Our Lady of the Pines gallery, which has no project record, so
+   * every job-specific claim is one the five photographs show: frames and
+   * doors going from blue-green to white, tape where the frames meet the
+   * pinboard, notices and children's work left pinned up, cupboard doors
+   * rolled flat on a table, chairs up and pigeonhole units pulled clear. The
+   * school is already named by its gallery; Donvale is from the school's own
+   * contact page. The frames are dated Monday 11 May 2026, a school-term
+   * weekday, and whether the rooms were vacated or the school was closed is
+   * not known, so the post claims neither. Scheduling, screening, wear-zone
+   * and lead advice is the education sector copy's; the enamel, curing,
+   * bonding-primer and colour-change advice is general practice, stated as
+   * such.
+   */
+  {
+    slug: 'painting-classroom-doors-and-joinery',
+    title: 'How classroom doors, frames and cupboards are repainted',
+    excerpt:
+      'Classroom doors, frames and cupboards take more handling than any wall in a school, and repainting them is detail work. How it is done — pinboards masked, cupboard doors painted flat, a dark colour covered in white — with photographs from Our Lady of the Pines in Donvale.',
+    cover: galleryImage('/images/gallery/our-lady-of-the-pines/our-lady-of-the-pines-01.webp'),
+    publishedAt: '2026-10-12',
+    author: 'Commercial Painters',
+    tags: ['Schools', 'Education', 'Doors and joinery', 'Interior painting', 'Donvale'],
+    relatedServiceSlugs: ['interior-painting'],
+    metaTitle: 'School Joinery Painting in Melbourne | Commercial Painters',
+    metaDescription:
+      'How classroom doors, frames and cupboards are repainted: pinboards masked, doors painted flat, dark colours covered and hard-wearing finishes, with photos.',
+    body: `Classroom doors, frames and cupboards are repainted as detail work, not as an afterthought to the walls. Cupboard doors come off and are painted flat, frames are cut in by brush and rolled against pinboards masked with tape, an old dark colour is covered properly rather than hopefully, and the finish chosen is one that will take a school's daily handling.
+
+The photographs in this post were taken in May 2026 at Our Lady of the Pines Primary School, a Catholic primary school in Donvale, in Melbourne's east, while our crew repainted the doors, door frames and cupboard joinery of a teaching block from a dark blue-green to white. In every frame the rooms are empty, with the chairs up on the tables and the shelving pulled clear of the walls.
+
+## Why doors and joinery wear first
+
+Schools wear out at hand height, and the joinery takes the worst of it:
+
+- **Hands.** Door edges, the latch side of every frame and the cupboard fronts are touched all day.
+- **Knocks.** Chairs, bags and trolleys catch the lower half of frames and doors.
+- **Cleaning.** Doors and cupboards are wiped down constantly, so the finish has to survive cleaning as well as contact.
+- **Detail.** Hinges, closers, locks, glazed panels and door hardware all have to be worked around or taken off.
+
+Walls above head height can often wait another cycle. The frames, doors and cupboard fronts are usually what make a classroom look tired.
+
+## Masking around pinboards and displays
+
+Classroom walls are rarely bare. At Our Lady of the Pines, the walls beside the doors are pinboard, covered in notices, timetables and children's work, and most of it stayed up. Tape was run down the edge of each frame where it meets the pinboard, so the brush could work right up to the line without marking the board.
+
+![A painter in company uniform reaching above a classroom doorway with a mini roller, a brush and pail in the other hand, tape down both sides of the frame and chairs stacked in front](/images/gallery/our-lady-of-the-pines/our-lady-of-the-pines-01.webp "Rolling the head of a classroom door frame, the pinboard masked beside it and the chairs up on the tables.")
+
+Taking every display down for a joinery repaint costs a school more time than it saves the painters. Usually only what sits right against a frame has to move; the rest can stay pinned up.
+
+## Frames and doors: blue-green to white
+
+The photographs show two tools in hand at once: a brush for the corners and the edge against the wall, and a mini roller for the flat faces. A mini roller lays a smoother, more even coat on a frame than a brush does on its own, and the brush finishes the places the roller cannot reach.
+
+![A painter brushing the top corner of a blue-green classroom door frame, a mini roller and pail in the other hand, notices pinned to the wall alongside](/images/gallery/our-lady-of-the-pines/our-lady-of-the-pines-02.webp "Brushing the corner of a frame, with the notices left pinned up beside it.")
+
+Doors that stay on their hinges are rolled in place. In the photographs, a glazed classroom door is rolled with a mini roller right up to the lock and the glazing, white going on over the old blue-green.
+
+![A painter in company uniform crouched to roll white paint down a blue-green classroom door with a mini roller, a second crew member working at a bench behind](/images/gallery/our-lady-of-the-pines/our-lady-of-the-pines-03.webp "Rolling white over the old blue-green on a classroom door.")
+
+## Covering a dark colour with white
+
+Going from a dark colour to white is one of the harder changes in painting. White hides less than a dark colour does, so over blue-green it usually needs an undercoat or an extra coat to stop the old colour shadowing through. That belongs in the quote rather than being discovered on the second day, so it is worth asking how many coats a colour change has been priced at.
+
+## Cupboard doors off and painted flat
+
+Cupboard doors are easier to paint well off the cupboard than on it. At Our Lady of the Pines, the doors were taken off and laid flat on a classroom table to be rolled, the round hinge recesses still showing in the boards.
+
+![A painter in company uniform rolling a detached white cupboard door flat on a classroom table, more doors beside it and pigeonhole shelving behind](/images/gallery/our-lady-of-the-pines/our-lady-of-the-pines-04.webp "Cupboard doors off their hinges and rolled flat on a classroom table.")
+
+Painting flat has three advantages: the paint levels out instead of running, both faces and every edge can be reached, and the hinges and the cupboard carcass are never in the way. The cost is drying space and time, because the doors cannot go back on until the coating is hard enough to handle, so the room needs somewhere to leave them.
+
+Cupboard doors are often a factory finish, such as melamine, which ordinary paint will not grip. Those are cleaned, lightly sanded and primed with a bonding primer before any topcoat, and that step should be named in the quote.
+
+## Setting up the room
+
+Before the joinery is touched, the room is cleared to the walls. In the photographs, the chairs are up on the tables, the timber pigeonhole units have been pulled away from the walls so the frames behind them can be reached, and drop sheets are down where the crew is working.
+
+![Two painters in an open learning area, one in company uniform rolling a blue-green door frame white, the other working at a far doorway, pigeonhole units pulled clear of the walls](/images/gallery/our-lady-of-the-pines/our-lady-of-the-pines-05.webp "Pigeonhole units pulled clear of the walls so the frames behind them can be painted.")
+
+## Choosing a finish that lasts
+
+Doors, frames and cupboard fronts take contact all day, so they need a hard-wearing, washable finish, normally an enamel, rather than the flat paint used on ceilings and high walls. Water-based enamels keep odour down, and low-VOC systems are our standard in occupied buildings. Ceilings and high walls do not take the same wear and do not need the same system, so there is no reason to specify a whole room to the highest grade.
+
+Enamel also feels dry well before it is hard. A door closed onto a soft coat sticks to its stop and tears the finish, so doors and cupboards are left open, and the room out of use, until the coating has hardened enough to use. That time has to be in the programme.
+
+## Fitting the work around the school
+
+Most classroom work is sequenced into term breaks and holiday periods, because it brings dust and odour into rooms children use every day. Where that is not possible, rooms are released one at a time, isolated and handed back progressively so teaching continues. A two-week term break is about ten working days once access, set-up and pack-down are counted: enough for a classroom block, not for a whole campus.
+
+Buildings put up before the 1970s can carry lead-based paint under later coats. Where a building's age makes that plausible, the existing coating is assessed before any sanding starts, and preparation is planned so dust is contained rather than released across a site children use.
+
+## How a classroom joinery repaint runs, step by step
+
+1. **Site assessment before the quote.** Rooms, doors, cupboards, existing coatings and the school calendar are seen on site, not guessed from photographs.
+2. **Paperwork before day one.** Safe Work Method Statements, insurance certificates, Working with Children Checks and the school's sign-in and induction.
+3. **Rooms and dates agreed.** Which rooms are released in which break or on which days, and when each is handed back.
+4. **Room set-up.** Chairs up, shelving pulled clear, floors covered, pinboards masked at the frames.
+5. **Preparation.** Cupboard doors off; surfaces cleaned, sanded and filled, with a bonding primer on factory finishes.
+6. **Painting.** Frames cut in and rolled, doors rolled in place, cupboard doors painted flat.
+7. **Handover.** Cupboard doors rehung once hard, tape off, furniture set back and the room cleaned.
+
+## What to ask before a painter quotes your school
+
+| Ask | What a good answer sounds like |
+| --- | --- |
+| Will you attend site before quoting? | Yes — doors, cupboards and existing coatings cannot be priced from photographs. |
+| What finish goes on the doors and frames? | A hard-wearing, washable enamel, low-odour in occupied buildings. |
+| How many coats to go from a dark colour to white? | A straight answer, with any undercoat or extra coat priced in. |
+| Will the cupboard doors be painted on or off? | Off and flat where possible, with drying space planned in the room. |
+| Do the displays have to come down? | Only what sits against the work, with pinboards masked at the frames. |
+| Do your crews hold Working with Children Checks? | Yes, everyone on site, and they follow your sign-in rules. |
+
+For the record, here are our answers. Commercial Painters attends every site before pricing it. Working with Children and police checks cover our crews, we hold Cm3 contractor OHS prequalification and Master Painters Australia membership, and as a Dulux Accredited Painter we back the work with a five-year workmanship warranty. Low-VOC systems are our standard in occupied buildings.
+
+## About this job
+
+Commercial Painters is a commercial painting contractor based at 1 Turbo Drive, Bayswater North, working across Melbourne. Schools sit within our [school and childcare painting](/education-and-childcare-painting-melbourne/) work, a full campus repaint is written up in the [Emmaus College case study](/projects/emmaus-college-school-repaint-vermont/), and for younger children there is [how a childcare centre is repainted while it is closed](/blog/painting-a-childcare-centre/). The full range of [commercial painting services](/commercial/) is set out separately. If you are comparing [commercial painters in Melbourne](/) for a school, the questions above are a good place to start.`,
+    faqs: [
+      {
+        question: 'How are classroom doors and frames repainted?',
+        answer:
+          'Frames are cut in by brush at the corners and edges and rolled with a mini roller, doors are rolled in place, and cupboard doors are taken off and painted flat. At Our Lady of the Pines Primary School in Donvale, the crew masked the pinboard at each frame and left the children’s work pinned up while the joinery went from blue-green to white.',
+      },
+      {
+        question: 'Can classrooms be painted during school term?',
+        answer:
+          'Some of the work can. Classroom interiors and anything that brings dust or odour are normally sequenced into term breaks. Where that is not possible, rooms are released one at a time, isolated and handed back progressively so teaching continues. Commercial Painters decides the split at the site assessment.',
+      },
+      {
+        question: 'What paint should be used on school doors and joinery?',
+        answer:
+          'A hard-wearing, washable finish, normally an enamel, because doors, frames and cupboard fronts are handled and cleaned all day. Water-based, low-VOC systems keep odour down in occupied buildings. Ceilings and high walls do not take the same wear and do not need the same system.',
+      },
+      {
+        question: 'Can melamine cupboard doors be painted?',
+        answer:
+          'Yes, with the right preparation. Melamine and other factory finishes are cleaned, lightly sanded and primed with a bonding primer before any topcoat, because ordinary paint will not grip them. Painting the doors flat, off the cupboard, gives the most even finish.',
+      },
+      {
+        question: 'Who painted Our Lady of the Pines Primary School in Donvale?',
+        answer:
+          'Commercial Painters, a Melbourne commercial painting contractor based in Bayswater North. The crew repainted the doors, door frames and cupboard joinery of a teaching block from blue-green to white, with the cupboard doors rolled flat on the classroom tables.',
+      },
+    ],
+  },
 ];

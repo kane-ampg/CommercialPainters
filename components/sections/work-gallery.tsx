@@ -42,7 +42,9 @@ export function WorkGalleryBlock({
   const onInk = tone === 'ink';
 
   return (
-    <div className={className}>
+    // The slug is the anchor suburb pages link to (/projects/#toyota-croydon),
+    // offset for the sticky header the same way a Section with an id is.
+    <div id={gallery.slug} className={cn('scroll-mt-16 sm:scroll-mt-20', className)}>
       <div className="mb-6 grid gap-x-10 gap-y-3 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] lg:items-baseline">
         <div>
           <p className={cn(microLabel, 'mb-2', onInk ? 'text-white/55' : 'text-ink-muted')}>

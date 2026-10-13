@@ -61,10 +61,11 @@ describe('region and state params', () => {
 });
 
 describe('the page count the spec commits to', () => {
-  it('is 1,412 pages of which 44 are indexable', () => {
+  // 44 -> 60 on 2026-10-12: sixteen homepage service-area suburbs promoted.
+  it('is 1,412 pages of which 60 are indexable', () => {
     const pages = suburbParams().length + regionParams().length + stateParams().length + 1;
     expect(pages).toBe(1412);
-    expect(indexableLocalities().length + 22 + 2 + 1).toBe(44);
+    expect(indexableLocalities().length + 22 + 2 + 1).toBe(60);
   });
 });
 
@@ -119,13 +120,13 @@ describe('suburb page robots directives', () => {
 /**
  * The nearby-suburbs slot.
  *
- * All 207 rural-fringe localities carry an empty `neighbourHrefs` — they are
+ * All 205 rural-fringe localities carry an empty `neighbourHrefs` — they are
  * held out of neighbour lists on purpose — so the block used to return null
  * and leave a hole where one of the six facts spec §8 requires should be.
  */
 describe('the nearby-suburbs slot', () => {
   it('has fringe localities with no neighbours at all, so the branch is real', () => {
-    expect(allLocalities().filter((l) => l.neighbourHrefs.length === 0)).toHaveLength(207);
+    expect(allLocalities().filter((l) => l.neighbourHrefs.length === 0)).toHaveLength(205);
   });
 
   it('renders something with a link on every suburb page', () => {

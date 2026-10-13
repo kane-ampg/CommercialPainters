@@ -112,8 +112,10 @@ describe('referential integrity', () => {
 });
 
 describe('rural fringe', () => {
-  it('flags 207 localities', () => {
-    expect(localities.filter((l) => l.ruralFringe)).toHaveLength(207);
+  // 207 -> 205 on 2026-10-12: Clyde and Clyde North corrected from Cardinia
+  // to Casey, which is not a fringe council.
+  it('flags 205 localities', () => {
+    expect(localities.filter((l) => l.ruralFringe)).toHaveLength(205);
   });
 
   it('puts every fringe locality in a fringe region', () => {

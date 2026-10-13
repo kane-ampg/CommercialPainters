@@ -343,7 +343,14 @@ const COUNCIL_OVERRIDES_BY_LOCALITY: Record<string, string> = {
  * The same correction for a name that exists in more than one state, keyed
  * `STATE|NAME` and read before COUNCIL_OVERRIDES_BY_LOCALITY.
  */
-const COUNCIL_OVERRIDES_BY_STATE_LOCALITY: Record<string, string> = {};
+const COUNCIL_OVERRIDES_BY_STATE_LOCALITY: Record<string, string> = {
+  // 2026-10-12. Split between Kingston and Bayside; Bayside holds only the
+  // pocket west of the railway. Kingston holds Southland, the Charman Road
+  // shops and the industrial streets, Christensen Street among them, where
+  // the photographed office suites are. Same region either way, so no move.
+  // A Cheltenham exists in Queensland, hence the state key.
+  'VIC|CHELTENHAM': 'Kingston (Vic.)',
+};
 
 /**
  * Tier 1 seed list (spec §7). VIC only: Queensland cannot carry a Tier 1 page

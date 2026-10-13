@@ -22853,7 +22853,7 @@
         "/areas/victoria/south-east/pearcedale/",
         "/areas/victoria/bayside-and-peninsula/cranbourne-south/",
         "/areas/victoria/bayside-and-peninsula/botanic-ridge/",
-        "/areas/victoria/bayside-and-peninsula/junction-village/"
+        "/areas/victoria/south-east/clyde/"
       ]
     },
     {
@@ -23373,7 +23373,7 @@
         "lat": -37.964155,
         "lng": 145.0658766
       },
-      "council": "Bayside (Vic.)",
+      "council": "Kingston (Vic.)",
       "anchorKey": "bayswater-north",
       "distanceKm": 22.28,
       "regionSlug": "bayside-and-peninsula",
@@ -23638,13 +23638,20 @@
         "lat": -38.132,
         "lng": 145.327
       },
-      "council": "Cardinia",
+      "council": "Casey",
       "anchorKey": "bayswater-north",
       "distanceKm": 32.29,
-      "regionSlug": "yarra-valley-and-hinterland",
-      "ruralFringe": true,
+      "regionSlug": "south-east",
+      "ruralFringe": false,
       "tier": 3,
-      "neighbourHrefs": []
+      "neighbourHrefs": [
+        "/areas/victoria/bayside-and-peninsula/cranbourne-east/",
+        "/areas/victoria/bayside-and-peninsula/junction-village/",
+        "/areas/victoria/south-east/clyde-north/",
+        "/areas/victoria/bayside-and-peninsula/devon-meadows/",
+        "/areas/victoria/bayside-and-peninsula/five-ways/",
+        "/areas/victoria/bayside-and-peninsula/cranbourne/"
+      ]
     },
     {
       "slug": "clyde-north",
@@ -23657,13 +23664,20 @@
         "lat": -38.1062834,
         "lng": 145.3484256
       },
-      "council": "Cardinia",
+      "council": "Casey",
       "anchorKey": "bayswater-north",
       "distanceKm": 29.84,
-      "regionSlug": "yarra-valley-and-hinterland",
-      "ruralFringe": true,
+      "regionSlug": "south-east",
+      "ruralFringe": false,
       "tier": 3,
-      "neighbourHrefs": []
+      "neighbourHrefs": [
+        "/areas/victoria/south-east/clyde/",
+        "/areas/victoria/bayside-and-peninsula/cranbourne-east/",
+        "/areas/victoria/bayside-and-peninsula/junction-village/",
+        "/areas/victoria/south-east/officer-south/",
+        "/areas/victoria/bayside-and-peninsula/cranbourne/",
+        "/areas/victoria/bayside-and-peninsula/cranbourne-north/"
+      ]
     },
     {
       "slug": "coatesville",
@@ -24001,11 +24015,11 @@
       "tier": 3,
       "neighbourHrefs": [
         "/areas/victoria/bayside-and-peninsula/junction-village/",
+        "/areas/victoria/south-east/clyde/",
         "/areas/victoria/bayside-and-peninsula/cranbourne/",
+        "/areas/victoria/south-east/clyde-north/",
         "/areas/victoria/bayside-and-peninsula/botanic-ridge/",
-        "/areas/victoria/bayside-and-peninsula/cranbourne-west/",
-        "/areas/victoria/bayside-and-peninsula/devon-meadows/",
-        "/areas/victoria/bayside-and-peninsula/cranbourne-north/"
+        "/areas/victoria/bayside-and-peninsula/cranbourne-west/"
       ]
     },
     {
@@ -24107,7 +24121,7 @@
         "/areas/victoria/inner-melbourne/richmond-east/",
         "/areas/victoria/inner-melbourne/richmond/",
         "/areas/victoria/inner-melbourne/richmond-south/",
-        "/areas/victoria/inner-melbourne/south-yarra/",
+        "/areas/victoria/inner-east/south-yarra/",
         "/areas/victoria/inner-melbourne/burnley/",
         "/areas/victoria/inner-east/hawksburn/"
       ]
@@ -24672,9 +24686,9 @@
         "/areas/victoria/bayside-and-peninsula/five-ways/",
         "/areas/victoria/bayside-and-peninsula/junction-village/",
         "/areas/victoria/bayside-and-peninsula/botanic-ridge/",
+        "/areas/victoria/south-east/clyde/",
         "/areas/victoria/bayside-and-peninsula/cranbourne-south/",
-        "/areas/victoria/bayside-and-peninsula/cranbourne-east/",
-        "/areas/victoria/bayside-and-peninsula/cannons-creek/"
+        "/areas/victoria/bayside-and-peninsula/cranbourne-east/"
       ]
     },
     {
@@ -25680,11 +25694,11 @@
       "tier": 3,
       "neighbourHrefs": [
         "/areas/victoria/bayside-and-peninsula/devon-meadows/",
+        "/areas/victoria/south-east/clyde/",
         "/areas/victoria/bayside-and-peninsula/junction-village/",
         "/areas/victoria/bayside-and-peninsula/cannons-creek/",
         "/areas/victoria/bayside-and-peninsula/botanic-ridge/",
-        "/areas/victoria/bayside-and-peninsula/cranbourne-east/",
-        "/areas/victoria/bayside-and-peninsula/cranbourne-south/"
+        "/areas/victoria/bayside-and-peninsula/cranbourne-east/"
       ]
     },
     {
@@ -26646,7 +26660,7 @@
       "neighbourHrefs": [
         "/areas/victoria/inner-melbourne/prahran/",
         "/areas/victoria/inner-melbourne/prahran-east/",
-        "/areas/victoria/inner-melbourne/south-yarra/",
+        "/areas/victoria/inner-east/south-yarra/",
         "/areas/victoria/inner-east/toorak/",
         "/areas/victoria/inner-melbourne/windsor/",
         "/areas/victoria/inner-melbourne/cremorne/"
@@ -27347,10 +27361,10 @@
       "neighbourHrefs": [
         "/areas/victoria/bayside-and-peninsula/cranbourne-east/",
         "/areas/victoria/bayside-and-peninsula/botanic-ridge/",
+        "/areas/victoria/south-east/clyde/",
         "/areas/victoria/bayside-and-peninsula/cranbourne/",
         "/areas/victoria/bayside-and-peninsula/devon-meadows/",
-        "/areas/victoria/bayside-and-peninsula/cranbourne-south/",
-        "/areas/victoria/bayside-and-peninsula/five-ways/"
+        "/areas/victoria/bayside-and-peninsula/cranbourne-south/"
       ]
     },
     {
@@ -28061,8 +28075,8 @@
         "/areas/victoria/south-east/pakenham/",
         "/areas/victoria/bayside-and-peninsula/five-ways/",
         "/areas/victoria/bayside-and-peninsula/cannons-creek/",
-        "/areas/victoria/south-east/officer/",
-        "/areas/victoria/bayside-and-peninsula/devon-meadows/"
+        "/areas/victoria/south-east/clyde/",
+        "/areas/victoria/south-east/clyde-north/"
       ]
     },
     {
@@ -30370,11 +30384,11 @@
       "tier": 3,
       "neighbourHrefs": [
         "/areas/victoria/south-east/officer/",
+        "/areas/victoria/south-east/clyde-north/",
         "/areas/victoria/south-east/beaconsfield/",
         "/areas/victoria/south-east/pakenham/",
-        "/areas/victoria/bayside-and-peninsula/cranbourne-east/",
-        "/areas/victoria/south-east/guys-hill/",
-        "/areas/victoria/south-east/berwick/"
+        "/areas/victoria/south-east/clyde/",
+        "/areas/victoria/bayside-and-peninsula/cranbourne-east/"
       ]
     },
     {
@@ -30938,7 +30952,7 @@
         "/areas/victoria/inner-east/hawksburn/",
         "/areas/victoria/inner-melbourne/windsor/",
         "/areas/victoria/bayside-and-peninsula/st-kilda-east/",
-        "/areas/victoria/inner-melbourne/south-yarra/",
+        "/areas/victoria/inner-east/south-yarra/",
         "/areas/victoria/inner-east/armadale/"
       ]
     },
@@ -30964,7 +30978,7 @@
         "/areas/victoria/inner-east/hawksburn/",
         "/areas/victoria/inner-melbourne/windsor/",
         "/areas/victoria/bayside-and-peninsula/st-kilda-east/",
-        "/areas/victoria/inner-melbourne/south-yarra/",
+        "/areas/victoria/inner-east/south-yarra/",
         "/areas/victoria/inner-east/armadale/"
       ]
     },
@@ -31354,7 +31368,7 @@
         "/areas/victoria/inner-melbourne/richmond-south/",
         "/areas/victoria/inner-melbourne/cremorne/",
         "/areas/victoria/inner-melbourne/burnley/",
-        "/areas/victoria/inner-melbourne/south-yarra/",
+        "/areas/victoria/inner-east/south-yarra/",
         "/areas/victoria/inner-melbourne/burnley-north/"
       ]
     },
@@ -32256,10 +32270,10 @@
         "lat": -37.838568,
         "lng": 144.9914761
       },
-      "council": "Melbourne",
+      "council": "Stonnington",
       "anchorKey": "bayswater-north",
       "distanceKm": 24.48,
-      "regionSlug": "inner-melbourne",
+      "regionSlug": "inner-east",
       "ruralFringe": false,
       "tier": 3,
       "neighbourHrefs": [

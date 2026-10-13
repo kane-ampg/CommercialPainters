@@ -17,25 +17,48 @@ import { indexableLocalities } from '@/lib/locations';
  * regeneration of the dataset cannot silently reintroduce a wrong one. For
  * suburbs split across councils (Tullamarine, Port Melbourne) the pinned
  * value is the council covering the suburb's commercial core.
+ *
+ * 2026-10-12: the sixteen homepage service-area suburbs, checked against
+ * Wikipedia and the councils' own records before promotion. Three were wrong
+ * in the dataset and are corrected in scripts/build-locations.mts: Clyde
+ * North (Cardinia, is Casey), South Yarra (Melbourne, but Chapel Street and
+ * Toorak Road are Stonnington) and Cheltenham (Bayside, but Southland, the
+ * Charman Road shops and the industrial streets are Kingston).
  */
 const VERIFIED_COUNCILS: Record<string, string> = {
   'VIC|bayswater': 'Knox',
   'VIC|bayswater-north': 'Maroondah',
+  'VIC|boronia': 'Knox',
   'VIC|box-hill': 'Whitehorse',
   'VIC|braeside': 'Kingston (Vic.)',
   'VIC|brighton': 'Bayside (Vic.)',
   'VIC|campbellfield': 'Hume',
+  'VIC|caulfield-north': 'Glen Eira',
+  'VIC|cheltenham': 'Kingston (Vic.)',
   'VIC|chirnside-park': 'Yarra Ranges',
   'VIC|clayton': 'Monash',
+  'VIC|clyde-north': 'Casey',
   'VIC|croydon': 'Maroondah',
-  'VIC|donvale': 'Manningham',
   'VIC|dandenong-south': 'Greater Dandenong',
+  'VIC|donvale': 'Manningham',
+  'VIC|forest-hill': 'Whitehorse',
+  'VIC|frankston': 'Frankston',
   'VIC|laverton-north': 'Wyndham',
+  'VIC|lilydale': 'Yarra Ranges',
+  'VIC|melbourne': 'Melbourne',
+  'VIC|mentone': 'Kingston (Vic.)',
+  'VIC|mitcham': 'Whitehorse',
+  'VIC|mooroolbark': 'Yarra Ranges',
+  'VIC|noble-park': 'Greater Dandenong',
   'VIC|notting-hill': 'Monash',
+  'VIC|point-cook': 'Wyndham',
   'VIC|port-melbourne': 'Port Phillip',
   'VIC|richmond': 'Yarra',
   'VIC|ringwood': 'Maroondah',
+  'VIC|ringwood-east': 'Maroondah',
   'VIC|south-melbourne': 'Port Phillip',
+  'VIC|south-yarra': 'Stonnington',
+  'VIC|st-kilda': 'Port Phillip',
   'VIC|tullamarine': 'Brimbank',
   'VIC|vermont': 'Whitehorse',
 };

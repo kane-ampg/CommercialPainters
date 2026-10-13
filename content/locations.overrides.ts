@@ -152,14 +152,14 @@ export const localityOverrides: Readonly<Record<string, LocalityOverride>> = {
   },
   'VIC|mooroolbark': {
     intro:
-      'Mooroolbark, between Croydon and Lilydale, is one of the suburbs where we have the most active sites. Its commercial buildings are the shops and offices around Mooroolbark station and Brice Avenue, schools and childcare centres, and light industrial units.',
+      'Mooroolbark, between Croydon and Lilydale, is one of the suburbs where we have the most active sites. Its commercial buildings are the shops and offices on Brice Avenue and Manchester Road by Mooroolbark station, and the schools and childcare centres around them.',
     localNotes: [
       'Schools and childcare centres here are painted in the holidays or at weekends, room by room, with low-odour coatings and the rooms cleaned and aired before children come back. The shops and offices around the station are painted early or after close so they trade as normal.',
     ],
   },
   'VIC|ringwood-east': {
     intro:
-      'Ringwood East is about three kilometres from our Bayswater North base and one of the suburbs where we have the most active sites. Its largest building is Maroondah Hospital; around it are the shops near Ringwood East station, medical and allied-health suites, schools and childcare centres.',
+      'Ringwood East is about three kilometres from our Bayswater North base and one of the suburbs where we have the most active sites. Its largest building is Maroondah Hospital; around it are the shops on Railway Avenue opposite Ringwood East station, medical and allied-health suites, schools and childcare centres.',
     localNotes: [
       'Clinical work is painted around patients and staff: one area at a time, low-odour coatings, and each room cleaned and handed back before the next is opened up.',
     ],
@@ -183,7 +183,7 @@ export const localityOverrides: Readonly<Record<string, LocalityOverride>> = {
       'South Yarra is one of the suburbs where we have the most active sites. Its commercial buildings run along Chapel Street and Toorak Road, shops, cafés, restaurants, bars and offices, and around them stands one of Melbourne’s densest concentrations of apartment buildings, each with common areas run by an owners corporation.',
     localNotes: [
       'Strata work here is lobbies, corridors, stairwells and car parks, painted while the people who live there come and go. It is scheduled through the building manager and the owners corporation, with the lifts protected and each floor handed back as it is finished.',
-      'The suburb is split at Punt Road: the City of Melbourne to the west, the City of Stonnington to the east, where Chapel Street and Toorak Road are. Which side a building is on decides whose permits and heritage controls apply.',
+      'The suburb is split at Punt Road: the City of Melbourne to the west, the City of Stonnington to the east, where Chapel Street and the Toorak Road shops are. Which side a building is on decides whose permits and heritage controls apply.',
     ],
   },
   'VIC|st-kilda': {
@@ -202,12 +202,15 @@ export const localityOverrides: Readonly<Record<string, LocalityOverride>> = {
     ],
   },
   'VIC|caulfield-north': {
-    intro: 'PENDING',
-    localNotes: [],
+    intro:
+      'Caulfield North is one of the suburbs where we have the most active sites. It runs from Dandenong Road south to Glen Eira Road, and its commercial buildings are the shops and medical suites of the Hawthorn Road and Balaclava Road strip beside Caulfield Park, Alma Village on Alma Road, and schools such as Caulfield Junior College on Balaclava Road.',
+    localNotes: [
+      'The Hawthorn Road strip trades through the day around the Balaclava Junction tram stop, so shopfronts are painted early in the morning, one tenancy at a time, with the footpath kept open. Medical suites are painted between sessions or at weekends with low-odour systems.',
+    ],
   },
   'VIC|mentone': {
     intro:
-      'Mentone is one of the suburbs where we have the most active sites. Its commercial centre is the shopping strip around Mentone station, on Como Parade and Balcombe Road, and it holds several large schools, among them Mentone Grammar and Kilbreda College.',
+      'Mentone is one of the suburbs where we have the most active sites. Its commercial centre is the shopping strip around Mentone station, on Como Parade West, Balcombe Road and Mentone Parade, and it holds several large schools, among them Mentone Grammar and Kilbreda College.',
     localNotes: [
       'School buildings are painted in term breaks and at weekends, block by block, so classrooms are ready for the first day back. The shops by the station are painted early in the morning or after close, one tenancy at a time.',
     ],
@@ -217,12 +220,12 @@ export const localityOverrides: Readonly<Record<string, LocalityOverride>> = {
       'Commercial Painters has repainted the exterior of a working factory in Noble Park in the client’s brand colours, without stopping production. Noble Park is also one of the suburbs where we have the most active sites.',
     localNotes: [
       'The factory’s walls were washed down and the render repaired before two coats of exterior paint went on. Access was matched to each part of the building, with boom lifts for the high areas, scissor lifts for the mid-level walls and scaffolding for the tight corners, and the work was timed around the factory’s peak periods.',
-      'The job is written up as a case study and photographed below, and the blog has an article on how it was done.',
+      'The job is written up as a case study and photographed below, and the blog has an article on how it was done. Around it, Noble Park’s shops run along Douglas and Buckley Streets by the station, with light industrial units on Browns Road and the Princes Highway along the suburb’s northern edge.',
     ],
   },
   'VIC|clyde-north': {
     intro:
-      'Clyde North is one of Melbourne’s newest suburbs and one of the places where we have the most active sites. Its commercial buildings have gone up with the estates around them: childcare centres, schools, medical centres and the shops of new neighbourhood centres.',
+      'Clyde North is one of Melbourne’s newest suburbs and one of the places where we have the most active sites. Its commercial buildings have gone up with the estates around them since the late 2000s: childcare centres, schools and medical centres, the Selandra Rise shopping centre, and the large-format retail on Berwick–Cranbourne Road.',
     localNotes: [
       'Childcare centres are painted while they are closed, at weekends or over the summer shutdown, with low-odour coatings and the rooms cleaned and aired before children return. Schools are painted in the term breaks.',
     ],
@@ -232,7 +235,7 @@ export const localityOverrides: Readonly<Record<string, LocalityOverride>> = {
       'Commercial Painters repainted the Frankston office of a disability services provider, one of eleven offices painted for that organisation across Melbourne under a single contract. Frankston is also one of the suburbs where we have the most active sites.',
     localNotes: [
       'At Frankston, photographed in July 2025, the open-plan floor was painted with the desks and monitors left in place: walls rolled off extension poles, ceilings cut in from stepladders, and drop sheets down the corridors and the stair. Across the programme, much of the work ran outside business hours so staff could keep working.',
-      'Beyond that office, Frankston’s commercial stock takes in the city centre’s shops and offices, Bayside Shopping Centre, Frankston Hospital, and the Monash University and Chisholm campuses.',
+      'Beyond that office, Frankston’s commercial stock takes in the city centre’s shops and offices, Bayside Shopping Centre, Peninsula University Hospital (formerly Frankston Hospital), and the Monash University and Chisholm campuses.',
     ],
   },
   'VIC|point-cook': {

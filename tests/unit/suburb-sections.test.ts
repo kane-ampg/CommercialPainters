@@ -39,6 +39,10 @@ function pageCopy(locality: Locality) {
     .map((f) => `${f.question} ${f.answer}`)
     .join(' ');
   return [
+    // The hand-written intro and notes, where a promoted suburb has them. They
+    // replace the generated intro on the page, so they are read here too.
+    locality.intro ?? '',
+    ...(locality.localNotes ?? []),
     defaultIntro(locality),
     defaultDescription(locality),
     faqs,

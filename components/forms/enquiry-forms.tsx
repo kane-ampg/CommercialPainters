@@ -6,6 +6,7 @@ import { submitEnquiry } from '@/app/actions/enquiry';
 import { initialEnquiryState } from '@/lib/enquiry/state';
 import { Honeypot, SelectField, TextField } from './fields';
 import { FormStatus } from './form-status';
+import { PrivacyNotice } from './privacy-notice';
 import { COMMERCIAL_PROPERTY_TYPES } from '@/lib/enquiry/options';
 import { Button } from '@/components/ui';
 
@@ -105,7 +106,10 @@ export function SiteAssessmentForm({ defaultSuburb }: { defaultSuburb?: string }
         </div>
       </div>
 
-      <SubmitButton>Request my free assessment</SubmitButton>
+      <div className="flex flex-col gap-3">
+        <SubmitButton>Request my free assessment</SubmitButton>
+        <PrivacyNotice className="text-sm" />
+      </div>
     </form>
   );
 }

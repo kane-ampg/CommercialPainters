@@ -27,6 +27,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // Only once there is a team to show — the page is `noindex` until then.
     ...(team.length > 0 ? [{ path: '/about-us/our-team/', priority: 0.4 }] : []),
     { path: '/contact-us/', priority: 0.7 },
+    { path: '/privacy-policy/', priority: 0.2 },
     /*
      * /areas/ sits above the two state hubs and the 22 region hubs, so it
      * cannot be priced below them. It was 0.5 — under its own children at 0.7

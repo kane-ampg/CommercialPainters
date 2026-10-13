@@ -41,7 +41,7 @@ import { cn } from '@/lib/utils';
  * 404 rather than a rendered page for a suburb we have no data for.
  *
  * Indexability comes from the data (`locality.indexable`), never from the
- * route: 19 of these are Tier 1. The other 1,368 are `noindex, follow` — they
+ * route: 35 of these are Tier 1. The other 1,352 are `noindex, follow` — they
  * must stay traversable, because the links out of them to the region hubs are
  * how the hubs earn their internal link equity.
  *

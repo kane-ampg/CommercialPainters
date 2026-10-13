@@ -14,6 +14,7 @@ import {
 } from 'react';
 import { submitEnquiry } from '@/app/actions/enquiry';
 import { FormStatus } from '@/components/forms/form-status';
+import { PrivacyNotice } from '@/components/forms/privacy-notice';
 import { ASSESSMENT_HASH, ASSESSMENT_PATH } from '@/components/navigation/assessment-cta';
 import {
   availableOptions,
@@ -552,6 +553,10 @@ export function AssessmentChat() {
                         </BackButton>
                       )}
                     </div>
+
+                    {/* Under the step that asks for contact details, the
+                        last one, where the notice is about to apply. */}
+                    {stepIndex + 1 >= steps.length && <PrivacyNotice className="text-xs" />}
                   </form>
                   {stepIndex === 0 && (
                     <QuickQuestions

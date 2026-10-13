@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import Link from 'next/link';
 import { Container, microLabel, Placeholder } from '@/components/ui';
 import { footerNav } from '@/components/navigation/nav-data';
 import { FooterNavList } from '@/components/navigation/footer-nav-list';
@@ -313,6 +314,13 @@ export function Footer({ settings }: { settings: SiteSettings }) {
           <p>
             © {year} {site.legalName}
             {settings.abn ? ` · ABN ${settings.abn}` : ''}
+            {' · '}
+            <Link
+              href="/privacy-policy/"
+              className="rounded text-white/85 hover:text-white hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
+            >
+              Privacy policy
+            </Link>
           </p>
           <p>Servicing {settings.serviceAreaPrimary}</p>
         </div>

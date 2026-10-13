@@ -1,4 +1,5 @@
 import type { NextConfig } from 'next';
+import { MOVED_LOCALITY_PATHS } from './lib/locations/moved';
 
 /**
  * Whether this build is a locked-down preview. Read once at build time so the
@@ -29,6 +30,15 @@ const nextConfig: NextConfig = {
     // committed file only changes with a deploy, so the optimised variants
     // can be cached for a year.
     minimumCacheTTL: 31536000,
+  },
+
+  /** Suburb pages moved by a council correction; see lib/locations/moved.ts. */
+  async redirects() {
+    return Object.entries(MOVED_LOCALITY_PATHS).map(([source, destination]) => ({
+      source,
+      destination,
+      permanent: true,
+    }));
   },
 
   /**

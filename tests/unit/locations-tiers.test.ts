@@ -15,7 +15,7 @@ import { qldPresence } from '@/content/locations.overrides';
 /**
  * Tiers and indexability — the mechanism that makes 1,387 pages safe.
  *
- * 19 indexable pages, not 1,387. If this count moves, someone has changed the
+ * 35 indexable pages, not 1,387. If this count moves, someone has changed the
  * risk profile of the whole site and should have to say so in a diff.
  *
  * 2026-08-27: 16 -> 17. Brighton VIC promoted to Tier 1: it carries
@@ -28,11 +28,19 @@ import { qldPresence } from '@/content/locations.overrides';
  * 2026-10-12: 18 -> 19. Donvale VIC promoted to Tier 1: a photographed site
  * in the suburb (Our Lady of the Pines), a blog post built on it, and
  * hand-written copy.
+ *
+ * 2026-10-12: 19 -> 35. The sixteen homepage service-area suburbs that were
+ * still noindex promoted to Tier 1, each with hand-written copy. They are the
+ * suburbs with the most active sites in the client records, and the homepage
+ * and /commercial/ link every one of them; tests/unit/scale-and-areas.test.ts
+ * now fails if one of those links leads to a noindex page. Clyde North needed
+ * its council corrected first (Casey, not Cardinia), which also cleared the
+ * rural-fringe flag that would have kept it noindex at any tier.
  */
 
 describe('indexability', () => {
-  it('makes exactly 19 suburbs indexable', () => {
-    expect(indexableLocalities()).toHaveLength(19);
+  it('makes exactly 35 suburbs indexable', () => {
+    expect(indexableLocalities()).toHaveLength(35);
   });
 
   it('includes Bayswater North, which is the business’s own office', () => {
@@ -65,7 +73,7 @@ describe('indexability', () => {
   });
 
   it('marks every other locality noindex', () => {
-    expect(allLocalities().filter((l) => !l.indexable)).toHaveLength(1368);
+    expect(allLocalities().filter((l) => !l.indexable)).toHaveLength(1352);
   });
 
   it('never marks a Tier 3 locality indexable', () => {

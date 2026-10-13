@@ -317,7 +317,33 @@ const COUNCIL_OVERRIDES_BY_LOCALITY: Record<string, string> = {
   COBURG: 'Moreland',
   NORTHCOTE: 'Darebin',
   DANDENONG: 'Greater Dandenong',
+
+  /*
+   * Found 2026-10-12, checking the councils of the sixteen homepage suburbs
+   * before promoting them to Tier 1. Clyde and Clyde North (both 3978) are
+   * City of Casey; tagged Cardinia, they were flagged rural fringe and filed
+   * in the hinterland hub, which would have kept Clyde North noindex at any
+   * tier. The audit flags Clyde but cannot see Clyde North, which sits on the
+   * Cardinia boundary. The only other Clyde is in NSW, which the generator
+   * drops, so the name key is safe.
+   *
+   * South Yarra is split at Punt Road between Melbourne and Stonnington.
+   * Stonnington holds Chapel Street and Toorak Road, the suburb's commercial
+   * core, which is the rule Tullamarine and Port Melbourne follow.
+   *
+   * Moving council moves region, so all three URLs changed. The old paths
+   * redirect: lib/locations/moved.ts.
+   */
+  CLYDE: 'Casey',
+  'CLYDE NORTH': 'Casey',
+  'SOUTH YARRA': 'Stonnington',
 };
+
+/**
+ * The same correction for a name that exists in more than one state, keyed
+ * `STATE|NAME` and read before COUNCIL_OVERRIDES_BY_LOCALITY.
+ */
+const COUNCIL_OVERRIDES_BY_STATE_LOCALITY: Record<string, string> = {};
 
 /**
  * Tier 1 seed list (spec §7). VIC only: Queensland cannot carry a Tier 1 page
@@ -437,6 +463,7 @@ for (const r of rows) {
   if (NON_SUBURB_PATTERNS.some((pattern) => pattern.test(name))) continue;
 
   const council =
+    COUNCIL_OVERRIDES_BY_STATE_LOCALITY[`${r.state}|${name}`] ??
     COUNCIL_OVERRIDES_BY_LOCALITY[name] ??
     (r.postcode ? COUNCIL_OVERRIDES_BY_POSTCODE[r.postcode] : undefined) ??
     r.lgaregion;

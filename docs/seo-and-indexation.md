@@ -9,7 +9,7 @@
 2. **Indexability is computed, never stored.** `computeIndexable()` in `lib/locations/index.ts` is
    the one rule for suburbs. `stateIsIndexable()` carries it up to hubs. The sitemap filters on the
    same functions the pages render their robots directive from, so the two cannot disagree.
-3. **`noindex, follow`, never `nofollow`.** The 1,368 noindexed suburb pages exist to be crawled
+3. **`noindex, follow`, never `nofollow`.** The 1,352 noindexed suburb pages exist to be crawled
    and pass equity up to the region hubs. `buildMetadata()` keeps `index` and `follow` independent.
 4. **Nothing invented in structured data.** No hours, coordinates or ratings the business has not
    supplied.
@@ -24,29 +24,48 @@
 | Case studies | 4           | 4         | always                                                                       |
 | State hubs   | 2           | 1         | Victoria yes, Queensland while `qldPresence` is false no                     |
 | Region hubs  | 22          | 9         | the nine Victorian regions                                                   |
-| Suburb pages | 1,387       | 19        | Tier 1, not rural fringe, Victorian (or Queensland once `qldPresence` flips) |
+| Suburb pages | 1,387       | 35        | Tier 1, not rural fringe, Victorian (or Queensland once `qldPresence` flips) |
 | Blog index   | 1           | 0         | indexable once `content/posts.ts` has an entry                               |
-| **Total**    | about 1,440 | **49**    |                                                                              |
+| **Total**    | about 1,440 | **65**    |                                                                              |
 
 ### Suburb tiers
 
 Two tiers, numbered 1 and 3 on purpose (region hubs are the middle of the hierarchy but a
 different entity).
 
-- **Tier 1**: indexable, hand-written. Fifteen come from the generator's seed list and four more
+- **Tier 1**: indexable, hand-written. Fifteen come from the generator's seed list and twenty more
   from `TIER_1_OVERRIDES` in `content/locations.overrides.ts`: Bayswater North, the office suburb;
   Brighton, which has a documented project and hand-written copy; Croydon (12 October 2026),
-  which has two photographed sites, a blog post and hand-written copy; and Donvale (12 October
-  2026), which has one photographed site, a blog post and hand-written copy.
-- **Tier 3**: templated, `noindex, follow`. 1,368 of them.
+  which has two photographed sites, a blog post and hand-written copy; Donvale (12 October
+  2026), which has one photographed site, a blog post and hand-written copy; and the sixteen
+  homepage service-area suburbs (12 October 2026, below).
+- **Tier 3**: templated, `noindex, follow`. 1,352 of them.
 
-The 19 indexable suburbs: Bayswater, Bayswater North, Box Hill, Braeside, Brighton, Campbellfield,
-Chirnside Park, Clayton, Croydon, Dandenong South, Donvale, Laverton North, Notting Hill, Port
-Melbourne, Richmond, Ringwood, South Melbourne, Tullamarine, Vermont.
+The 35 indexable suburbs: Bayswater, Bayswater North, Boronia, Box Hill, Braeside, Brighton,
+Campbellfield, Caulfield North, Cheltenham, Chirnside Park, Clayton, Clyde North, Croydon,
+Dandenong South, Donvale, Forest Hill, Frankston, Laverton North, Lilydale, Melbourne (the CBD),
+Mentone, Mitcham, Mooroolbark, Noble Park, Notting Hill, Point Cook, Port Melbourne, Richmond,
+Ringwood, Ringwood East, South Melbourne, South Yarra, St Kilda, Tullamarine, Vermont.
 
-Three Victorian region hubs have no indexable child: Inner East, Northern Melbourne, Yarra Valley
-and Hinterland. The last can never have one under current rules because all 106 of its localities
-are flagged `ruralFringe`.
+**The homepage service-area suburbs are all indexable.** The homepage and `/commercial/` link
+twenty suburbs as the places with the most active sites (`content/service-areas.ts`). Until 12
+October 2026 sixteen of those links led to noindex pages, so the site's two strongest pages
+were sending their link equity to pages Google is told to drop. All sixteen were promoted with
+hand-written copy, and `scale-and-areas.test.ts` now fails if a suburb in that list is not
+indexable. Adding a suburb to the list means promoting it in the same change.
+
+Two Victorian region hubs have no indexable child: Northern Melbourne, and Yarra Valley and
+Hinterland. The second can never have one under current rules, because every one of its
+localities is flagged `ruralFringe`.
+
+### Moved suburb URLs
+
+A suburb's URL carries its region, and its region comes from its council, so correcting a
+council can move the page. On 12 October 2026 Clyde and Clyde North moved from Yarra Valley and
+Hinterland to South East (Casey, not Cardinia), and South Yarra moved from Inner Melbourne to
+Inner East (Stonnington holds Chapel Street and Toorak Road). The old paths are permanent
+redirects, listed in `lib/locations/moved.ts` and served from `next.config.ts`;
+`moved-localities.test.ts` checks both ends.
 
 ### Promoting a suburb
 
@@ -58,11 +77,13 @@ copy. To do one:
 2. Add `'VIC|slug': true` to `TIER_1_OVERRIDES`.
 3. Check the council the page will state as fact: `node scripts/audit-councils.mjs --state VIC`.
    Three swapped or wrong councils were corrected on 14 September (Coburg, Northcote, Dandenong),
-   and a test now pins them.
+   and a test now pins them. The audit only finds councils far from where they should be. Clyde
+   North, sitting on the boundary of the wrong council, passed it, so check each one by hand. A
+   correction that changes the region also changes the URL; add the old path to
+   `lib/locations/moved.ts`.
 4. Run the tests. `locations-tiers.test.ts` and `tier1-councils.test.ts` guard the result.
 
-Candidates identified on 14 September, in rough priority: **Noble Park** first (it has a documented
-factory repaint and is the only project suburb still noindex), then Camberwell and Hawthorn East
+Candidates identified on 14 September, in rough priority: Camberwell and Hawthorn East
 (Inner East), Heidelberg, Preston and Thomastown (Northern), and Scoresby, Mulgrave, Keysborough,
 Moorabbin (industrial and business-park stock close to base).
 

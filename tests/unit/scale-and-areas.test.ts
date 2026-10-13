@@ -4,7 +4,7 @@ import { clientSectors } from '@/content/client-sectors';
 import { roundedDown, scale, scaleFigures } from '@/content/scale';
 import { metroAreaGroups, regionalTowns } from '@/content/service-areas';
 import { sectors } from '@/content/sectors';
-import { hrefForVicSlug } from '@/lib/locations';
+import { getLocalityByHref, hrefForVicSlug } from '@/lib/locations';
 
 /**
  * The proof-of-scale figures, the client sectors and the service-area lists
@@ -58,6 +58,24 @@ describe('service areas', () => {
     for (const group of metroAreaGroups) {
       for (const suburb of group.suburbs) {
         expect(hrefForVicSlug(suburb.slug), suburb.name).toBeDefined();
+      }
+    }
+  });
+
+  /*
+   * The homepage and /commercial/ present these as the places we have the
+   * most sites, and link each one. Until 12 October 2026, 16 of the 20 links
+   * led to noindex pages: the two strongest pages on the site sent their link
+   * equity to pages Google is told to drop. A suburb added here must be
+   * promoted to Tier 1 with hand-written copy (docs/seo-and-indexation.md,
+   * "Promoting a suburb") in the same change.
+   */
+  it('links every metro suburb to an indexable page', () => {
+    for (const group of metroAreaGroups) {
+      for (const suburb of group.suburbs) {
+        const href = hrefForVicSlug(suburb.slug);
+        const locality = href ? getLocalityByHref(href) : undefined;
+        expect(locality?.indexable, suburb.name).toBe(true);
       }
     }
   });

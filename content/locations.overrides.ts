@@ -50,6 +50,25 @@ export const TIER_1_OVERRIDES: Readonly<Record<string, true>> = {
    * hand-written copy yet — write its intro and it earns the same promotion.)
    */
   'VIC|brighton': true,
+  /**
+   * Croydon has no written-up case study, but it has more evidence on the
+   * site than most seed suburbs: two photographed sites inside the suburb
+   * (the Toyota dealership, whose naming the client approved, and a
+   * kindergarten), a blog post built on the dealership shoot, and the
+   * hand-written copy below. It is also one of the busiest suburbs in the
+   * client records. Promoted 2026-10-12 on the client's instruction. The copy
+   * claims only what those photographs and posts already say.
+   */
+  'VIC|croydon': true,
+  /**
+   * Donvale has one photographed site inside the suburb — Our Lady of the
+   * Pines Primary School, named by its gallery since that gallery shipped,
+   * located from the school's own contact page — a blog post built on that
+   * shoot, and the hand-written copy below. Prepared 2026-10-12 on the
+   * client's instruction, to ship when the client says so. The copy claims
+   * only what the photographs and the post already say.
+   */
+  'VIC|donvale': true,
 };
 
 export const localityOverrides: Readonly<Record<string, LocalityOverride>> = {
@@ -59,6 +78,22 @@ export const localityOverrides: Readonly<Record<string, LocalityOverride>> = {
     localNotes: [
       'Vermont’s commercial stock is largely low-rise brick and render — schools, childcare, medical suites and light industrial along Canterbury and Boronia Roads — so exterior programmes commonly combine render, brick and metal in a single scope.',
       'The Emmaus College project is documented in full, including the access methods and the coordination required alongside a neighbouring construction site.',
+    ],
+  },
+  'VIC|croydon': {
+    intro:
+      'Commercial Painters has painted the showroom and offices of a Toyota dealership in Croydon, and a Croydon kindergarten while it was closed to children. Croydon is about six kilometres from our Bayswater North base.',
+    localNotes: [
+      'At the dealership, photographed on 8 April 2026, the crew rolled and cut in walls, columns and ceiling bulkheads across the showroom, reception and offices. Display vehicles stayed on the floor, desks were sheeted, the tiles were masked at every wall line, and the office walls were sanded with a vacuum-fed sander that draws the dust off at the sanding head.',
+      'At the kindergarten, door frames were gap-filled and rolled room by room, with the children’s artwork and photo boards left up on the walls beside them. Both jobs are photographed below, and each has an article on the blog.',
+    ],
+  },
+  'VIC|donvale': {
+    intro:
+      'Commercial Painters has repainted the doors, door frames and cupboard joinery of a teaching block at Our Lady of the Pines Primary School in Donvale. Donvale is about ten kilometres from our Bayswater North base.',
+    localNotes: [
+      'At the school, photographed in May 2026, the crew took the frames and doors from a dark blue-green to white, cutting in by brush and rolling with mini rollers. Tape ran down each frame where it meets the classroom pinboard, and the notices and children’s work stayed pinned up beside the doors.',
+      'The cupboard doors were taken off and rolled flat on the classroom tables, with the chairs up and the pigeonhole units pulled clear of the walls. The job is photographed below, and the blog has an article on how classroom doors and joinery are repainted.',
     ],
   },
   'VIC|brighton': {

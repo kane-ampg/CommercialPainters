@@ -25,7 +25,8 @@ import { JsonLd } from '@/components/seo/json-ld';
 import { faqSchema, serviceSchema } from '@/lib/schema';
 import { galleryForSector } from '@/content/galleries';
 import { sectors } from '@/content/sectors';
-import { getProject, getSiteSettings } from '@/lib/content/source';
+import { getPostsLinkingTo, getProject, getSiteSettings } from '@/lib/content/source';
+import { postLinks } from '@/lib/content/post-links';
 
 /**
  * Sector pages.
@@ -80,10 +81,11 @@ export default async function SectorPage({ params }: Props) {
   const sector = bySlug.get(slug);
   if (!sector) notFound();
 
-  const [projects, settings] = await Promise.all([
+  const [projects, posts, settings] = await Promise.all([
     Promise.all(sector.projectSlugs.map((projectSlug) => getProject(projectSlug))).then((all) =>
       all.filter((project) => project !== undefined),
     ),
+    getPostsLinkingTo(sector.legacyPath),
     getSiteSettings(),
   ]);
 
@@ -209,19 +211,23 @@ export default async function SectorPage({ params }: Props) {
             {sector.shortTitle.toLowerCase()}.
           </p>
         </Prose>
-        <RelatedLinks
-          heading="Other sectors"
-          links={sectors
-            .filter((other) => other.slug !== sector.slug)
-            // Sectors with a documented project first: a plain slice(0, 6) of
-            // the content order dropped Industrial & warehouse — last in the
-            // file, one of only three sectors with a case study — from every
-            // other sector page on the site. Stable sort, so content order
-            // still decides within each group.
-            .sort((a, b) => Number(b.projectSlugs.length > 0) - Number(a.projectSlugs.length > 0))
-            .slice(0, 6)
-            .map((other) => ({ label: other.shortTitle, href: other.legacyPath }))}
-        />
+        <div className="flex flex-col gap-8">
+          <RelatedLinks
+            heading="Other sectors"
+            links={sectors
+              .filter((other) => other.slug !== sector.slug)
+              // Sectors with a documented project first: a plain slice(0, 6) of
+              // the content order dropped Industrial & warehouse — last in the
+              // file, one of only three sectors with a case study — from every
+              // other sector page on the site. Stable sort, so content order
+              // still decides within each group.
+              .sort((a, b) => Number(b.projectSlugs.length > 0) - Number(a.projectSlugs.length > 0))
+              .slice(0, 6)
+              .map((other) => ({ label: other.shortTitle, href: other.legacyPath }))}
+          />
+          {/* The posts that link to this page, linked back. */}
+          <RelatedLinks heading="From the blog" links={postLinks(posts)} />
+        </div>
       </ContentBlock>
 
       <CtaBand

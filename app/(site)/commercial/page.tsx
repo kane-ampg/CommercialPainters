@@ -11,6 +11,7 @@ import {
   ProcessSteps,
   ProjectGrid,
   ProofStrip,
+  RelatedLinks,
   SectorGrid,
   ServiceAreaGroups,
 } from '@/components/sections';
@@ -18,7 +19,8 @@ import { Container, Prose, Section, SectionHeading } from '@/components/ui';
 import { JsonLd } from '@/components/seo/json-ld';
 import { faqSchema, serviceSchema } from '@/lib/schema';
 import { sectors } from '@/content/sectors';
-import { getFeaturedProjects, getSiteSettings } from '@/lib/content/source';
+import { getFeaturedProjects, getPostsLinkingTo, getSiteSettings } from '@/lib/content/source';
+import { postLinks } from '@/lib/content/post-links';
 import { faqsFor } from '@/content/faqs';
 import { clientSectors } from '@/content/client-sectors';
 import { roundedDown, scale, scaleFigures } from '@/content/scale';
@@ -74,9 +76,18 @@ const PROCESS = [
   },
 ] as const;
 
+/**
+ * How many posts the page links to. Every post links here from its closing
+ * paragraph, so the full list would grow without limit; the older ones stay
+ * linked from their sector, service and case-study pages and from the
+ * "More notes" sidebars.
+ */
+const BLOG_POSTS = 6;
+
 export default async function CommercialPage() {
-  const [featuredProjects, settings] = await Promise.all([
+  const [featuredProjects, posts, settings] = await Promise.all([
     getFeaturedProjects(),
+    getPostsLinkingTo('/commercial/').then((all) => all.slice(0, BLOG_POSTS)),
     getSiteSettings(),
   ]);
 
@@ -193,6 +204,12 @@ export default async function CommercialPage() {
       <ContentBlock heading="Commercial painting questions">
         <FaqList items={faqsFor('commercial')} />
       </ContentBlock>
+
+      {posts.length > 0 && (
+        <ContentBlock tone="sunken" heading="From the blog">
+          <RelatedLinks links={postLinks(posts)} />
+        </ContentBlock>
+      )}
 
       <CtaBand
         heading="Request a site assessment"

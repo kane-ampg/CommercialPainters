@@ -426,6 +426,8 @@ const SITES: readonly (Omit<WorkGallery, 'images'> & { cover: string })[] = [
     slug: 'our-lady-of-the-pines',
     label: 'Our Lady of the Pines Primary School',
     buildingType: 'Primary school teaching block',
+    // From the school's own contact page (77 Carbine Street), 12 October 2026.
+    suburb: 'Donvale',
     caption:
       'A primary school teaching block mid-repaint: doorways masked and cut in by brush and roller, detached cupboard doors rolled flat on the tables, joinery pulled clear of the walls.',
     sectorSlug: 'education-and-childcare',

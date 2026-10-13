@@ -22,6 +22,11 @@ import type { Post } from '@/lib/content/types';
  * tests/unit/page-metadata.test.ts checks every one of these rules against
  * every post.
  *
+ * Link each post to its sector, service or case-study page: that page lists
+ * the posts that link to it (lib/content/post-links.ts), which is how a
+ * crawler reaches a post from outside /blog/. tests/unit/post-links.test.ts
+ * fails a post that links to none of them.
+ *
  * Posts are published as the business, not under an invented personal byline
  * — see `blogPostingSchema` in lib/schema/index.ts.
  */

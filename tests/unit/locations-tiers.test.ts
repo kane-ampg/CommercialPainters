@@ -15,17 +15,24 @@ import { qldPresence } from '@/content/locations.overrides';
 /**
  * Tiers and indexability — the mechanism that makes 1,387 pages safe.
  *
- * 17 indexable pages, not 1,387. If this count moves, someone has changed the
+ * 19 indexable pages, not 1,387. If this count moves, someone has changed the
  * risk profile of the whole site and should have to say so in a diff.
  *
  * 2026-08-27: 16 -> 17. Brighton VIC promoted to Tier 1: it carries
  * hand-written copy and the documented Newbay Medical project — the exact
  * evidence bar the tiering exists to enforce.
+ *
+ * 2026-10-12: 17 -> 18. Croydon VIC promoted to Tier 1: two photographed
+ * sites in the suburb, a blog post built on one of them, and hand-written copy.
+ *
+ * 2026-10-12: 18 -> 19. Donvale VIC promoted to Tier 1: a photographed site
+ * in the suburb (Our Lady of the Pines), a blog post built on it, and
+ * hand-written copy.
  */
 
 describe('indexability', () => {
-  it('makes exactly 17 suburbs indexable', () => {
-    expect(indexableLocalities()).toHaveLength(17);
+  it('makes exactly 19 suburbs indexable', () => {
+    expect(indexableLocalities()).toHaveLength(19);
   });
 
   it('includes Bayswater North, which is the business’s own office', () => {
@@ -38,6 +45,16 @@ describe('indexability', () => {
     expect(slugs).toContain('VIC|brighton');
   });
 
+  it('includes Croydon, which carries two photographed sites and hand-written copy', () => {
+    const slugs = indexableLocalities().map((l) => `${l.state}|${l.slug}`);
+    expect(slugs).toContain('VIC|croydon');
+  });
+
+  it('includes Donvale, which carries a photographed site, a blog post and hand-written copy', () => {
+    const slugs = indexableLocalities().map((l) => `${l.state}|${l.slug}`);
+    expect(slugs).toContain('VIC|donvale');
+  });
+
   it('indexes no Queensland locality while qldPresence is false', () => {
     expect(qldPresence).toBe(false);
     expect(indexableLocalities().filter((l) => l.state === 'QLD')).toEqual([]);
@@ -48,7 +65,7 @@ describe('indexability', () => {
   });
 
   it('marks every other locality noindex', () => {
-    expect(allLocalities().filter((l) => !l.indexable)).toHaveLength(1370);
+    expect(allLocalities().filter((l) => !l.indexable)).toHaveLength(1368);
   });
 
   it('never marks a Tier 3 locality indexable', () => {

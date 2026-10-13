@@ -9,7 +9,7 @@
 2. **Indexability is computed, never stored.** `computeIndexable()` in `lib/locations/index.ts` is
    the one rule for suburbs. `stateIsIndexable()` carries it up to hubs. The sitemap filters on the
    same functions the pages render their robots directive from, so the two cannot disagree.
-3. **`noindex, follow`, never `nofollow`.** The 1,370 noindexed suburb pages exist to be crawled
+3. **`noindex, follow`, never `nofollow`.** The 1,368 noindexed suburb pages exist to be crawled
    and pass equity up to the region hubs. `buildMetadata()` keeps `index` and `follow` independent.
 4. **Nothing invented in structured data.** No hours, coordinates or ratings the business has not
    supplied.
@@ -24,23 +24,25 @@
 | Case studies | 4           | 4         | always                                                                       |
 | State hubs   | 2           | 1         | Victoria yes, Queensland while `qldPresence` is false no                     |
 | Region hubs  | 22          | 9         | the nine Victorian regions                                                   |
-| Suburb pages | 1,387       | 17        | Tier 1, not rural fringe, Victorian (or Queensland once `qldPresence` flips) |
+| Suburb pages | 1,387       | 19        | Tier 1, not rural fringe, Victorian (or Queensland once `qldPresence` flips) |
 | Blog index   | 1           | 0         | indexable once `content/posts.ts` has an entry                               |
-| **Total**    | about 1,440 | **47**    |                                                                              |
+| **Total**    | about 1,440 | **49**    |                                                                              |
 
 ### Suburb tiers
 
 Two tiers, numbered 1 and 3 on purpose (region hubs are the middle of the hierarchy but a
 different entity).
 
-- **Tier 1**: indexable, hand-written. Fifteen come from the generator's seed list and two more
-  from `TIER_1_OVERRIDES` in `content/locations.overrides.ts` (Bayswater North, the office suburb,
-  and Brighton, which has a documented project and hand-written copy).
-- **Tier 3**: templated, `noindex, follow`. 1,370 of them.
+- **Tier 1**: indexable, hand-written. Fifteen come from the generator's seed list and four more
+  from `TIER_1_OVERRIDES` in `content/locations.overrides.ts`: Bayswater North, the office suburb;
+  Brighton, which has a documented project and hand-written copy; Croydon (12 October 2026),
+  which has two photographed sites, a blog post and hand-written copy; and Donvale (12 October
+  2026), which has one photographed site, a blog post and hand-written copy.
+- **Tier 3**: templated, `noindex, follow`. 1,368 of them.
 
-The 17 indexable suburbs: Bayswater, Bayswater North, Box Hill, Braeside, Brighton, Campbellfield,
-Chirnside Park, Clayton, Dandenong South, Laverton North, Notting Hill, Port Melbourne, Richmond,
-Ringwood, South Melbourne, Tullamarine, Vermont.
+The 19 indexable suburbs: Bayswater, Bayswater North, Box Hill, Braeside, Brighton, Campbellfield,
+Chirnside Park, Clayton, Croydon, Dandenong South, Donvale, Laverton North, Notting Hill, Port
+Melbourne, Richmond, Ringwood, South Melbourne, Tullamarine, Vermont.
 
 Three Victorian region hubs have no indexable child: Inner East, Northern Melbourne, Yarra Valley
 and Hinterland. The last can never have one under current rules because all 106 of its localities
@@ -193,10 +195,10 @@ Requesting indexing through URL Inspection on `/`, `/commercial/`, `/contact-us/
 
 There are two profiles, and the site uses them for different things.
 
-| Profile | Place ID | Used for |
-| --- | --- | --- |
-| The business's own, 1 Turbo Drive, Bayswater North (verified, new) | `ChIJA6digAI71moRKXSFas1hjRI` | `sameAs` in `lib/site.ts`, the entity link |
-| The group's earlier profile, Chirnside Park (5.0 from 70 reviews) | `ChIJnV9lqRIw1moRftY3Ankvfdw` | The review figure and "Read them on Google" link in `content/reviews.ts` |
+| Profile                                                            | Place ID                      | Used for                                                                 |
+| ------------------------------------------------------------------ | ----------------------------- | ------------------------------------------------------------------------ |
+| The business's own, 1 Turbo Drive, Bayswater North (verified, new) | `ChIJA6digAI71moRKXSFas1hjRI` | `sameAs` in `lib/site.ts`, the entity link                               |
+| The group's earlier profile, Chirnside Park (5.0 from 70 reviews)  | `ChIJnV9lqRIw1moRftY3Ankvfdw` | The review figure and "Read them on Google" link in `content/reviews.ts` |
 
 The own profile's address and phone match `lib/site.ts`. Its name does not: Google lists it under
 the group name, while the site trades as Commercial Painters by the client's decision of 29

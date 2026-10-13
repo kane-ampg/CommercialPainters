@@ -7,7 +7,8 @@ import { Container, mediaZoom, Placeholder, Section, SectionHeading } from '@/co
 import { JsonLd } from '@/components/seo/json-ld';
 import { projectSchema } from '@/lib/schema';
 import { isPlaceholder } from '@/lib/content/types';
-import type { Project, Sector, Service, SiteSettings } from '@/lib/content/types';
+import type { Post, Project, Sector, Service, SiteSettings } from '@/lib/content/types';
+import { postLinks } from '@/lib/content/post-links';
 import { serviceLinks } from '@/content/services';
 import { displayName, getLocalityByHref, hrefForVicSlug } from '@/lib/locations';
 
@@ -47,6 +48,8 @@ type Props = {
    * lookup is async, so this component stays a plain sync render.
    */
   relatedServices?: readonly Service[];
+  /** Posts that link to this case study, linked back from the sidebar. */
+  posts?: readonly Post[];
   /** Business details, for the closing call-to-action's phone number. */
   settings: SiteSettings;
 };
@@ -55,7 +58,13 @@ type Props = {
  * The project case-study body: everything the public page renders below its
  * `notFound()` guard.
  */
-export function ProjectArticle({ project, sector, relatedServices = [], settings }: Props) {
+export function ProjectArticle({
+  project,
+  sector,
+  relatedServices = [],
+  posts = [],
+  settings,
+}: Props) {
   const cover = project.images[0];
   const gallery = project.images.slice(1);
 
@@ -178,6 +187,8 @@ export function ProjectArticle({ project, sector, relatedServices = [], settings
               </div>
 
               <RelatedLinks heading="Related services" links={serviceLinks(relatedServices)} />
+
+              <RelatedLinks heading="From the blog" links={postLinks(posts)} />
 
               <RelatedLinks
                 heading="Nearby"

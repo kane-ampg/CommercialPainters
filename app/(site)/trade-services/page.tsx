@@ -8,12 +8,14 @@ import {
   Hero,
   MediaFigure,
   ProseWithFigure,
+  RelatedLinks,
   ScheduleList,
 } from '@/components/sections';
 import { JsonLd } from '@/components/seo/json-ld';
 import { faqSchema, serviceSchema } from '@/lib/schema';
 import { Container, Prose } from '@/components/ui';
-import { getService, getSiteSettings } from '@/lib/content/source';
+import { getPostsLinkingTo, getService, getSiteSettings } from '@/lib/content/source';
+import { postLinks } from '@/lib/content/post-links';
 import { tradeFaqs } from '@/content/faqs';
 
 /**
@@ -65,8 +67,9 @@ const SEQUENCE = [
 const SIDE_FIGURE_SIZES = '(min-width: 1152px) 544px, (min-width: 1024px) 50vw, 100vw';
 
 export default async function TradeServicesPage() {
-  const [service, settings] = await Promise.all([
+  const [service, posts, settings] = await Promise.all([
     getService('builders-and-head-contractors'),
+    getPostsLinkingTo('/trade-services/'),
     getSiteSettings(),
   ]);
 
@@ -153,6 +156,12 @@ export default async function TradeServicesPage() {
       <ContentBlock heading="Builder and head contractor questions">
         <FaqList items={tradeFaqs} />
       </ContentBlock>
+
+      {posts.length > 0 && (
+        <ContentBlock tone="sunken" heading="From the blog">
+          <RelatedLinks links={postLinks(posts)} />
+        </ContentBlock>
+      )}
 
       <CtaBand
         heading="Painting on your build?"

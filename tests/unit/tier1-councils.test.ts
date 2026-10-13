@@ -27,6 +27,8 @@ const VERIFIED_COUNCILS: Record<string, string> = {
   'VIC|campbellfield': 'Hume',
   'VIC|chirnside-park': 'Yarra Ranges',
   'VIC|clayton': 'Monash',
+  'VIC|croydon': 'Maroondah',
+  'VIC|donvale': 'Manningham',
   'VIC|dandenong-south': 'Greater Dandenong',
   'VIC|laverton-north': 'Wyndham',
   'VIC|notting-hill': 'Monash',

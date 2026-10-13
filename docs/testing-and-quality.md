@@ -65,7 +65,7 @@ Grouped by what would go wrong without them.
 | `sector-indexation.test.ts`                                                   | All eight sectors indexable and in the sitemap                                                                              |
 | `area-hub-indexation.test.ts`                                                 | State and region hubs follow `stateIsIndexable`; the sitemap never lists a noindex hub, including after `qldPresence` flips |
 | `blog-indexation.test.ts`                                                     | Blog index, sitemap entry and nav slots all derive from post count                                                          |
-| `locations-tiers.test.ts`, `locality-pages.test.ts`, `locations-data.test.ts` | Tier rules, 17 indexable suburbs, dataset shape and total                                                                   |
+| `locations-tiers.test.ts`, `locality-pages.test.ts`, `locations-data.test.ts` | Tier rules, 19 indexable suburbs, dataset shape and total                                                                   |
 | `tier1-councils.test.ts`, `council-overrides.test.ts`, `councils.test.ts`     | Every indexable page states the verified council; the three corrected councils stay corrected                               |
 | `regions.test.ts`, `geo.test.ts`                                              | Region definitions, sentence forms, haversine                                                                               |
 | `page-metadata.test.ts`, `meta-description.test.ts`                           | Every page has title, description, canonical; descriptions cut cleanly                                                      |

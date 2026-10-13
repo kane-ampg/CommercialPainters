@@ -580,16 +580,19 @@ export function RelatedLinks({
   heading,
   links,
 }: {
-  heading: string;
+  /** Left off where the links sit under a section heading of their own. */
+  heading?: string;
   links: readonly { label: string; href: string }[];
 }) {
   if (links.length === 0) return null;
 
   return (
     <div>
-      <h2 className="mb-4 text-xs font-semibold uppercase tracking-label text-ink-muted">
-        {heading}
-      </h2>
+      {heading && (
+        <h2 className="mb-4 text-xs font-semibold uppercase tracking-label text-ink-muted">
+          {heading}
+        </h2>
+      )}
       <ul className="flex flex-wrap gap-2">
         {links.map((link) => (
           <li key={link.href}>

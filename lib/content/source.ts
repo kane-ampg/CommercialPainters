@@ -3,6 +3,7 @@ import { posts as allPosts } from '@/content/posts';
 import { projects as allProjects } from '@/content/projects';
 import { services as allServices } from '@/content/services';
 import { defaultContactPage, defaultSiteSettings } from '@/lib/site';
+import { postLinksTo } from './post-links';
 
 /**
  * The content adapter.
@@ -47,6 +48,11 @@ export async function getService(slug: string): Promise<Service | undefined> {
 /** Newest first. */
 export async function getPosts(): Promise<Post[]> {
   return [...allPosts].sort((a, b) => b.publishedAt.localeCompare(a.publishedAt));
+}
+
+/** Newest first: the posts whose page links to `path` (see lib/content/post-links.ts). */
+export async function getPostsLinkingTo(path: string): Promise<Post[]> {
+  return (await getPosts()).filter((post) => postLinksTo(post, path));
 }
 
 export async function getPost(slug: string): Promise<Post | undefined> {

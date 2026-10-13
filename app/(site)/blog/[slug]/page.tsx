@@ -5,6 +5,7 @@ import { JsonLd } from '@/components/seo/json-ld';
 import { PostArticle } from '@/components/pages/post-article';
 import { blogPostingSchema } from '@/lib/schema';
 import { getPost, getPosts, getService, getSiteSettings } from '@/lib/content/source';
+import { morePosts } from '@/lib/content/post-links';
 
 export async function generateStaticParams() {
   return (await getPosts()).map((post) => ({ slug: post.slug }));
@@ -51,7 +52,7 @@ export default async function BlogPostPage({ params }: Props) {
       <PostArticle
         post={post}
         relatedServices={relatedServices}
-        morePosts={allPosts.filter((other) => other.slug !== post.slug).slice(0, MORE_POSTS)}
+        morePosts={morePosts(post, allPosts, MORE_POSTS)}
         settings={settings}
       />
     </>

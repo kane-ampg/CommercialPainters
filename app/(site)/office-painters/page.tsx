@@ -8,11 +8,13 @@ import {
   FeatureGrid,
   Hero,
   ProjectGrid,
+  RelatedLinks,
 } from '@/components/sections';
 import { Container, Prose, Section, SectionHeading } from '@/components/ui';
 import { JsonLd } from '@/components/seo/json-ld';
 import { faqSchema, serviceSchema } from '@/lib/schema';
-import { getProject, getService, getSiteSettings } from '@/lib/content/source';
+import { getPostsLinkingTo, getProject, getService, getSiteSettings } from '@/lib/content/source';
+import { postLinks } from '@/lib/content/post-links';
 import { officeFaqs } from '@/content/faqs';
 
 /**
@@ -69,9 +71,10 @@ const OFFICE_SURFACES = [
 ];
 
 export default async function OfficePaintersPage() {
-  const [service, ndis, settings] = await Promise.all([
+  const [service, ndis, posts, settings] = await Promise.all([
     getService('office-painting'),
     getProject('ndis-commercial-painting'),
+    getPostsLinkingTo('/office-painters/'),
     getSiteSettings(),
   ]);
 
@@ -170,6 +173,12 @@ export default async function OfficePaintersPage() {
       <ContentBlock tone="sunken" heading="Office painting questions">
         <FaqList items={officeFaqs} />
       </ContentBlock>
+
+      {posts.length > 0 && (
+        <ContentBlock heading="From the blog">
+          <RelatedLinks links={postLinks(posts)} />
+        </ContentBlock>
+      )}
 
       <CtaBand
         heading="Repainting your workplace?"
